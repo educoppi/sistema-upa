@@ -1,8 +1,24 @@
 .logo {
     display: flex;
     margin: 10px;
+    align-items: center;
+    justify-content: space-between;
+    width: 300px;
 }
 
 .imagem {
-    width: 130px;
+    width: 120px;
+    height: auto;
+}
+
+.container {
+    color: #ffffff;
+}
+
+.container h2 {
+
+}
+
+.container h4 {
+    color: #BBE2EC;
 }

@@ -4,8 +4,10 @@ export default function Logo() {
     return (
         <div className={styles.logo}>
             <img className={styles.imagem} src="images/logo.png" alt="" />
-            <h3>UPA</h3>
-            <h5>Unidade de Pronto Atendimento</h5>
+            <div className={styles.container}>
+                <h2>São Lucas</h2>
+                <h4>Pronto Atendimento</h4>
+            </div>
         </div>
     );
 }
