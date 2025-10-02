@@ -1,31 +1,47 @@
-.tabela {
-    width: 100%;
-    max-width: 400px;
-    border-collapse: collapse;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
+.container {
+  display: flex;
+  justify-content: center; /* centraliza horizontalmente */
+  padding-top: 60px; 
  
-  }
+}
+
+.tabelaWrapper {
+  width: 100%;
+  max-width: 400px; /* limita a largura da tabela e botão */
+  display: flex;
+  flex-direction: column; /* empilha tabela e botão */
+  gap: 2px; /* espaço entre tabela e botão */
   
-  .tabela th,
-  .tabela td {
-    border: 1px solid #000000;
-    padding: 8px;
-    text-align: left;
-    text-align: center;
-  }
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  background-color: rgb(255, 255, 255);
+ 
+}
+
+.tabela th,
+.tabela td {
+  border: 1px solid #000000;
+  padding: 8px;
+  text-align: center;
+ 
+}
+
+.tabela thead {
+  background-color: #0d9276;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
   
-  .tabela thead {
-    background-color: #f0f0f0;
-  }
   
-  .tabela tr:hover {
-    background-color: #f9f9f9;
-  }
-  .container {
-    display: flex;
-    justify-content: center;   /* Centraliza horizontalmente */
-    align-items: center;       /* Centraliza verticalmente */
-    height: calc(100vh - 60px); /* Altura total da tela - altura do header */
-  }
-  
+}
+
+
+.botao {
+  width: 100%; 
+}
+
+
