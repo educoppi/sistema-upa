@@ -7,7 +7,7 @@ export default function Doctor() {
     <>
       < Header/>
       < Table/>
-      < Button/>
+      
     </>
   )
 }
