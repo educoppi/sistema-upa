@@ -1,13 +1,9 @@
-import {HeaderLogin} from "@/components/Header";
-import Botao from "@/components/Button";
-import Tabela from "@/components/TabelaIniciar";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <>
-    < HeaderLogin/>
-     <Tabela/>
-     < Botao/>
+        <Link href="/Views/Doctor">Login</Link>
     </>
   );
 }
