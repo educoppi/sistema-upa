@@ -1,0 +1,31 @@
+.tabela {
+    width: 100%;
+    max-width: 400px;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+ 
+  }
+  
+  .tabela th,
+  .tabela td {
+    border: 1px solid #000000;
+    padding: 8px;
+    text-align: left;
+    text-align: center;
+  }
+  
+  .tabela thead {
+    background-color: #f0f0f0;
+  }
+  
+  .tabela tr:hover {
+    background-color: #f9f9f9;
+  }
+  .container {
+    display: flex;
+    justify-content: center;   /* Centraliza horizontalmente */
+    align-items: center;       /* Centraliza verticalmente */
+    height: calc(100vh - 60px); /* Altura total da tela - altura do header */
+  }
+  
