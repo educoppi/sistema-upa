@@ -4,7 +4,7 @@ function Button() {
   return (
  
         <button type="button" className={styles.button}>
-          Enviar
+          ENVIAR
         </button>
      
   );
