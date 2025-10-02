@@ -1,9 +1,9 @@
-import Styles from './Styles.module.css';
+import styles from './Styles.module.css';
 
 function Button() {
   return (
  
-        <button type="button" className={Styles.button}>
+        <button type="button" className={styles.button}>
           Enviar
         </button>
      

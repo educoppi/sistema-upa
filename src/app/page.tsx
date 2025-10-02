@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import Botao from "@/components/Header/Button";
+import Botao from "@/components/Button";
 
 
 
