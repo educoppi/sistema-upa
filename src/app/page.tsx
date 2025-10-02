@@ -1,8 +1,6 @@
-import Header from "@/components/Header";
+import {Header} from "@/components/Header";
 import Botao from "@/components/Button";
 import Tabela from "@/components/TabelaIniciar";
-
-
 
 export default function Home() {
   return (
