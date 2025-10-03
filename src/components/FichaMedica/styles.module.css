@@ -1,0 +1,42 @@
+/* FichaMedica - ocupando 80% da tela */
+.fichaContainer {
+  width: 80%;           /* ocupa 80% da largura da tela */
+  max-width: 1200px;    /* opcional: limite máximo para telas grandes */
+  margin: 20px auto;    /* centraliza horizontalmente */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;            /* espaço entre seções */
+  font-family: Arial, sans-serif;
+}
+
+/* Caixa de informações principais */
+.infoBox {
+  border: 2px solid #1e9a81;
+  padding: 16px;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;      /* permite que os itens quebrem linha */
+  gap: 45px;
+}
+
+/* Cada item de informação dentro da infoBox */
+.infoBox > div {
+  flex: 1 1 200px;      /* ocupa pelo menos 200px, cresce se houver espaço */
+}
+
+/* Anotações e cartões de receita/encaminhamento */
+.anotacoesBox, .card {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 6px;
+}
+
+/* Caixa quando não houver receita ou encaminhamento */
+.emptyBox {
+  text-align: center;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
