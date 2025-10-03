@@ -1,0 +1,8 @@
+/* SegmentoCard */
+.segmentoCard {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px; /* separa da próxima seção */
+  background-color: #fff; /* opcional */
+}
