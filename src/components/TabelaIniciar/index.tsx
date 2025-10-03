@@ -1,15 +1,44 @@
 "use client";
 
-import styles from './Styles.module.css';
-import Button from '../Button';
 import { useState } from "react";
+import styles from "./styles.module.css";
+import Button from "../Button";
+import FichaMedica from "../FichaMedica";
 
-function Tabela() {
+type Paciente = {
+  id: number;
+  nome: string;
+  nivel: number;
+  dataNascimento?: string;
+  sintomas?: string;
+  alergias?: string;
+  remedioControlado?: string;
+  anotacoes?: string;
+};
+
+export default function TabelaIniciar() {
   const [mostrarFicha, setMostrarFicha] = useState(false);
 
-  const dados = [
-    { id: 1, nome: "João coppi soares", nivel: 5 },
+  // dados de exemplo (pode vir da API)
+  const dados: Paciente[] = [
+    {
+      id: 1,
+      nome: "João Coppi Soares",
+      nivel: 5,
+      dataNascimento: "1990-05-10",
+      sintomas: "Dor de cabeça",
+      alergias: "Nenhuma",
+      remedioControlado: "Não",
+      anotacoes: "Paciente relatou dor a 3 dias..."
+    },
   ];
+
+  // paciente fixo que será usado ao iniciar
+  const pacientePadrao = dados[0];
+
+  function iniciarAtendimento() {
+    setMostrarFicha(true);
+  }
 
   return (
     <div className={styles.container}>
@@ -34,18 +63,16 @@ function Tabela() {
             </tbody>
           </table>
 
-          <Button onClick={() => setMostrarFicha(true)}>INICIAR</Button>
+          <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
+            <Button onClick={iniciarAtendimento}>INICIAR</Button>
+          </div>
         </div>
       ) : (
-        <div>
-          <h2>Ficha Médica</h2>
-          <p>Aqui vai aparecer as informações do paciente selecionado...</p>
-
-          <Button onClick={() => setMostrarFicha(false)}>VOLTAR</Button>
-        </div>
+        <FichaMedica
+          paciente={pacientePadrao}
+          onVoltar={() => setMostrarFicha(false)}
+        />
       )}
     </div>
   );
 }
-
-export default Tabela;
