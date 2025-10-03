@@ -42,7 +42,7 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
     <div style={{ width: "80%", margin: "20px auto", fontFamily: "Arial, sans-serif" }}>
 
       {/* FICHA MÉDICA */}
-      <TituloMinimizavel title="Ficha Médica" isOpen={showFicha} onToggle={() => setShowFicha(!showFicha)} />
+      <TituloMinimizavel title="Ficha Médica" isOpen={showFicha} onAlterna={() => setShowFicha(!showFicha)} />
       {showFicha && (
         <SegmentoCard>
           <div><strong>Nome:</strong> {paciente.nome}</div>
@@ -66,7 +66,7 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
       )}
 
       {/* RECEITA */}
-      <TituloMinimizavel title="Receita" isOpen={showReceita} onToggle={() => setShowReceita(!showReceita)} />
+      <TituloMinimizavel title="Receita" isOpen={showReceita} onAlterna={() => setShowReceita(!showReceita)} />
       {showReceita && (
         <SegmentoCard>
           {receitas.length === 0 ? (
@@ -82,7 +82,7 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
       )}
 
       {/* ENCAMINHAMENTO */}
-      <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onToggle={() => setShowEncaminhamento(!showEncaminhamento)} />
+      <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onAlterna={() => setShowEncaminhamento(!showEncaminhamento)} />
       {showEncaminhamento && (
         <SegmentoCard>
           {encaminhamentos.length === 0 ? (
