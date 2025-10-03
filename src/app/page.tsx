@@ -5,6 +5,9 @@ import TextField from "@/components/TextField";
 import { HeaderLogin } from "@/components/Header";
 
 export default function Home() {
+
+  
+
   return (
     <>
     <div className={style.tela}>
@@ -20,7 +23,7 @@ export default function Home() {
           <h3 className={style.titulo}>LOGIN</h3>
           <div className={style.inputs}>
             < TextField label="CPF" placeholder="CPF"/>
-            < TextField label="Senha" placeholder="CPF"/>
+            < TextField label="Senha" placeholder="Senha"/>
           </div>
           <Button>ENTRAR</Button>
           
