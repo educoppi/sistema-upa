@@ -15,19 +15,20 @@ export default function Farmacia() {
     <>
       < Header />
       <TabGroup tabs={tabs} name="farmacia" />
+      <div className={styles.container}>
+        <h2>CONTROLE DE MEDICAMENTOS</h2>
 
-      <h2>CONTROLE DE MEDICAMENTOS</h2>
-
-      <div className={styles.form}>
-        <TextField label="Nome" />
-        <TextField label="Dosagem" />
+        <div className={styles.form}>
+          <TextField type="text" label="Nome" />
+          <TextField type="text" label="Dosagem" />
 
 
 
-        <TextField label="Quantidade" />
-        <TextField label="Vencimento" />
+          <TextField type="text" label="Quantidade" />
+          <TextField type="date" label="Vencimento" />
 
-        <Button>CADASTRAR</Button>
+          <Button>CADASTRAR</Button>
+        </div>
       </div>
 
 

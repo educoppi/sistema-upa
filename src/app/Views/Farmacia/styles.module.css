@@ -1,4 +1,24 @@
+
+
+.container{
+  display: flex;
+  width: 400px;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 60vh;
+  margin: 0 auto;
+  gap: 100px;
+  border-radius: 25px;
+}
+
+
+
 .form {
     display: flex;
     flex-direction: column;
+    max-width: 500px;
+    gap: 10px;
 }
+
+
