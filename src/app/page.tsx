@@ -13,7 +13,7 @@ export default function Home() {
     <Link href="/Views/Doctor">Login</Link>
     <Link href="/Views/Farmacia">Farmácia</Link>
 
-      <body className={style.centralizador}>
+      <div className={style.centralizador}>
 
         <div className={style.container}>
 
@@ -25,7 +25,7 @@ export default function Home() {
           <Button>ENTRAR</Button>
           
         </div>
-      </body>
+      </div>
 
     </div>
     </>
