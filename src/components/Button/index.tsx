@@ -1,20 +1,20 @@
 import styles from './styles.module.css';
-import Link from 'next/link';
 
+type ButtonProps = {
+  children: React.ReactNode;
+  onClick?: () => void;
+};
 
-
-
-
-function Button() {
+function Button({ children, onClick }: ButtonProps) {
   return (
- 
-        <button type="button" className={styles.button}>
-          INICIAR
-        </button>
-      
-     
+    <button 
+      type="button" 
+      className={styles.button}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   );
-
 }
 
 export default Button;

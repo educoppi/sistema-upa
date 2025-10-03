@@ -5,7 +5,8 @@ import Button from "@/components/Button";
 export default function Home() {
   return (
     <>
-        <Link className={style.link} href="/Views/Doctor">Login</Link>
+        <Link href="/Views/Doctor">Login</Link>
+        <Link href="/Views/Farmacia">Farmácia</Link>
 
         <div className={style.container}>
           <h3>Login</h3>
