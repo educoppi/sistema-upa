@@ -3,7 +3,7 @@
 import { useState } from "react";
 import styles from "./styles.module.css";
 import Button from "../Button";
-import FichaMedica from "../FichaMedica";
+import FichaMedica from "../Atendimento";
 
 type Paciente = {
   id: number;
@@ -33,7 +33,7 @@ export default function TabelaIniciar() {
     },
   ];
 
-  // paciente fixo que será usado ao iniciar
+  // paciente fixo que será usado ao iniciar por enquanto
   const pacientePadrao = dados[0];
 
   function iniciarAtendimento() {
