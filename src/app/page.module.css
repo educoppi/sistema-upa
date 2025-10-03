@@ -3,7 +3,7 @@
   flex-direction: column;
 }
 
-body.centralizador{
+.centralizador{
   display: flex;
   justify-content: center;
   align-items: center;
