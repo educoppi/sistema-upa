@@ -63,9 +63,8 @@ export default function TabelaIniciar() {
             </tbody>
           </table>
 
-          <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
             <Button onClick={iniciarAtendimento}>INICIAR</Button>
-          </div>
+    
         </div>
       ) : (
         <FichaMedica
