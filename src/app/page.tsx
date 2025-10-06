@@ -6,8 +6,12 @@ import TextField from "@/components/TextField";
 import { HeaderLogin } from "@/components/Header";
 import axios, { AxiosResponse } from 'axios';
 import { useState } from "react";
+import { useRouter } from 'next/router';
+
 
 export default function Home() {
+
+  const router = useRouter();
 
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
@@ -25,8 +29,6 @@ export default function Home() {
     })
   }
 
-
-
   function getUser(){
     axios.get('http://localhost:3000/users/logado', {
       headers: {
@@ -38,9 +40,17 @@ export default function Home() {
       console.log(response.data)
       localStorage.setItem('token', token);
       localStorage.setItem('usuario', response.data);
-    })
 
+      direcionaTela()
+    })
   }
+
+  function direcionaTela() {
+    router.push('/Views/Doctor')
+  }
+
+
+
 
   return (
     <>
