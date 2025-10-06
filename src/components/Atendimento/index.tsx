@@ -47,10 +47,10 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
         <SegmentoCard className={styles.card}>
           <div className={styles.infoBox}>
             <div><strong>Nome:</strong> {paciente.nome}</div>
-            <div><strong>Data nascimento:</strong> {paciente.dataNascimento ?? "-"}</div>
+            <div><strong>Data nascimento:</strong> {paciente.dataNascimento ?? " "}</div>
             <div><strong>Nível:</strong> {paciente.nivel}</div>
-            <div><strong>Sintomas:</strong> {paciente.sintomas ?? "-"}</div>
-            <div><strong>Alergias:</strong> {paciente.alergias ?? "-"}</div>
+            <div><strong>Sintomas:</strong> {paciente.sintomas ?? " "}</div>
+            <div><strong>Alergias:</strong> {paciente.alergias ?? " "}</div>
             <div><strong>Remédio controlado:</strong> {paciente.remedioControlado ?? "-"}</div>
           </div>
 
@@ -59,7 +59,7 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
             <textarea
               value={anotacoes}
               onChange={(e) => setAnotacoes(e.target.value)}
-              placeholder="Digite aqui as observações..."
+              placeholder="Digite aqui ..."
               rows={6}
               style={{ width: "100%", padding: 8, fontSize: 14, borderRadius: 4 }}
             />

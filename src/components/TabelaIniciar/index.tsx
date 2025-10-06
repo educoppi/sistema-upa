@@ -29,7 +29,7 @@ export default function TabelaIniciar() {
       sintomas: "Dor de cabeça",
       alergias: "Nenhuma",
       remedioControlado: "Não",
-      anotacoes: "Paciente relatou dor a 3 dias..."
+      anotacoes: ""
     },
   ];
 
