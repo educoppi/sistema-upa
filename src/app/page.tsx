@@ -6,7 +6,8 @@ import TextField from "@/components/TextField";
 import { HeaderLogin } from "@/components/Header";
 import axios, { AxiosResponse } from 'axios';
 import { useState } from "react";
-import { useRouter } from 'next/router';
+import { useRouter } from "next/navigation";
+
 
 
 export default function Home() {
@@ -30,6 +31,7 @@ export default function Home() {
   }
 
   function getUser(){
+    console.log(token)
     axios.get('http://localhost:3000/users/logado', {
       headers: {
         'Authorization': `Bearer ${token}`,
