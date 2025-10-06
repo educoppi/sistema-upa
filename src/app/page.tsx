@@ -23,25 +23,25 @@ export default function Home() {
     axios.post('http://localhost:3000/users/login', { cpf, senha })
       .then(function (response: AxiosResponse) {
         setToken(response.data.token)
-        getUser()
+        getUser(token)
     })
         .catch(function () {
           console.log("erro")
     })
   }
 
-  function getUser(){
-    console.log(token)
+  function getUser(tokenRecebido: string){
+    console.log(tokenRecebido)
     axios.get('http://localhost:3000/users/logado', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${tokenRecebido}`,
         'Content-Type': 'application/json'
       }
     })
     .then(response => {
       console.log(response.data)
-      localStorage.setItem('token', token);
-      localStorage.setItem('usuario', response.data);
+      localStorage.setItem('token', tokenRecebido);
+      localStorage.setItem('usuario', JSON.stringify(response.data));
 
       direcionaTela()
     })
