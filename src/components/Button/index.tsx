@@ -5,8 +5,8 @@ import { CSSProperties } from "react";
 type ButtonProps = {
   children: React.ReactNode;
   onClick?: () => void;
-  style?: CSSProperties;      // precisa estar aqui
-  className?: string;         // precisa estar aqui
+  style?: CSSProperties;      
+  className?: string;      
 };
 
 function Button({ children, onClick, style, className }: ButtonProps) {
@@ -15,7 +15,7 @@ function Button({ children, onClick, style, className }: ButtonProps) {
       type="button"
       className={`${styles.button} ${className ?? ""}`}
       onClick={onClick}
-      style={style}          // repassa style
+      style={style}          
     >
       {children}
     </button>

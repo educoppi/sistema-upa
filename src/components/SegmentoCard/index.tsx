@@ -4,7 +4,7 @@ import styles from "./styles.module.css";
 
 interface Props {
   children: React.ReactNode;
-  className?: string; // permite passar classes adicionais
+  className?: string;
 }
 
 export default function SegmentoCard({ children, className }: Props) {
