@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useState } from "react";
 import styles from "./styles.module.css";
 import Button from "../Button";
@@ -29,7 +28,7 @@ export default function TabelaIniciar() {
       sintomas: "Dor de cabeça",
       alergias: "Nenhuma",
       remedioControlado: "Não",
-      anotacoes: "Paciente relatou dor a 3 dias..."
+      anotacoes: ""
     },
   ];
 
@@ -63,9 +62,8 @@ export default function TabelaIniciar() {
             </tbody>
           </table>
 
-          <div style={{ marginTop: 12, display: "flex", justifyContent: "center" }}>
             <Button onClick={iniciarAtendimento}>INICIAR</Button>
-          </div>
+    
         </div>
       ) : (
         <FichaMedica

@@ -5,12 +5,54 @@ import Button from "@/components/Button";
 import TextField from "@/components/TextField";
 import { HeaderLogin } from "@/components/Header";
 import axios, { AxiosResponse } from 'axios';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+
 
 export default function Home() {
 
+  const router = useRouter();
+
+  const [cpf, setCpf] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const [token, setToken] = useState("");
+
   function login(){
-    
+    axios.post('http://localhost:3000/users/login', { cpf, senha })
+      .then(function (response: AxiosResponse) {
+        setToken(response.data.token)
+        getUser()
+    })
+        .catch(function () {
+          console.log("erro")
+    })
   }
+
+  function getUser(){
+    console.log(token)
+    axios.get('http://localhost:3000/users/logado', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      console.log(response.data)
+      localStorage.setItem('token', token);
+      localStorage.setItem('usuario', response.data);
+
+      direcionaTela()
+    })
+  }
+
+  function direcionaTela() {
+    router.push('/Views/Doctor')
+  }
+
+
+
 
   return (
     <>
@@ -26,10 +68,11 @@ export default function Home() {
 
           <h3 className={style.titulo}>LOGIN</h3>
           <div className={style.inputs}>
-            < TextField type="text" label="CPF" placeholder="CPF"/>
-            < TextField type="text" label="Senha" placeholder="Senha"/>
+            < TextField type="text" label="CPF" placeholder="CPF" onChange={setCpf} text={cpf}/>
+            < TextField type="password" label="Senha" placeholder="Senha" onChange={setSenha} text={senha}/>
           </div>
-          <Button>ENTRAR</Button>
+
+          <Button onClick={login}>ENTRAR</Button>
           
         </div>
       </div>

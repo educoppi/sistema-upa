@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Button from "../Button";
 import TituloMinimizavel from "../TituloMinimizavel";
 import SegmentoCard from "../SegmentoCard";
+import styles from "./styles.module.css";
 
 
 type Paciente = {
@@ -17,7 +18,6 @@ type Paciente = {
   anotacoes?: string;
 };
 
-// props do componente
 interface Props {
   paciente: Paciente;
   onVoltar: () => void;
@@ -39,25 +39,27 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
   }
 
   return (
-    <div style={{ width: "80%", margin: "20px auto", fontFamily: "Arial, sans-serif" }}>
+    <div className={styles.fichaContainer}>
 
       {/* FICHA MÉDICA */}
       <TituloMinimizavel title="Ficha Médica" isOpen={showFicha} onAlterna={() => setShowFicha(!showFicha)} />
       {showFicha && (
-        <SegmentoCard>
-          <div><strong>Nome:</strong> {paciente.nome}</div>
-          <div><strong>Data nascimento:</strong> {paciente.dataNascimento ?? "-"}</div>
-          <div><strong>Nível:</strong> {paciente.nivel}</div>
-          <div style={{ marginTop: 8 }}><strong>Sintomas:</strong> {paciente.sintomas ?? "-"}</div>
-          <div><strong>Alergias:</strong> {paciente.alergias ?? "-"}</div>
-          <div><strong>Remédio controlado:</strong> {paciente.remedioControlado ?? "-"}</div>
+        <SegmentoCard className={styles.card}>
+          <div className={styles.infoBox}>
+            <div><strong>Nome:</strong> {paciente.nome}</div>
+            <div><strong>Data nascimento:</strong> {paciente.dataNascimento ?? " "}</div>
+            <div><strong>Nível:</strong> {paciente.nivel}</div>
+            <div><strong>Sintomas:</strong> {paciente.sintomas ?? " "}</div>
+            <div><strong>Alergias:</strong> {paciente.alergias ?? " "}</div>
+            <div><strong>Remédio controlado:</strong> {paciente.remedioControlado ?? "-"}</div>
+          </div>
 
-          <div style={{ marginTop: 12 }}>
+          <div className={styles.anotacoesBox}>
             <strong>Anotações:</strong>
             <textarea
               value={anotacoes}
               onChange={(e) => setAnotacoes(e.target.value)}
-              placeholder="Digite aqui as observações..."
+              placeholder="Digite aqui ..."
               rows={6}
               style={{ width: "100%", padding: 8, fontSize: 14, borderRadius: 4 }}
             />
@@ -68,12 +70,12 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
       {/* RECEITA */}
       <TituloMinimizavel title="Receita" isOpen={showReceita} onAlterna={() => setShowReceita(!showReceita)} />
       {showReceita && (
-        <SegmentoCard>
+        <SegmentoCard className={styles.card}>
           {receitas.length === 0 ? (
-            <div style={{ textAlign: "center" }}>
+            <div className={styles.emptyBox}>
               <p>Não possui receitas recentes</p>
               <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => alert("Abrir modal pra criar receita")}>CRIAR</Button>
+              <Button onClick={() => alert("Abrir modal pra criar receita")} style={{ borderRadius: "12px" }}>CRIAR</Button>
             </div>
           ) : (
             <ul>{receitas.map((r, i) => <li key={i}>{r}</li>)}</ul>
@@ -84,12 +86,12 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
       {/* ENCAMINHAMENTO */}
       <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onAlterna={() => setShowEncaminhamento(!showEncaminhamento)} />
       {showEncaminhamento && (
-        <SegmentoCard>
+        <SegmentoCard className={styles.card}>
           {encaminhamentos.length === 0 ? (
-            <div style={{ textAlign: "center" }}>
+            <div className={styles.emptyBox}>
               <p>Não possui encaminhamentos recentes</p>
               <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => alert("Abrir modal para criar encaminhamento")}>CRIAR</Button>
+              <Button onClick={() => alert("Abrir modal para criar encaminhamento")} style={{ borderRadius: "12px" }}>CRIAR</Button>
             </div>
           ) : (
             <ul>{encaminhamentos.map((e, i) => <li key={i}>{e}</li>)}</ul>
@@ -99,10 +101,9 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
 
       {/* BOTÃO FINALIZAR */}
       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-        <Button onClick={finalizarAtendimento}>FINALIZAR</Button>
+        <Button onClick={finalizarAtendimento} style={{ borderRadius: "12px" }}>FINALIZAR</Button>
       </div>
 
     </div>
   );
 }
-// fazer conectar com as infos do banco separar o que vai ser componente(productCard) e fazer os modals de receita e encaminhamento //fazer o historico com o componenete do rafa usestate pra controlar o que aparece e o que não aparece
