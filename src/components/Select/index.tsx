@@ -32,7 +32,11 @@ export default function Select(props: Props) {
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
       >
-        
+        {props.placeholder && (
+          <option value="" disabled>
+            {props.placeholder}
+          </option>
+        )}
         {props.options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
