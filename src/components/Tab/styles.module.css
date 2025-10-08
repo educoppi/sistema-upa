@@ -1,0 +1,9 @@
+.root input{
+background-color: blue;
+visibility: hidden;
+margin: 30px;
+}
+
+.root input:checked {
+    background-color: brown;
+}
