@@ -6,7 +6,6 @@ import TituloMinimizavel from "../TituloMinimizavel";
 import SegmentoCard from "../SegmentoCard";
 import styles from "./styles.module.css";
 
-
 type Paciente = {
   id: number;
   nome: string;
@@ -21,28 +20,31 @@ type Paciente = {
 interface Props {
   paciente: Paciente;
   onVoltar: () => void;
+  onFinalizar: (anotacoes: string) => void;
 }
 
-export default function FichaMedica({ paciente, onVoltar }: Props) {
+export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) {
   const [anotacoes, setAnotacoes] = useState(paciente.anotacoes ?? "");
 
   const [showFicha, setShowFicha] = useState(true);
-  const [showReceita, setShowReceita] = useState(true);
-  const [showEncaminhamento, setShowEncaminhamento] = useState(true);
+  const [showReceita, setShowReceita] = useState(false);
+  const [showEncaminhamento, setShowEncaminhamento] = useState(false);
 
   const receitas: string[] = [];
   const encaminhamentos: string[] = [];
 
   function finalizarAtendimento() {
-    alert(`Atendimento finalizado para ${paciente.nome}\nAnotações:\n${anotacoes}`);
-    onVoltar();
+    onFinalizar(anotacoes);
   }
 
   return (
     <div className={styles.fichaContainer}>
-
       {/* FICHA MÉDICA */}
-      <TituloMinimizavel title="Ficha Médica" isOpen={showFicha} onAlterna={() => setShowFicha(!showFicha)} />
+      <TituloMinimizavel
+        title="Ficha Médica"
+        isOpen={showFicha}
+        onAlterna={() => setShowFicha(!showFicha)}
+      />
       {showFicha && (
         <SegmentoCard className={styles.card}>
           <div className={styles.infoBox}>
@@ -68,14 +70,23 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
       )}
 
       {/* RECEITA */}
-      <TituloMinimizavel title="Receita" isOpen={showReceita} onAlterna={() => setShowReceita(!showReceita)} />
+      <TituloMinimizavel
+        title="Receita"
+        isOpen={showReceita}
+        onAlterna={() => setShowReceita(!showReceita)}
+      />
       {showReceita && (
         <SegmentoCard className={styles.card}>
           {receitas.length === 0 ? (
             <div className={styles.emptyBox}>
               <p>Não possui receitas recentes</p>
               <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => alert("Abrir modal pra criar receita")} style={{ borderRadius: "12px" }}>CRIAR</Button>
+              <Button
+                onClick={() => alert("Abrir modal pra criar receita")}
+                style={{ borderRadius: "12px" }}
+              >
+                CRIAR
+              </Button>
             </div>
           ) : (
             <ul>{receitas.map((r, i) => <li key={i}>{r}</li>)}</ul>
@@ -84,14 +95,23 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
       )}
 
       {/* ENCAMINHAMENTO */}
-      <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onAlterna={() => setShowEncaminhamento(!showEncaminhamento)} />
+      <TituloMinimizavel
+        title="Encaminhamento"
+        isOpen={showEncaminhamento}
+        onAlterna={() => setShowEncaminhamento(!showEncaminhamento)}
+      />
       {showEncaminhamento && (
         <SegmentoCard className={styles.card}>
           {encaminhamentos.length === 0 ? (
             <div className={styles.emptyBox}>
               <p>Não possui encaminhamentos recentes</p>
               <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => alert("Abrir modal para criar encaminhamento")} style={{ borderRadius: "12px" }}>CRIAR</Button>
+              <Button
+                onClick={() => alert("Abrir modal para criar encaminhamento")}
+                style={{ borderRadius: "12px" }}
+              >
+                CRIAR
+              </Button>
             </div>
           ) : (
             <ul>{encaminhamentos.map((e, i) => <li key={i}>{e}</li>)}</ul>
@@ -99,11 +119,22 @@ export default function FichaMedica({ paciente, onVoltar }: Props) {
         </SegmentoCard>
       )}
 
-      {/* BOTÃO FINALIZAR */}
-      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-        <Button onClick={finalizarAtendimento} style={{ borderRadius: "12px" }}>FINALIZAR</Button>
+      {/* BOTÕES */}
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          justifyContent: "flex-end",
+          marginTop: 20,
+        }}
+      >
+        <Button
+          onClick={finalizarAtendimento}
+          style={{ borderRadius: "12px" }}
+        >
+          FINALIZAR
+        </Button>
       </div>
-
     </div>
   );
 }

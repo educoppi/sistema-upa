@@ -1,8 +1,6 @@
 'use client';
-import { useState } from "react";
 import styles from "./styles.module.css";
 import Button from "../Button";
-import FichaMedica from "../Atendimento";
 
 type Paciente = {
   id: number;
@@ -15,10 +13,11 @@ type Paciente = {
   anotacoes?: string;
 };
 
-export default function TabelaIniciar() {
-  const [mostrarFicha, setMostrarFicha] = useState(false);
+type TabelaIniciarProps = {
+  onIniciar: () => void;
+};
 
-  // dados de exemplo (pode vir da API)
+export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
   const dados: Paciente[] = [
     {
       id: 1,
@@ -32,45 +31,32 @@ export default function TabelaIniciar() {
     },
   ];
 
-  // paciente fixo que será usado ao iniciar por enquanto
-  const pacientePadrao = dados[0];
-
-  function iniciarAtendimento() {
-    setMostrarFicha(true);
-  }
-
   return (
     <div className={styles.container}>
-      {!mostrarFicha ? (
-        <div className={styles.tabelaWrapper}>
-          <table className={styles.tabela}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Nível</th>
+      <div className={styles.tabelaWrapper}>
+        <table className={styles.tabela}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Nível</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dados.map((item) => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.nome}</td>
+                <td>{item.nivel}</td>
               </tr>
-            </thead>
-            <tbody>
-              {dados.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.nome}</td>
-                  <td>{item.nivel}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
 
-            <Button onClick={iniciarAtendimento}>INICIAR</Button>
-    
-        </div>
-      ) : (
-        <FichaMedica
-          paciente={pacientePadrao}
-          onVoltar={() => setMostrarFicha(false)}
-        />
-      )}
+        <Button onClick={onIniciar}>
+          INICIAR
+        </Button>
+      </div>
     </div>
   );
 }

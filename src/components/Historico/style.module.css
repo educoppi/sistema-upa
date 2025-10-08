@@ -1,0 +1,60 @@
+.historicoContainer {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  min-height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.mesBox {
+  background: #14896f;
+  color: white;
+  margin: 10px auto 25px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  max-width: 450px;
+}
+
+.mesInfo {
+  text-align: center;
+  font-size: 16px;
+}
+
+.btnSeta {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.btnSeta:hover {
+  transform: scale(1.15);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  justify-items: center;
+  padding: 0 20px;
+}
+
+.card {
+  width: 220px;
+  height: 100px;
+  border: 1px solid #14896f;
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  background: #f7fdfb;
+  transform: scale(1.03);
+}
