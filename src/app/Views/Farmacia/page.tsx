@@ -8,10 +8,6 @@ import Select from '@/components/Select';
 import { Tab, Tabs } from 'react-bootstrap';
 import axios, { AxiosResponse } from 'axios';
 
-
-
-
-
 export default function Farmacia() {
 
   async function cadastrar() {

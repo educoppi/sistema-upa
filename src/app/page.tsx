@@ -27,7 +27,8 @@ export default function Home() {
     axios.post('http://localhost:3000/users/login', { cpf, senha })
       .then(function (response: AxiosResponse) {
         setToken(response.data.token)
-        getUser(token)
+        const tokenRecebido = response.data.token
+        getUser(tokenRecebido)
     })
         .catch(function () {
           console.log("erro")
@@ -66,10 +67,11 @@ export default function Home() {
       router.push('/Views/Farmacia')
     }
 
+    if( usuario.role === 'RECEPCIONIST' ) {
+      router.push('/Views/Reception')
+    }
+
   }
-
-
-
 
   return (
     <>
