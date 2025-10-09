@@ -10,7 +10,7 @@
   max-width: 400px; /* limita a largura da tabela e botão */
   display: flex;
   flex-direction: column; /* empilha tabela e botão */
-  gap: 2px; /* espaço entre tabela e botão */
+  gap: 0px; /* espaço entre tabela e botão */
   
 }
 

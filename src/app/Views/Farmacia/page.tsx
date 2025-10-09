@@ -2,86 +2,110 @@
 import styles from '@/app/Views/Farmacia/styles.module.css'
 import { useState } from "react";
 import { Header } from "@/components/Header";
-import Tab from "@/components/Tab";
-import TabGroup from "@/components/TabGroup";
 import TextField from "@/components/TextField";
 import Button from '@/components/Button';
 import Select from '@/components/Select';
+import { Tab, Tabs } from 'react-bootstrap';
+import axios, { AxiosResponse } from 'axios';
+
+
+
+
 
 export default function Farmacia() {
 
-  // const tabs = [{ "label": "ESTOQUE", "value": "estoque" }, { "label": "SOLICITAÇÕES", "value": "solicitacoes" }, { "label": "VENCIMENTOS", "value": "vencimentos" }]
+  async function cadastrar() {
+    axios.post("http://localhost:3000/medications", cadastrarMedicamento)
+      .then(function (response: AxiosResponse) {
+        console.log("deu certo");
+      })
+      .catch(function () {
+        console.log()
+      })
+  }
+
+  const [cadastrarMedicamento, setCadastrarMedicamento] = useState({
+    name: '',
+    dosage: '',
+    type: '',
+    quantity: '',
+    expiresAt: ''
+  });
 
   return (
     <>
       < Header />
+      <Tabs
+        defaultActiveKey="solicitacoes"
+        id="uncontrolled-tab-example"
+        className="mb-3"
+      >
+        <Tab eventKey="solicitacoes" title="SOLICITAÇÕES">
+        </Tab>
+        <Tab eventKey="cadastro" title="CADASTRO">
+          <div className={styles.container}>
+            <h2>CADASTRO DE MEDICAMENTOS</h2>
 
-      <nav>
-        <div className="nav nav-tabs" id="nav-tab" role="tablist">
-          <button className="nav-link active" id="nav-solicitacao-tab" data-bs-toggle="tab" data-bs-target="#nav-solicitacao" type="button" role="tab" aria-controls="nav-solicitacao" aria-selected="true">SOLICITAÇÕES</button>
-          <button className="nav-link active" id="nav-cadastrar-tab" data-bs-toggle="tab" data-bs-target="#nav-cadastrar" type="button" role="tab" aria-controls="nav-cadastrar" aria-selected="true">CADASTRAR</button>
-                    <button className="nav-link" id="nav-buscar-tab" data-bs-toggle="tab" data-bs-target="#nav-buscar" type="button" role="tab" aria-controls="nav-buscar" aria-selected="false">BUSCAR</button>
-          <button className="nav-link" id="nav-estoque-tab" data-bs-toggle="tab" data-bs-target="#nav-estoque" type="button" role="tab" aria-controls="nav-estoque" aria-selected="false">ESTOQUE</button>
-        </div>
-      </nav>
-      <div className="tab-content" id="nav-tabContent">
-        <div className="tab-pane fade show active" id="nav-solicitacao" role="tabpanel" aria-labelledby="nav-solicitacao-tab" tabindex="0">...</div>
-        <div className="tab-pane fade show active" id="nav-cadastrar" role="tabpanel" aria-labelledby="nav-cadastrar-tab" tabindex="0">...</div>
-        <div className="tab-pane fade" id="nav-buscar" role="tabpanel" aria-labelledby="nav-buscar-tab" tabindex="0">...</div>
-        <div className="tab-pane fade" id="nav-estoque" role="tabpanel" aria-labelledby="nav-estoque-tab" tabindex="0">...</div>
-      </div>
+            <div className={styles.form}>
+              <TextField type="text" label="Nome" onChange={name => setCadastrarMedicamento({ ...cadastrarMedicamento, name: name })} text={cadastrarMedicamento.name} />
+              <TextField type="text" label="Dosagem" onChange={dosage => setCadastrarMedicamento({ ...cadastrarMedicamento, dosage: dosage })} text={cadastrarMedicamento.dosage} />
+              <Select
+                label="Tipo"
+                name="type"
+                placeholder="Selecione um tipo"
+                campo="tipo"
+                options={[
+                  { value: 'comprimido', label: 'Comprimidos' },
+                  { value: 'capsula', label: 'Cápsulas' },
+                  { value: 'gotas', label: 'Gotas' },
+                  { value: 'intravenoso', label: 'Intravenoso' },
+                ]}
+                value={cadastrarMedicamento.type}
+                onChange={type => setCadastrarMedicamento({ ...cadastrarMedicamento, type: type })}
+              />
+              <TextField type="text" label="Quantidade" onChange={quantity => setCadastrarMedicamento({ ...cadastrarMedicamento, quantity: quantity })} text={cadastrarMedicamento.quantity} />
+              <TextField type="date" label="Vencimento" onChange={expiresAt => setCadastrarMedicamento({ ...cadastrarMedicamento, expiresAt: expiresAt })} text={cadastrarMedicamento.expiresAt} />
 
-      <div className={styles.container}>
-        <h2>CADASTRO DE MEDICAMENTOS</h2>
+              <Button onClick={cadastrar}>CADASTRAR</Button>
+            </div>
+          </div>
+        </Tab>
+        <Tab eventKey="busca" title="BUSCA">
+          <div className={styles.container}>
+            <h2>PESQUISA DE MEDICAMENTOS</h2>
 
-        <div className={styles.form}>
-          <TextField type="text" label="Nome" />
-          <TextField type="text" label="Dosagem" />
-          <Select
-            label="Tipo"
-            name="type"
-            placeholder="Tipo"
-            campo="tipo"
-            options={[
-              { value: 'comprimido', label: 'Comprimidos' },
-              { value: 'capsula', label: 'Cápsulas' },
-              { value: 'gotas', label: 'Gotas' },
-              { value: 'intravenoso', label: 'Intravenoso' },
+            <div className={styles.form}>
+              <TextField type="text" label="Nome" />
+              <TextField type="text" label="Dosagem" />
+              <Select
+                label="Tipo"
+                name="type"
+                placeholder="Tipo"
+                campo="tipo"
+                options={[
+                  { value: 'comprimido', label: 'Comprimidos' },
+                  { value: 'capsula', label: 'Cápsulas' },
+                  { value: 'gotas', label: 'Gotas' },
+                  { value: 'intravenoso', label: 'Intravenoso' },
+                ]}
+                onChange={type => setCadastrarMedicamento({ ...cadastrarMedicamento, type: type })} value={''} />
 
-            ]}
-          />
-          <TextField type="text" label="Quantidade" />
-          <TextField type="date" label="Vencimento" />
+              <Button>BUSCAR</Button>
+            </div>
+          </div>
+        </Tab>
 
-          <Button>CADASTRAR</Button>
-        </div>
-      </div>
+        <Tab eventKey="estoque" title="ESTOQUE">
 
-<br /><br /><br />
+        </Tab>
+      </Tabs>
 
-      <div className={styles.container}>
-        <h2>PESQUISA DE MEDICAMENTOS</h2>
 
-        <div className={styles.form}>
-          <TextField type="text" label="Nome" />
-          <TextField type="text" label="Dosagem" />
-          <Select
-            label="Tipo"
-            name="type"
-            placeholder="Tipo"
-            campo="tipo"
-            options={[
-              { value: 'comprimido', label: 'Comprimidos' },
-              { value: 'capsula', label: 'Cápsulas' },
-              { value: 'gotas', label: 'Gotas' },
-              { value: 'intravenoso', label: 'Intravenoso' },
 
-            ]}
-          />
 
-          <Button>BUSCAR</Button>
-        </div>
-      </div>
+      <br /><br /><br />
+
+
 
 
 
