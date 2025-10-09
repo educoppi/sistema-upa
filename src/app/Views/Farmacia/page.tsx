@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import TextField from "@/components/TextField";
 import Button from '@/components/Button';
 import Select from '@/components/Select';
-import { Tab, Tabs } from 'react-bootstrap';
+import { Tabs, Tab } from 'react-bootstrap';
 import axios, { AxiosResponse } from 'axios';
 
 
