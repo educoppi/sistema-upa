@@ -48,7 +48,7 @@ export default function Home() {
       setUsuario({
         id: response.data.id,
         name: response.data.name,
-        role: response.data.role
+        role: response.data.role[0]
       })
       localStorage.setItem('usuario', JSON.stringify(response.data));
 
