@@ -19,6 +19,12 @@ export default function Home() {
 
   const [token, setToken] = useState("");
 
+  const [usuario, setUsuario] = useState({
+    id: 0,
+    name: "",
+    role: ""
+  });
+
   function login(){
     axios.post('http://localhost:3000/users/login', { cpf, senha })
       .then(function (response: AxiosResponse) {
@@ -41,6 +47,11 @@ export default function Home() {
     .then(response => {
       console.log(response.data)
       localStorage.setItem('token', tokenRecebido);
+      setUsuario({
+        id: response.data.id,
+        name: response.data.name,
+        role: response.data.role
+      })
       localStorage.setItem('usuario', JSON.stringify(response.data));
 
       direcionaTela()
@@ -48,7 +59,15 @@ export default function Home() {
   }
 
   function direcionaTela() {
-    router.push('/Views/Doctor')
+
+    if ( usuario.role === 'DOCTOR' ) {
+      router.push('/Views/Doctor')
+    }
+
+    if( usuario.role === 'PHARMACY' ) {
+      router.push('/Views/Farmacia')
+    }
+
   }
 
 
