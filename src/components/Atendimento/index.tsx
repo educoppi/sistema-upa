@@ -5,6 +5,7 @@ import Button from "../Button";
 import TituloMinimizavel from "../TituloMinimizavel";
 import SegmentoCard from "../SegmentoCard";
 import styles from "./styles.module.css";
+import PrescriptionModal from "../PrescriptionModal";
 
 type Paciente = {
   id: number;
@@ -29,6 +30,7 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
   const [showFicha, setShowFicha] = useState(true);
   const [showReceita, setShowReceita] = useState(false);
   const [showEncaminhamento, setShowEncaminhamento] = useState(false);
+  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
 
   const receitas: string[] = [];
   const encaminhamentos: string[] = [];
@@ -82,7 +84,7 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
               <p>Não possui receitas recentes</p>
               <div style={{ fontSize: 30 }}>+</div>
               <Button
-                onClick={() => alert("Abrir modal pra criar receita")}
+                onClick={() => setShowPrescriptionModal(true)}
                 style={{ borderRadius: "12px" }}
               >
                 CRIAR
@@ -92,6 +94,7 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
             <ul>{receitas.map((r, i) => <li key={i}>{r}</li>)}</ul>
           )}
         </SegmentoCard>
+
       )}
 
       {/* ENCAMINHAMENTO */}
@@ -117,6 +120,10 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
             <ul>{encaminhamentos.map((e, i) => <li key={i}>{e}</li>)}</ul>
           )}
         </SegmentoCard>
+      )}
+
+      {showPrescriptionModal && (
+        <PrescriptionModal onClose={() => setShowPrescriptionModal(false)} />
       )}
 
       {/* BOTÕES */}
