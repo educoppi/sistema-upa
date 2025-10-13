@@ -1,6 +1,6 @@
 'use client';
 import { useState } from "react";
-import { Tabs, Tab } from "react-bootstrap";
+import { Tabs, Tab } from 'react-bootstrap';
 import { Header } from '@/components/Header';
 import TabelaIniciar from '@/components/TabelaIniciar';
 import FichaMedica from '@/components/Atendimento';
