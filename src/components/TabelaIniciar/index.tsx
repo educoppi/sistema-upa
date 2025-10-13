@@ -14,7 +14,7 @@ type Paciente = {
 };
 
 type TabelaIniciarProps = {
-  onIniciar: () => void;
+  onIniciar: (id: number) => void;
 };
 
 export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
@@ -24,11 +24,41 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
       nome: "João Coppi Soares",
       nivel: 5,
       dataNascimento: "1990-05-10",
-      sintomas: "Dor de cabeça",
+      sintomas: "Dor de cabeça intensa",
       alergias: "Nenhuma",
       remedioControlado: "Não",
       anotacoes: ""
     },
+    {
+      id: 2,
+      nome: "Maria Silva",
+      nivel: 3,
+      dataNascimento: "1985-08-22",
+      sintomas: "Febre alta e mal-estar",
+      alergias: "Penicilina",
+      remedioControlado: "Sim",
+      anotacoes: "Observação importante"
+    },
+    {
+      id: 3,
+      nome: "Carlos Pereira",
+      nivel: 2,
+      dataNascimento: "2000-01-15",
+      sintomas: "Tosse persistente",
+      alergias: "Nenhuma",
+      remedioControlado: "Não",
+      anotacoes: ""
+    },
+    {
+      id: 4,
+      nome: "Ana Rodrigues",
+      nivel: 4,
+      dataNascimento: "1995-11-30",
+      sintomas: "Cansaço constante e dor muscular",
+      alergias: "Aspirina",
+      remedioControlado: "Sim",
+      anotacoes: "Verificar histórico"
+    }
   ];
 
   return (
@@ -40,6 +70,8 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
               <th>ID</th>
               <th>Nome</th>
               <th>Nível</th>
+              <th>Sintomas</th>
+              <th>Ação</th>
             </tr>
           </thead>
           <tbody>
@@ -48,14 +80,18 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
                 <td>{item.id}</td>
                 <td>{item.nome}</td>
                 <td>{item.nivel}</td>
+                <td>{item.sintomas}</td>
+                <td>
+                  <Button
+                   onClick={() => onIniciar(item.id)}
+                  style={{ borderRadius: "12px" }}>
+                    INICIAR
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-
-        <Button onClick={onIniciar}>
-          INICIAR
-        </Button>
       </div>
     </div>
   );
