@@ -74,6 +74,10 @@ export default function Home() {
       router.push('/Views/Reception');
     }
 
+    if( usuario.role === 'NURSE' ) {
+      router.push('/Views/Triage');
+    }
+
   }
 
   return (
@@ -87,6 +91,8 @@ export default function Home() {
     <Link href="/Views/Farmacia">Farmácia</Link>
     <br />
     <Link href="/Views/Reception">Recepção</Link>
+    <br />
+    <Link href="/Views/Triage">Triagem</Link>
 
       <div className={style.centralizador}>
 

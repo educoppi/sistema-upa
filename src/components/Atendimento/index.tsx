@@ -6,6 +6,7 @@ import TituloMinimizavel from "../TituloMinimizavel";
 import SegmentoCard from "../SegmentoCard";
 import styles from "./styles.module.css";
 import PrescriptionModal from "../PrescriptionModal";
+import { FiTrash2 } from "react-icons/fi";
 
 type Paciente = {
   id: number;
@@ -32,7 +33,10 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
   const [showEncaminhamento, setShowEncaminhamento] = useState(false);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
 
-  const receitas: string[] = [];
+  const [historico, setHistorico] = useState<string[]>(() => {
+    const saved = localStorage.getItem(`receitas_paciente_${paciente.id}`);
+    return saved ? JSON.parse(saved) : [];
+  });
   const encaminhamentos: string[] = [];
 
   function finalizarAtendimento() {
@@ -73,29 +77,57 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
 
       {/* RECEITA */}
       <TituloMinimizavel
-        title="Receita"
-        isOpen={showReceita}
-        onAlterna={() => setShowReceita(!showReceita)}
-      />
-      {showReceita && (
-        <SegmentoCard className={styles.card}>
-          {receitas.length === 0 ? (
-            <div className={styles.emptyBox}>
-              <p>Não possui receitas recentes</p>
-              <div style={{ fontSize: 30 }}>+</div>
-              <Button
-                onClick={() => setShowPrescriptionModal(true)}
-                style={{ borderRadius: "12px" }}
+  title="Receita"
+  isOpen={showReceita}
+  onAlterna={() => setShowReceita(!showReceita)}
+/>
+{showReceita && (
+  <SegmentoCard className={styles.card}>
+    {historico.length === 0 ? (
+      <div className={styles.emptyBox}>
+        <p>Não possui receitas recentes</p>
+        <div style={{ fontSize: 30 }}>+</div>
+        <Button
+          onClick={() => setShowPrescriptionModal(true)}
+          style={{ borderRadius: "12px" }}
+        >
+          CRIAR
+        </Button>
+      </div>
+    ) : (
+      <div>
+        {historico.map((receita, i) => (
+          <div key={i} className={styles.receitaCard}>
+            <div className={styles.receitaHeader}>
+              <button
+                onClick={() => {
+                  const confirmar = confirm("Deseja deletar esta receita?");
+                  if (confirmar) {
+                    setHistorico(prev => prev.filter((_, index) => index !== i));
+                  }
+                }}
+                className={styles.deleteButton}
+                title="Excluir receita"
               >
-                CRIAR
-              </Button>
+                <FiTrash2 size={18} color="#c00" />
+              </button>
             </div>
-          ) : (
-            <ul>{receitas.map((r, i) => <li key={i}>{r}</li>)}</ul>
-          )}
-        </SegmentoCard>
+            <pre>{receita}</pre>
+          </div>
+        ))}
 
-      )}
+        <Button
+          onClick={() => setShowPrescriptionModal(true)}
+          style={{ borderRadius: "12px", marginTop: "16px" }}
+        >
+          CRIAR
+        </Button>
+      </div>
+    )}
+  </SegmentoCard>
+)}
+
+
 
       {/* ENCAMINHAMENTO */}
       <TituloMinimizavel
@@ -123,7 +155,14 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
       )}
 
       {showPrescriptionModal && (
-        <PrescriptionModal onClose={() => setShowPrescriptionModal(false)} />
+        <PrescriptionModal
+        onClose={() => setShowPrescriptionModal(false)}
+        patientName={paciente.nome}
+        onSave={(novaReceita: string) => {
+          setHistorico(prev => [...prev, novaReceita]);
+          setShowPrescriptionModal(false);
+        }}
+      />
       )}
 
       {/* BOTÕES */}
