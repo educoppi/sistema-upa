@@ -52,7 +52,6 @@ export default function Farmacia() {
   }
 
 
-
   type MedicamentoFiltro = {
     name?: string;
     type?: string;
@@ -84,7 +83,6 @@ export default function Farmacia() {
       }
     }
   }
-
 
 
 
