@@ -16,7 +16,9 @@ export default function Reception() {
     lastName: '',
     cpf: '',
     phone: '',
-    email: ''
+    email: '',
+    allergy: '',
+    birthDate: ''
   });
 
   function cadastrar() {
@@ -50,7 +52,11 @@ export default function Reception() {
 
       <TextField type="text" label="email" placeholder="email" onChange={email => setPaciente({ ...paciente, email: email })} text={paciente.email} />
 
-      <Button onClick={cadastrar}>ENVIAR PARA TRIAGEM</Button>
+      <TextField type="text" placeholder="Alergias" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy}/>
+
+      <TextField type="date" placeholder="Data de Nascimento" onChange={birthDate => setPaciente({ ...paciente, birthDate: birthDate })} text={paciente.birthDate}/>
+
+      <Button onClick={cadastrar}>CADASTRAR</Button>
     </>
   );
 }
