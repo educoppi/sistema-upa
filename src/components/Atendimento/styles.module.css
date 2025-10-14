@@ -40,3 +40,28 @@
   gap: 8px;
   align-items: center;
 }
+
+.receitaCard {
+  background-color: #f9f9f9;
+  border-left: 4px solid #007bff;
+  padding: 12px;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.receitaHeader {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.deleteButton:hover svg {
+  color: #e00;
+}
