@@ -21,4 +21,33 @@
     gap: 10px;
 }
 
+/* styles.module.css */
 
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+.tabela thead {
+  background-color: #40A2E3;
+  color: white;
+}
+
+.tabela th, .tabela td {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.tabela tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tabela tbody tr:hover {
+  background-color: #e6f2ff;
+  cursor: pointer;
+}
