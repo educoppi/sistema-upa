@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import TextField from "@/components/TextField";
 import Button from '@/components/Button';
 import Select from '@/components/Select';
-import { Tabs, Tab } from 'react-bootstrap';
+import { Tabs, Tab, Alert } from 'react-bootstrap';
 import axios, { AxiosResponse } from 'axios';
 
 export default function Farmacia() {
@@ -30,6 +30,9 @@ export default function Farmacia() {
 
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
 
+  const [alerta, setAlerta] = useState<{ tipo: 'success' | 'danger', mensagem: string } | null>(null);
+
+
   async function cadastrar() {
     const body = {
       name: cadastrarMedicamento.name.toLowerCase(),
@@ -39,24 +42,31 @@ export default function Farmacia() {
       expiresAt: new Date(cadastrarMedicamento.expiresAt).toISOString(),
     };
 
-    console.log(body);
-
-    //validações
-
-    axios.post('http://localhost:3000/medications', body ,
-      {
+    try {
+      const response = await axios.post('http://localhost:3000/medications', body, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
-      })
-      .then(response => {
-        console.log('Resposta:', response.data);
-      })
-      .catch(error => {
-        console.error('Erro ao criar medicamento:', error.response?.data || error.message);
       });
+
+      console.log('Resposta:', response.data);
+      setAlerta({ tipo: 'success', mensagem: 'Medicamento cadastrado com sucesso!' });
+
+
+      setCadastrarMedicamento({
+        name: '',
+        dosage: '',
+        type: '',
+        quantity: '',
+        expiresAt: '',
+      });
+    } catch (error: unknown) {
+      console.error('Erro ao criar medicamento:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
+      setAlerta({ tipo: 'danger', mensagem: 'Erro no cadastro de medicamento.' });
+    }
   }
+
 
 
   type MedicamentoFiltro = {
@@ -128,6 +138,14 @@ export default function Farmacia() {
               <TextField type="date" label="Vencimento" onChange={expiresAt => setCadastrarMedicamento({ ...cadastrarMedicamento, expiresAt: expiresAt })} text={cadastrarMedicamento.expiresAt} />
 
               <Button onClick={cadastrar}>CADASTRAR</Button>
+
+              {alerta && (
+                <Alert variant={alerta.tipo} onClose={() => setAlerta(null)} dismissible>
+                  {alerta.mensagem}
+                </Alert>
+              )}
+
+
             </div>
           </div>
         </Tab>
@@ -152,35 +170,41 @@ export default function Farmacia() {
 
               <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>BUSCAR</Button>
 
-              {resultadosBusca.length > 0 && (
-                <div className={styles.resultados}>
-                  <h3>Resultados:</h3>
-                  {resultadosBusca.length > 0 && (
-                    <table className={styles.tabela}>
-                      <thead>
-                        <tr>
-                          <th>Nome</th>
-                          <th>Dosagem</th>
-                          <th>Tipo</th>
-                          <th>Quantidade</th>
-                          <th>Vencimento</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resultadosBusca.map((med, index) => (
-                          <tr key={index}>
-                            <td>{med.name}</td>
-                            <td>{med.dosage}</td>
-                            <td>{med.type}</td>
-                            <td>{med.quantity}</td>
-                            <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
+              {resultadosBusca.length > 0 ? (
+  <div className={styles.resultados}>
+    <h3>Resultados:</h3>
+    <table className={styles.tabela}>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Dosagem</th>
+          <th>Tipo</th>
+          <th>Quantidade</th>
+          <th>Vencimento</th>
+        </tr>
+      </thead>
+      <tbody>
+        {resultadosBusca.map((med, index) => (
+          <tr key={index}>
+            <td>{med.name}</td>
+            <td>{med.dosage}</td>
+            <td>{med.type}</td>
+            <td>{med.quantity}</td>
+            <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+) : (
+
+  (buscarMedicamento.name || buscarMedicamento.dosage || buscarMedicamento.type) && (
+    <div className={styles.noResults}>
+      Nenhum medicamento encontrado.
+    </div>
+  )
+)}
+
 
 
 
@@ -196,6 +220,8 @@ export default function Farmacia() {
 
         </Tab>
       </Tabs >
+
+      
 
 
 
