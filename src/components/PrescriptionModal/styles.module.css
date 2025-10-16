@@ -1,0 +1,167 @@
+/* Fundo escurecido */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+   
+  /* Página principal */
+  .page {
+    background: #fff;
+    border-radius: 12px;
+    width: 800px;
+    padding: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+   
+  /* Cabeçalho */
+  .header {
+    background-color: #0D9276; 
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    
+  }
+  
+  .logoArea {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+   
+  .logo {
+    width: 45px;
+    height: 45px;
+  }
+   
+  .headerText h1 {
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1;
+  }
+   
+  .headerText p {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+   
+  .headerTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+   
+  /* Corpo da receita */
+  .content {
+    padding: 24px 36px;
+  }
+   
+  .content h2 {
+    text-align: center;
+    color: #0D9276;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+  }
+   
+  .fieldGroup {
+    margin-bottom: 18px;
+  }
+   
+  .fieldGroup label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+  }
+   
+  .fieldGroup input,
+  .fieldGroup textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 0.95rem;
+  }
+   
+  .fieldGroup textarea {
+    height: 100px;
+    resize: none;
+  }
+   
+  /* Caixa de observações */
+  .obsBox {
+    border-top: 3px solid #0D9276;
+    padding-top: 12px;
+    margin-top: 20px;
+  }
+   
+  .obsBox textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 6px;
+    padding: 8px;
+    font-size: 0.95rem;
+    height: 80px;
+    resize: none;
+  }
+   
+  /* Assinatura */
+  .signature {
+    margin-top: 40px;
+    text-align: center;
+  }
+   
+  .signature span {
+    font-size: 0.95rem;
+    color: #333;
+  }
+   
+  /* Rodapé */
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f8f9fa;
+    padding: 12px 24px;
+  }
+   
+  .cancel {
+    background: #e9ecef;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #333;
+  }
+   
+  .cancel:hover {
+    background: #d6d8db;
+  }
+   
+  .finalize {
+    background: #0D9276;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+  }
+   
+  .finalize:hover {
+    background: #0D9276;
+  }
+   

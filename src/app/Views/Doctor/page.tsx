@@ -7,6 +7,11 @@ import FichaMedica from '@/components/Atendimento';
 import Historico from '@/components/Historico';
 
 export default function Doctor() {
+
+  const token = localStorage.getItem('token');
+  const usuarioString = localStorage.getItem('usuario');
+  const usuario = usuarioString ? JSON.parse(usuarioString) : null;
+
   const [iniciado, setIniciado] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState("atendimento");
 
@@ -37,10 +42,13 @@ function finalizarAtendimento(anotacoes: string) {
   setAbaAtiva("atendimento");
 }
 
+//console.log("Token:", token);
+//console.log("Usuário:", usuario.);
+//console.log("pega a role do user:", usuario.role[0]);
 
   return (
     <>
-      <Header />
+      <Header name={usuario?.name || "Usuário"}/>
 
       {!iniciado ? (
         <TabelaIniciar onIniciar={() => setIniciado(true)} />
@@ -60,8 +68,6 @@ function finalizarAtendimento(anotacoes: string) {
 
           <Tab eventKey="historico" title="HISTÓRICO">
             <Historico
-              titulo="Histórico de Atendimentos"
-              itens={historicoAtendimentos}
             />
           </Tab>
         </Tabs>

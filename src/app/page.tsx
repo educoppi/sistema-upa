@@ -27,7 +27,8 @@ export default function Home() {
     axios.post('http://localhost:3000/users/login', { cpf, senha })
       .then(function (response: AxiosResponse) {
         setToken(response.data.token)
-        getUser(token)
+        const tokenRecebido = response.data.token
+        getUser(tokenRecebido)
     })
         .catch(function () {
           console.log("erro")
@@ -43,41 +44,55 @@ export default function Home() {
       }
     })
     .then(response => {
-      console.log(response.data)
+      console.log(response.data);
       localStorage.setItem('token', tokenRecebido);
+
       setUsuario({
         id: response.data.id,
         name: response.data.name,
         role: response.data.role[0]
-      })
+      });
+
       localStorage.setItem('usuario', JSON.stringify(response.data));
 
-      direcionaTela()
+      direcionaTela(response.data.role[0]);
     })
   }
 
-  function direcionaTela() {
+  function direcionaTela(role: string) {
+    console.log(usuario.role);
 
     if ( usuario.role === 'DOCTOR' ) {
-      router.push('/Views/Doctor')
+      router.push('/Views/Doctor');
     }
 
     if( usuario.role === 'PHARMACY' ) {
-      router.push('/Views/Farmacia')
+      router.push('/Views/Farmacia');
+    }
+
+    if( usuario.role === 'RECEPCIONIST' ) {
+      router.push('/Views/Reception');
+    }
+
+    if( usuario.role === 'NURSE' ) {
+      router.push('/Views/Triage');
     }
 
   }
-
-
-
 
   return (
     <>
     <div className={style.tela}>
     <HeaderLogin />
 
-    <Link href="/Views/Doctor">Login</Link>
+    <br />
+    <Link href="/Views/Doctor">Doutor</Link>
+    <br />
     <Link href="/Views/Farmacia">Farmácia</Link>
+    <br />
+    <Link href="/Views/Reception">Recepção</Link>
+    <br />
+    <Link href="/Views/Triage">Triagem</Link>
 
       <div className={style.centralizador}>
 
@@ -93,7 +108,6 @@ export default function Home() {
           
         </div>
       </div>
-
     </div>
     </>
   );
