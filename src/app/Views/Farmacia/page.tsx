@@ -19,7 +19,7 @@ export default function Farmacia() {
     dosage: '',
     type: '',
     quantity: '',
-    expiresAt: ''
+    expiresAt: '',
   });
 
   const [buscarMedicamento, setBuscarMedicamento] = useState({
@@ -31,18 +31,25 @@ export default function Farmacia() {
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
 
   async function cadastrar() {
-    axios.post('http://localhost:3000/medications', {
+    const body = {
       name: cadastrarMedicamento.name.toLowerCase(),
       quantity: cadastrarMedicamento.quantity,
       dosage: cadastrarMedicamento.dosage,
       type: cadastrarMedicamento.type,
-      expiresAt: new Date(cadastrarMedicamento.expiresAt).toISOString()
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
+      expiresAt: new Date(cadastrarMedicamento.expiresAt).toISOString(),
+    };
+
+    console.log(body);
+
+    //validações
+
+    axios.post('http://localhost:3000/medications', body ,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
       .then(response => {
         console.log('Resposta:', response.data);
       })
