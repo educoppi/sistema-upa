@@ -32,7 +32,7 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
   const [showReceita, setShowReceita] = useState(false);
   const [showEncaminhamento, setShowEncaminhamento] = useState(false);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
-
+  
   const [historico, setHistorico] = useState<string[]>(() => {
     const saved = localStorage.getItem(`receitas_paciente_${paciente.id}`);
     return saved ? JSON.parse(saved) : [];
