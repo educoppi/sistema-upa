@@ -2,6 +2,11 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+DECODE:
+npm install jwt-decode
+npm install -D @types/jwt-decode
+
+
 First, run the development server:
 
 ```bash
