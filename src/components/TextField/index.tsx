@@ -12,10 +12,10 @@ onChange?(texto: string): void;
 
 export default function TextField(props: Props) {
 
-    const [texto, setTexto] = useState(props.text);
+    //const [texto, setTexto] = useState(props.text);
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
-        setTexto(e.target.value);
+        //setTexto(e.target.value);
        
         if(props.onChange){
             props.onChange(e.target.value);
@@ -25,7 +25,7 @@ export default function TextField(props: Props) {
     return (
         <>
             {props.label}:
-            <input type={props.type} placeholder={props.placeholder} value={texto} onChange={handleInputChange}  className={styles.input}/>
+            <input type={props.type} placeholder={props.placeholder} value={props.text} onChange={handleInputChange}  className={styles.input}/>
         </>
     );
 }
