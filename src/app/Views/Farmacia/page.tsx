@@ -1,6 +1,6 @@
 'use client'
 import styles from '@/app/Views/Farmacia/styles.module.css'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import TextField from "@/components/TextField";
 import Button from '@/components/Button';
@@ -10,9 +10,12 @@ import axios, { AxiosResponse } from 'axios';
 
 export default function Farmacia() {
 
-  const token = localStorage.getItem('token');
-  const usuarioString = localStorage.getItem('usuario');
-  const usuario = usuarioString ? JSON.parse(usuarioString) : null;
+  const [token, setToken] = useState('');
+  const [usuario, setUsuario] = useState({name: '', id: 0});
+
+  // const token = localStorage.getItem('token');
+  // const usuarioString = localStorage.getItem('usuario');
+  // const usuario = usuarioString ? JSON.parse(usuarioString) : null;
 
   const [cadastrarMedicamento, setCadastrarMedicamento] = useState({
     name: '',
@@ -34,6 +37,18 @@ export default function Farmacia() {
 
 
   async function cadastrar() {
+
+    if (
+      !cadastrarMedicamento.name.trim() ||
+      !cadastrarMedicamento.quantity.trim() ||
+      !cadastrarMedicamento.dosage.trim() ||
+      !cadastrarMedicamento.type ||
+      !cadastrarMedicamento.expiresAt
+    ) {
+      setAlerta({ tipo: 'danger', mensagem: 'Por favor, preencha todos os campos.' });
+      return;
+    }
+
     const body = {
       name: cadastrarMedicamento.name.toLowerCase(),
       quantity: cadastrarMedicamento.quantity,
@@ -43,7 +58,7 @@ export default function Farmacia() {
     };
 
     try {
-      const response = await axios.post('http://localhost:3000/medications', body, {
+      const response = await axios.post('https://projeto-integrador-lf6v.onrender.com/medications', body, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -51,8 +66,6 @@ export default function Farmacia() {
       });
 
       console.log('Resposta:', response.data);
-      setAlerta({ tipo: 'success', mensagem: 'Medicamento cadastrado com sucesso!' });
-
 
       setCadastrarMedicamento({
         name: '',
@@ -61,6 +74,8 @@ export default function Farmacia() {
         quantity: '',
         expiresAt: '',
       });
+
+      setAlerta({ tipo: 'success', mensagem: 'Medicamento cadastrado com sucesso!' });
     } catch (error: unknown) {
       console.error('Erro ao criar medicamento:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
       setAlerta({ tipo: 'danger', mensagem: 'Erro no cadastro de medicamento.' });
@@ -84,7 +99,7 @@ export default function Farmacia() {
     if (filtros.dosage) params.append('dosage', filtros.dosage);
 
     try {
-      const response = await axios.get(`http://localhost:3000/medications?${params.toString()}`, {
+      const response = await axios.get(`https://projeto-integrador-lf6v.onrender.com?${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -101,8 +116,11 @@ export default function Farmacia() {
     }
   }
 
-
-
+  useEffect(() => {
+    setToken(localStorage.getItem('token') || '');
+    const usuarioString = localStorage.getItem('usuario');
+    setUsuario(usuarioString ? JSON.parse(usuarioString) : null)
+  }, []);
 
   return (
     <>
