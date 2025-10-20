@@ -1,7 +1,7 @@
 'use client'
 import { Header } from "@/components/Header";
 import TextField from "@/components/TextField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import axios, { AxiosResponse } from 'axios';
 import styles from '@/app/Views/Farmacia/styles.module.css'
@@ -36,16 +36,15 @@ export default function Triage() {
             }
         })
             .then(response => {
-                console.log(response.data)
                 setPaciente({
-                    id: response.data.id,
-                    name: response.data.name,
-                    lastName: response.data.lastName,
-                    cpf: response.data.cpf,
-                    phone: response.data.phone,
-                    email: response.data.email,
-                    allergy: response.data.allergy,
-                    birthDate: response.data.birthDate
+                    id: response.data[0].id,
+                    name: response.data[0].name,
+                    lastName: response.data[0].lastName,
+                    cpf: response.data[0].cpf,
+                    phone: response.data[0].phone,
+                    email: response.data[0].email,
+                    allergy: response.data[0].allergy,
+                    birthDate: response.data[0].birthDate
                 })
                 setTelaCadastro(true)
             })
@@ -58,9 +57,56 @@ export default function Triage() {
     const [recentMedicine, setRecentMedicine] = useState("");
 
     function classificar() {
+        console.log(paciente.id)
+        console.log(level)
+        console.log(symptom)
+        console.log(recentMedicine)
+        console.log(new Date().toISOString().split('T')[0])
+
+        axios.post('http://localhost:3000/records', {
+            patientId: paciente.id,
+            appointmentDate: new Date().toISOString().split('T')[0],
+            level: level,
+            symptom: symptom,
+            recentMedicine: recentMedicine
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                console.log('Resposta do servidor:', response.data);
+            })
+            .catch(error => {
+                console.error('Erro na requisição:', error);
+            });
+
+            if(paciente.allergy) {
+                atualizaAlergia(paciente.allergy, paciente.id)
+            }
 
     }
 
+    function atualizaAlergia(alergia: string, id: Number) {
+        axios.put(`http://localhost:3000/users/${id}`, 
+            {
+              allergy: alergia
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            }
+          )
+          .then(response => {
+            console.log('Resposta:', response.data);
+          })
+          .catch(error => {
+            console.error('Erro:', error.response ? error.response.data : error.message);
+          });
+    }
 
 
     return (
@@ -78,25 +124,30 @@ export default function Triage() {
             {
                 telaCadastro && (
                     <>
-                       <Select
-                         label="Nível de Urgência"
-                         name="level"
-                         placeholder="Selecione um nível"
-                         campo="Nível"
-                         options={[
-                           { value: '1', label: 'Prioridade Máxima' },
-                           { value: '2', label: 'Prioridade Alta' },
-                           { value: '3', label: 'Prioridade Média' },
-                           { value: '4', label: 'Prioridade Baixa' },
-                           { value: '5', label: 'Prioridade Mínima' },
-                         ]}
-                         value={level}
-                         onChange={setLevel}
-                       />
+                    <h3>{paciente.name}</h3>
+
+
+                        <Select
+                            label="Nível de Urgência"
+                            name="level"
+                            placeholder="Selecione um nível"
+                            campo="Nível"
+                            options={[
+                                { value: '1', label: 'Prioridade Máxima' },
+                                { value: '2', label: 'Prioridade Alta' },
+                                { value: '3', label: 'Prioridade Média' },
+                                { value: '4', label: 'Prioridade Baixa' },
+                                { value: '5', label: 'Prioridade Mínima' },
+                            ]}
+                            value={level}
+                            onChange={setLevel}
+                        />
 
                         < TextField type="text" placeholder="Sintomas" onChange={setSymptom} text={symptom} />
 
                         < TextField type="text" placeholder="Medicamento Recente" onChange={setRecentMedicine} text={recentMedicine} />
+
+                        <TextField type="text" label="Alergia" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
 
                         <Button onClick={classificar}>Classificar</Button>
                     </>

@@ -10,12 +10,15 @@ interface PrescriptionModalProps {
 export default function PrescriptionModal({ onClose, patientName, onSave }: PrescriptionModalProps) {
   const [medications, setMedications] = useState('');
   const [observations, setObservations] = useState('');
+  const now = new Date();
+  const dataFormatada = now.toLocaleDateString('pt-BR');
+  const horaFormatada = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
 
   const handleFinalize = () => {
-  // Junta os dados para exibir no resumo da receita
   const receitaCompleta = `
     Paciente: ${patientName}
-    Data: ${new Date().toLocaleDateString('pt-BR')}
+    Data: ${dataFormatada} ${horaFormatada}
     
     Medicamentos:
     ${medications}
@@ -24,7 +27,6 @@ export default function PrescriptionModal({ onClose, patientName, onSave }: Pres
     ${observations}
   `;
 
-  // Salva a receita na ficha e fecha o modal
     onSave(receitaCompleta.trim());
 };
 
