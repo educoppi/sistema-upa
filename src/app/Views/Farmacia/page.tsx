@@ -39,11 +39,11 @@ export default function Farmacia() {
   async function cadastrar() {
 
     if (
-      !cadastrarMedicamento.name.trim() ||
-      !cadastrarMedicamento.quantity.trim() ||
-      !cadastrarMedicamento.dosage.trim() ||
-      !cadastrarMedicamento.type ||
-      !cadastrarMedicamento.expiresAt
+      cadastrarMedicamento.name.trim() == '' ||
+      cadastrarMedicamento.quantity.trim() == '' ||
+      cadastrarMedicamento.dosage.trim() == '' ||
+      cadastrarMedicamento.type == '' ||
+      cadastrarMedicamento.expiresAt == ''
     ) {
       setAlerta({ tipo: 'danger', mensagem: 'Por favor, preencha todos os campos.' });
       return;
