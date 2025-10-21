@@ -24,7 +24,7 @@ export default function Home() {
   });
 
   function login(){
-    axios.post('http://localhost:3000/users/login', { cpf, senha })
+    axios.post('https://projeto-integrador-lf6v.onrender.com/users/login', { cpf, senha })
       .then(function (response: AxiosResponse) {
         setToken(response.data.token)
         const tokenRecebido = response.data.token
@@ -37,7 +37,7 @@ export default function Home() {
 
   function getUser(tokenRecebido: string){
     console.log(tokenRecebido)
-    axios.get('http://localhost:3000/users/logado', {
+    axios.get('https://projeto-integrador-lf6v.onrender.com/users/logado', {
       headers: {
         'Authorization': `Bearer ${tokenRecebido}`,
         'Content-Type': 'application/json'
