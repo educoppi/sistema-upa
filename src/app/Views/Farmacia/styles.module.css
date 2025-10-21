@@ -21,19 +21,35 @@
     gap: 10px;
 }
 
-/* styles.module.css */
+.buscaFiltrada {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
 
 .tabela {
   width: 100%;
+  max-width: 800px;       
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 20px;        
   font-family: Arial, sans-serif;
   font-size: 14px;
-  color: #333;
+  color: #333; 
 }
 
+.containerTabela {
+  display: flex;
+  justify-content: center;  
+  align-items: center;  
+}
+
+
 .tabela thead {
-  background-color: #40A2E3;
+  background-color: #0D9276;
   color: white;
 }
 
