@@ -153,7 +153,7 @@ export default function Farmacia() {
                   { value: 'ampola', label: 'Ampola' },
                   { value: 'frasco', label: 'Frasco' },
                   { value: 'capsula', label: 'Cápsulas' },
-                  { value: 'gotas', label: 'Gotas' },
+                  { value: 'outro', label: 'Outro' },
                 ]}
                 value={cadastrarMedicamento.type}
                 onChange={type => setCadastrarMedicamento({ ...cadastrarMedicamento, type: type })}
@@ -220,7 +220,7 @@ export default function Farmacia() {
                         { value: 'ampola', label: 'Ampola' },
                         { value: 'frasco', label: 'Frasco' },
                         { value: 'capsula', label: 'Cápsulas' },
-                        { value: 'gotas', label: 'Gotas' },
+                        { value: 'outro', label: 'Outro' },
                       ]}
                       onChange={type => setBuscarMedicamento({ ...buscarMedicamento, type: type })}
                       value={buscarMedicamento.type}
