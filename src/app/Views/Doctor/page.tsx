@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import TabelaIniciar from '@/components/TabelaIniciar';
 import FichaMedica from '@/components/Atendimento';
 import Historico from '@/components/Historico';
+import Atendimento from "@/components/Atendimento";
 
 export default function Doctor() {
 
@@ -59,7 +60,7 @@ function finalizarAtendimento(anotacoes: string) {
           className="mb-3"
         >
           <Tab eventKey="atendimento" title="ATENDIMENTO">
-            <FichaMedica
+            <Atendimento
               paciente={pacientePadrao}
               onVoltar={() => setIniciado(false)}
               onFinalizar={finalizarAtendimento}
