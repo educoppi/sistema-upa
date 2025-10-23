@@ -30,33 +30,37 @@ export default function Reception() {
         }
       }
     )
-    .then(function (response: AxiosResponse) {
-      console.log("deu certo");
-    })
-    .catch(function () {
-      console.log("erro");
-    });
+      .then(function (response: AxiosResponse) {
+        console.log("deu certo");
+      })
+      .catch(function () {
+        console.log("erro");
+      });
   }
 
   return (
     <>
       <Header name={usuario?.name || "Usuário"} />
 
-      <TextField type="text" label="Nome" placeholder="Nome" onChange={name => setPaciente({ ...paciente, name: name })} text={paciente.name} />
 
-      <TextField type="text" label="Sobrenome" placeholder="Sobrenome" onChange={lastName => setPaciente({ ...paciente, lastName: lastName })} text={paciente.lastName} />
+        <TextField type="text" label="Nome" placeholder="Nome" onChange={name => setPaciente({ ...paciente, name: name })} text={paciente.name} />
 
-      <TextField type="text" label="cpf" placeholder="cpf" onChange={cpf => setPaciente({ ...paciente, cpf: cpf })} text={paciente.cpf} />
+        <TextField type="text" label="Sobrenome" placeholder="Sobrenome" onChange={lastName => setPaciente({ ...paciente, lastName: lastName })} text={paciente.lastName} />
 
-      <TextField type="text" label="phone" placeholder="phone" onChange={phone => setPaciente({ ...paciente, phone: phone })} text={paciente.phone} />
+        <TextField type="text" label="cpf" placeholder="cpf" onChange={cpf => setPaciente({ ...paciente, cpf: cpf })} text={paciente.cpf} />
 
-      <TextField type="text" label="email" placeholder="email" onChange={email => setPaciente({ ...paciente, email: email })} text={paciente.email} />
+        <TextField type="text" label="phone" placeholder="phone" onChange={phone => setPaciente({ ...paciente, phone: phone })} text={paciente.phone} />
 
-      <TextField type="text" placeholder="Alergias" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy}/>
+        <TextField type="text" label="email" placeholder="email" onChange={email => setPaciente({ ...paciente, email: email })} text={paciente.email} />
 
-      <TextField type="date" placeholder="Data de Nascimento" onChange={birthDate => setPaciente({ ...paciente, birthDate: birthDate })} text={paciente.birthDate}/>
+        <TextField type="text" placeholder="Alergias" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
 
-      <Button onClick={cadastrar}>CADASTRAR</Button>
+        <TextField type="date" placeholder="Data de Nascimento" onChange={birthDate => setPaciente({ ...paciente, birthDate: birthDate })} text={paciente.birthDate} />
+
+        <Button onClick={cadastrar}>CADASTRAR</Button>
+
+
+
     </>
   );
 }
