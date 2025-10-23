@@ -7,15 +7,13 @@ import Button from '@/components/Button';
 import Select from '@/components/Select';
 import { Tabs, Tab, Alert } from 'react-bootstrap';
 import axios, { AxiosResponse } from 'axios';
+import { FaSortUp, FaSortDown } from "react-icons/fa";
+
 
 export default function Farmacia() {
 
   const [token, setToken] = useState('');
   const [usuario, setUsuario] = useState({ name: '', id: 0 });
-
-  // const token = localStorage.getItem('token');
-  // const usuarioString = localStorage.getItem('usuario');
-  // const usuario = usuarioString ? JSON.parse(usuarioString) : null;
 
   const [cadastrarMedicamento, setCadastrarMedicamento] = useState({
     name: '',
@@ -29,13 +27,55 @@ export default function Farmacia() {
     name: '',
     dosage: '',
     type: '',
-  })
+  });
 
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
 
   const [alerta, setAlerta] = useState<{ tipo: 'success' | 'danger', mensagem: string } | null>(null);
 
-  const [isFiltered, setIsFiltered] = useState(false)
+  const [isFiltered, setIsFiltered] = useState(false);
+
+ 
+  type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
+
+  const [ordenarPor, setOrdenarPor] = useState<CampoOrdenavel | null>(null);
+  const [ordemAscendente, setOrdemAscendente] = useState(true);
+
+  const ordenar = (campo: CampoOrdenavel) => {
+    if (ordenarPor === campo) {
+      setOrdemAscendente(!ordemAscendente);
+    } else {
+      setOrdenarPor(campo);
+      setOrdemAscendente(true);
+    }
+  };
+
+  const resultadosOrdenados = [...resultadosBusca].sort((a, b) => {
+    if (!ordenarPor) return 0;
+
+    if (ordenarPor === "expiresAt") {
+      const dataA = new Date(a.expiresAt);
+      const dataB = new Date(b.expiresAt);
+      return ordemAscendente
+        ? dataA.getTime() - dataB.getTime()
+        : dataB.getTime() - dataA.getTime();
+    }
+
+    if (typeof a[ordenarPor] === "string" && typeof b[ordenarPor] === "string") {
+      return ordemAscendente
+        ? a[ordenarPor].localeCompare(b[ordenarPor])
+        : b[ordenarPor].localeCompare(a[ordenarPor]);
+    }
+
+    if (typeof a[ordenarPor] === "number" && typeof b[ordenarPor] === "number") {
+      return ordemAscendente
+        ? (a[ordenarPor] as number) - (b[ordenarPor] as number)
+        : (b[ordenarPor] as number) - (a[ordenarPor] as number);
+    }
+
+    return 0;
+  });
+
 
 
   async function cadastrar() {
@@ -153,7 +193,7 @@ export default function Farmacia() {
                   { value: 'ampola', label: 'Ampola' },
                   { value: 'frasco', label: 'Frasco' },
                   { value: 'capsula', label: 'Cápsulas' },
-                  { value: 'gotas', label: 'Gotas' },
+                  { value: 'outro', label: 'Outro' },
                 ]}
                 value={cadastrarMedicamento.type}
                 onChange={type => setCadastrarMedicamento({ ...cadastrarMedicamento, type: type })}
@@ -220,13 +260,14 @@ export default function Farmacia() {
                         { value: 'ampola', label: 'Ampola' },
                         { value: 'frasco', label: 'Frasco' },
                         { value: 'capsula', label: 'Cápsulas' },
-                        { value: 'gotas', label: 'Gotas' },
+                        { value: 'outro', label: 'Outro' },
                       ]}
                       onChange={type => setBuscarMedicamento({ ...buscarMedicamento, type: type })}
                       value={buscarMedicamento.type}
                     />
 
                     <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>NOVA BUSCA</Button>
+                    <Button onClick={() => setIsFiltered(false)}>LIMPAR</Button>
                   </div>
 
 
@@ -236,15 +277,61 @@ export default function Farmacia() {
                         <table className={styles.tabela}>
                           <thead>
                             <tr>
-                              <th>Nome</th>
-                              <th>Dosagem</th>
-                              <th>Tipo</th>
-                              <th>Quantidade</th>
-                              <th>Vencimento</th>
+                              <th>
+                                Nome
+                                <button onClick={() => ordenar("name")}>
+                                  {ordenarPor === "name" ? (
+                                    ordemAscendente ? <FaSortUp /> : <FaSortDown />
+                                  ) : (
+                                    <FaSortDown style={{ opacity: 0.3 }} />
+                                  )}
+                                </button>
+                              </th>
+                              <th>
+                                Dosagem
+                                <button onClick={() => ordenar("dosage")}>
+                                  {ordenarPor === "dosage" ? (
+                                    ordemAscendente ? <FaSortUp /> : <FaSortDown />
+                                  ) : (
+                                    <FaSortDown style={{ opacity: 0.3 }} />
+                                  )}
+                                </button>
+                              </th>
+                              <th>
+                                Tipo
+                                <button onClick={() => ordenar("type")}>
+                                  {ordenarPor === "type" ? (
+                                    ordemAscendente ? <FaSortUp /> : <FaSortDown />
+                                  ) : (
+                                    <FaSortDown style={{ opacity: 0.3 }} />
+                                  )}
+                                </button>
+                              </th>
+                              <th>
+                                Quantidade
+                                <button onClick={() => ordenar("quantity")}>
+                                  {ordenarPor === "quantity" ? (
+                                    ordemAscendente ? <FaSortUp /> : <FaSortDown />
+                                  ) : (
+                                    <FaSortDown style={{ opacity: 0.3 }} />
+                                  )}
+                                </button>
+                              </th>
+                              <th>
+                                Vencimento
+                                <button onClick={() => ordenar("expiresAt")}>
+                                  {ordenarPor === "expiresAt" ? (
+                                    ordemAscendente ? <FaSortUp /> : <FaSortDown />
+                                  ) : (
+                                    <FaSortDown style={{ opacity: 0.3 }} />
+                                  )}
+                                </button>
+                              </th>
                             </tr>
                           </thead>
+
                           <tbody>
-                            {resultadosBusca.map((med, index) => (
+                            {resultadosOrdenados.map((med, index) => (
                               <tr key={index}>
                                 <td>{med.name}</td>
                                 <td>{med.dosage}</td>
@@ -256,12 +343,17 @@ export default function Farmacia() {
                           </tbody>
                         </table>
                       </div>
+
                     </>
                   ) : (
-                    <div className={styles.noResults}>
+                    <div className={styles.buscaFiltrada}>
+                      <div className={styles.noResults}>
                       Nenhum medicamento encontrado.
                     </div>
+                    </div>
+                  
                   )}
+
                 </div>
               </>
             )}
@@ -275,23 +367,11 @@ export default function Farmacia() {
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
 
-              <Button>ATUALIZAR MEDICAMENTO</Button>
+          <div className={styles.buscaFiltrada}>
+            <Button>LISTAR MOVIMENTAÇÕES</Button>
+          </div>
         </Tab>
       </Tabs >
-
-
-
-
-
-
-      <br /><br /><br />
-
-
-
-
-
-
-
     </>
   );
 }
