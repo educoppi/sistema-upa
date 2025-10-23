@@ -111,9 +111,6 @@ export default function Triage() {
 
     return (
 
-        
-
-
         <>
             <Header name={usuario?.name || "Usuário"} />
 
