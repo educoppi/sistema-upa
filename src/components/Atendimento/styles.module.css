@@ -17,6 +17,7 @@
   display: flex;
   flex-wrap: wrap;      /* permite que os itens quebrem linha */
   gap: 45px;
+  font-size: 18px;
 }
 
 /* Cada item de informação dentro da infoBox */
@@ -29,6 +30,7 @@
   border: 1px solid #ddd;
   padding: 16px;
   border-radius: 6px;
+  font-size: 20px;
 }
 
 /* Caixa quando não houver receita ou encaminhamento */
@@ -65,3 +67,31 @@
 .deleteButton:hover svg {
   color: #e00;
 }
+.nivelCinco {
+  color: #b60000;       /* vermelho intenso */
+  font-weight: bold;    /* deixa mais evidente */
+}
+
+/* Alerta de paciente nível 5 */
+.alertBox {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #d00000;
+  color: #fff;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  font-size: 16px;
+  z-index: 9999;
+  animation: fadeOut 5s forwards;
+}
+
+.alertBox strong {
+  font-size: 18px;
+}
+
+.alertBox p {
+  margin: 6px 0 0;
+}
+
