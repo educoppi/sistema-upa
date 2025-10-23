@@ -8,6 +8,7 @@ import Select from '@/components/Select';
 import { Tabs, Tab, Alert } from 'react-bootstrap';
 import axios, { AxiosResponse } from 'axios';
 import { FaSortUp, FaSortDown } from "react-icons/fa";
+import medicationService from '@/services/medication';
 
 
 export default function Farmacia() {
@@ -141,21 +142,30 @@ export default function Farmacia() {
     if (filtros.dosage) params.append('dosage', filtros.dosage);
 
     try {
-      const response = await axios.get(`https://projeto-integrador-lf6v.onrender.com/medications?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const medications = await medicationService.busca(filtros.name, filtros.dosage, filtros.type)
+
+      // const response = await axios.get(`https://projeto-integrador-lf6v.onrender.com/medications?${params.toString()}`, {
+      //   headers: {
+      //     'Authorization': `Bearer ${token}`
+      //   }
+      // });
 
       setIsFiltered(true)
-      setResultadosBusca(response.data);
-      console.log('Resultado da busca:', response.data);
+      // setResultadosBusca(response.data);
+      // console.log('Resultado da busca:', response.data);
+      setResultadosBusca(medications);
+      console.log('Resultado da busca:', medications);
     } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        console.error('Erro ao buscar medicamentos:', error.response?.data || error.message);
-      } else {
-        console.error('Erro inesperado:', error);
-      }
+      // if (axios.isAxiosError(error)) {
+      //   console.error('Erro ao buscar medicamentos:', error.response?.data || error.message);
+      // } else {
+      //   console.error('Erro inesperado:', error);
+      // }
+      // TODO: exibir mensagm de erro na UI
+      setAlerta({
+        tipo: 'danger',
+        mensagem: `Erro: ${error}`
+      });
     }
   }
 
