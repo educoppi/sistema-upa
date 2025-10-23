@@ -2,13 +2,34 @@
   width: 300px;
   height: 40px;
   border-radius: 10px;
+  margin-top: -15px;
   padding: 5px;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
 
-  /* rgba(74, 144, 226, 0.5); */
+.inputPesquisa {
+  width: 250%;
+  height: 40px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding: 5px;
+}
+
+.inputPesquisa:focus{
+  outline: none;
+  border: 2px solid #0D9276;
 }
 
 .input:focus {
   outline: none;
   border: 2px solid #0D9276;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: bold;
 }
