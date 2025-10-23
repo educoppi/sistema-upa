@@ -43,8 +43,6 @@ export default function Select(props: Props) {
           </option>
         ))}
       </select>
-      <br />
-      <br />
     </div>
   );
 }

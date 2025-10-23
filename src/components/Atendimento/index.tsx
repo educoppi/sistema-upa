@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import Button from "../Button";
 import TituloMinimizavel from "../TituloMinimizavel";
@@ -8,25 +7,33 @@ import styles from "./styles.module.css";
 import PrescriptionModal from "../PrescriptionModal";
 import { FiTrash2 } from "react-icons/fi";
 
-type Paciente = {
+type patient = {
   id: number;
-  nome: string;
-  nivel: number;
-  dataNascimento?: string;
-  sintomas?: string;
-  alergias?: string;
-  remedioControlado?: string;
-  anotacoes?: string;
+  name: string;
+  level: number;
+  birthDate?: string;
+  symptom?: string;
+  allergy?: string;
+  recentMedicine?: string;
+  annotation?: string;
 };
 
 interface Props {
-  paciente: Paciente;
-  onVoltar: () => void;
+  patient: patient;
   onFinalizar: (anotacoes: string) => void;
 }
 
-export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) {
-  const [anotacoes, setAnotacoes] = useState(paciente.anotacoes ?? "");
+export default function Atendimento({ onFinalizar }: Props) {
+  
+  const token = localStorage.getItem('token');
+  const usuarioString = localStorage.getItem('usuario');
+  const usuario = usuarioString ? JSON.parse(usuarioString) : null;
+  const patientString = localStorage.getItem('currentPatientId');
+  const patient = patientString ? JSON.parse(patientString) : null;
+
+  console.log("Atendimento - patient:", patient);
+  
+  const [anotacoes, setAnotacoes] = useState(patient.annotation ?? "");
 
   const [showFicha, setShowFicha] = useState(true);
   const [showReceita, setShowReceita] = useState(false);
@@ -34,10 +41,23 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   
   const [historico, setHistorico] = useState<string[]>(() => {
-    const saved = localStorage.getItem(`receitas_paciente_${paciente.id}`);
+    const saved = localStorage.getItem(`receitas_patient_${patient.id}`);
     return saved ? JSON.parse(saved) : [];
   });
   const encaminhamentos: string[] = [];
+
+  function formatDate(dateString?: string) {
+    if (!dateString) return " - ";
+  
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "Data inválida";
+  
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // mês começa em 0
+    const year = date.getFullYear();
+  
+    return `${day}/${month}/${year}`;
+  }
 
   function finalizarAtendimento() {
     onFinalizar(anotacoes);
@@ -54,12 +74,12 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
       {showFicha && (
         <SegmentoCard className={styles.card}>
           <div className={styles.infoBox}>
-            <div><strong>Nome:</strong> {paciente.nome}</div>
-            <div><strong>Data nascimento:</strong> {paciente.dataNascimento ?? " "}</div>
-            <div><strong>Nível:</strong> {paciente.nivel}</div>
-            <div><strong>Sintomas:</strong> {paciente.sintomas ?? " "}</div>
-            <div><strong>Alergias:</strong> {paciente.alergias ?? " "}</div>
-            <div><strong>Remédio controlado:</strong> {paciente.remedioControlado ?? "-"}</div>
+            <div><strong>Nome:</strong> {patient.name}</div>
+            <div><strong>Data nascimento:</strong> {formatDate(patient.birthDate)}</div>
+            <div><strong>Nível:</strong> {patient.level}</div>
+            <div><strong>Sintomas:</strong> {patient.symptom ?? " "}</div>
+            <div><strong>Alergias:</strong> {patient.allegy ?? " "}</div>
+            <div><strong>Remédio controlado:</strong> {patient.recentMedicine ?? "-"}</div>
           </div>
 
           <div className={styles.anotacoesBox}>
@@ -157,7 +177,7 @@ export default function FichaMedica({ paciente, onVoltar, onFinalizar }: Props) 
       {showPrescriptionModal && (
         <PrescriptionModal
         onClose={() => setShowPrescriptionModal(false)}
-        patientName={paciente.nome}
+        patientName={patient.nome}
         onSave={(novaReceita: string) => {
           setHistorico(prev => [...prev, novaReceita]);
           setShowPrescriptionModal(false);

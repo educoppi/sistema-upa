@@ -11,7 +11,7 @@ import axios, { AxiosResponse } from 'axios';
 export default function Farmacia() {
 
   const [token, setToken] = useState('');
-  const [usuario, setUsuario] = useState({name: '', id: 0});
+  const [usuario, setUsuario] = useState({ name: '', id: 0 });
 
   // const token = localStorage.getItem('token');
   // const usuarioString = localStorage.getItem('usuario');
@@ -34,6 +34,8 @@ export default function Farmacia() {
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
 
   const [alerta, setAlerta] = useState<{ tipo: 'success' | 'danger', mensagem: string } | null>(null);
+
+  const [isFiltered, setIsFiltered] = useState(false)
 
 
   async function cadastrar() {
@@ -99,12 +101,13 @@ export default function Farmacia() {
     if (filtros.dosage) params.append('dosage', filtros.dosage);
 
     try {
-      const response = await axios.get(`https://projeto-integrador-lf6v.onrender.com?${params.toString()}`, {
+      const response = await axios.get(`https://projeto-integrador-lf6v.onrender.com/medications?${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
+      setIsFiltered(true)
       setResultadosBusca(response.data);
       console.log('Resultado da busca:', response.data);
     } catch (error: unknown) {
@@ -132,12 +135,14 @@ export default function Farmacia() {
       >
         <Tab eventKey="solicitacoes" title="SOLICITAÇÕES">
         </Tab>
+
+
         <Tab eventKey="cadastro" title="CADASTRO">
           <div className={styles.container}>
 
             <div className={styles.form}>
-              <TextField type="text" label="Nome" onChange={name => setCadastrarMedicamento({ ...cadastrarMedicamento, name: name })} text={cadastrarMedicamento.name} />
-              <TextField type="text" label="Dosagem" onChange={dosage => setCadastrarMedicamento({ ...cadastrarMedicamento, dosage: dosage })} text={cadastrarMedicamento.dosage} />
+              <TextField type="text" label="Nome:" onChange={name => setCadastrarMedicamento({ ...cadastrarMedicamento, name: name })} text={cadastrarMedicamento.name} />
+              <TextField type="text" label="Dosagem:" onChange={dosage => setCadastrarMedicamento({ ...cadastrarMedicamento, dosage: dosage })} text={cadastrarMedicamento.dosage} />
               <Select
                 label="Tipo"
                 name="type"
@@ -145,15 +150,16 @@ export default function Farmacia() {
                 campo="tipo"
                 options={[
                   { value: 'comprimido', label: 'Comprimidos' },
+                  { value: 'ampola', label: 'Ampola' },
+                  { value: 'frasco', label: 'Frasco' },
                   { value: 'capsula', label: 'Cápsulas' },
-                  { value: 'gotas', label: 'Gotas' },
-                  { value: 'intravenoso', label: 'Intravenoso' },
+                  { value: 'outro', label: 'Outro' },
                 ]}
                 value={cadastrarMedicamento.type}
                 onChange={type => setCadastrarMedicamento({ ...cadastrarMedicamento, type: type })}
               />
-              <TextField type="text" label="Quantidade" onChange={quantity => setCadastrarMedicamento({ ...cadastrarMedicamento, quantity: quantity })} text={cadastrarMedicamento.quantity} />
-              <TextField type="date" label="Vencimento" onChange={expiresAt => setCadastrarMedicamento({ ...cadastrarMedicamento, expiresAt: expiresAt })} text={cadastrarMedicamento.expiresAt} />
+              <TextField type="text" label="Quantidade:" onChange={quantity => setCadastrarMedicamento({ ...cadastrarMedicamento, quantity: quantity })} text={cadastrarMedicamento.quantity} />
+              <TextField type="date" label="Vencimento:" onChange={expiresAt => setCadastrarMedicamento({ ...cadastrarMedicamento, expiresAt: expiresAt })} text={cadastrarMedicamento.expiresAt} />
 
               <Button onClick={cadastrar}>CADASTRAR</Button>
 
@@ -167,68 +173,101 @@ export default function Farmacia() {
             </div>
           </div>
         </Tab>
+
+
         <Tab eventKey="busca" title="BUSCA">
-          <div className={styles.container}>
-
-            <div className={styles.form}>
-              <TextField type="text" label="Nome" onChange={name => setBuscarMedicamento({ ...buscarMedicamento, name: name })} text={buscarMedicamento.name} />
-              <TextField type="text" label="Dosagem" onChange={dosage => setBuscarMedicamento({ ...buscarMedicamento, dosage: dosage })} text={buscarMedicamento.dosage} />
-              <Select
-                label="Tipo"
-                name="type"
-                placeholder="Tipo"
-                campo="tipo"
-                options={[
-                  { value: 'comprimido', label: 'Comprimidos' },
-                  { value: 'capsula', label: 'Cápsulas' },
-                  { value: 'gotas', label: 'Gotas' },
-                  { value: 'intravenoso', label: 'Intravenoso' },
-                ]}
-                onChange={type => setBuscarMedicamento({ ...buscarMedicamento, type: type })} value={buscarMedicamento.type} />
-
-              <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>BUSCAR</Button>
-
-              {resultadosBusca.length > 0 ? (
-  <div className={styles.resultados}>
-    <h3>Resultados:</h3>
-    <table className={styles.tabela}>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Dosagem</th>
-          <th>Tipo</th>
-          <th>Quantidade</th>
-          <th>Vencimento</th>
-        </tr>
-      </thead>
-      <tbody>
-        {resultadosBusca.map((med, index) => (
-          <tr key={index}>
-            <td>{med.name}</td>
-            <td>{med.dosage}</td>
-            <td>{med.type}</td>
-            <td>{med.quantity}</td>
-            <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-) : (
-
-  (buscarMedicamento.name || buscarMedicamento.dosage || buscarMedicamento.type) && (
-    <div className={styles.noResults}>
-      Nenhum medicamento encontrado.
-    </div>
-  )
-)}
+          <>
 
 
+            {!isFiltered && (
+              <div className={styles.container}>
+                <div className={styles.form}>
+                  <TextField type="text" label="Nome:" onChange={name => setBuscarMedicamento({ ...buscarMedicamento, name: name })} text={buscarMedicamento.name} />
+                  <TextField type="text" label="Dosagem:" onChange={dosage => setBuscarMedicamento({ ...buscarMedicamento, dosage: dosage })} text={buscarMedicamento.dosage} />
+                  <Select
+                    name="type"
+                    placeholder="Tipo"
+                    label="Tipo"
+                    campo="tipo"
+                    options={[
+                      { value: 'comprimido', label: 'Comprimidos' },
+                      { value: 'ampola', label: 'Ampola' },
+                      { value: 'frasco', label: 'Frasco' },
+                      { value: 'capsula', label: 'Cápsulas' },
+                      { value: 'gotas', label: 'Gotas' },
+                    ]}
+                    onChange={type => setBuscarMedicamento({ ...buscarMedicamento, type: type })}
+                    value={buscarMedicamento.type}
+                  />
+
+                  <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>BUSCAR</Button>
+                </div>
+              </div>
+            )}
+
+            {isFiltered && (
+              <>
+                <div>
+                  <div className={styles.buscaFiltrada}>
+                    <TextField type="text" placeholder="Nome" onChange={name => setBuscarMedicamento({ ...buscarMedicamento, name: name })} text={buscarMedicamento.name} />
+                    <TextField type="text" placeholder="Dosagem" onChange={dosage => setBuscarMedicamento({ ...buscarMedicamento, dosage: dosage })} text={buscarMedicamento.dosage} />
+                    <Select
+                      name="type"
+                      placeholder="Tipo"
+                      campo="tipo"
+                      options={[
+                        { value: 'comprimido', label: 'Comprimidos' },
+                        { value: 'ampola', label: 'Ampola' },
+                        { value: 'frasco', label: 'Frasco' },
+                        { value: 'capsula', label: 'Cápsulas' },
+                        { value: 'outro', label: 'Outro' },
+                      ]}
+                      onChange={type => setBuscarMedicamento({ ...buscarMedicamento, type: type })}
+                      value={buscarMedicamento.type}
+                    />
+
+                    <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>NOVA BUSCA</Button>
+                  </div>
 
 
-            </div>
-          </div>
+                  {resultadosBusca.length > 0 ? (
+                    <>
+                      <div className={styles.containerTabela}>
+                        <table className={styles.tabela}>
+                          <thead>
+                            <tr>
+                              <th>Nome</th>
+                              <th>Dosagem</th>
+                              <th>Tipo</th>
+                              <th>Quantidade</th>
+                              <th>Vencimento</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {resultadosBusca.map((med, index) => (
+                              <tr key={index}>
+                                <td>{med.name}</td>
+                                <td>{med.dosage}</td>
+                                <td>{med.type}</td>
+                                <td>{med.quantity}</td>
+                                <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  ) : (
+                    <div className={styles.noResults}>
+                      Nenhum medicamento encontrado.
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </>
         </Tab>
+
 
         <Tab eventKey="estoque" title="ESTOQUE">
 
@@ -236,10 +275,11 @@ export default function Farmacia() {
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
 
+              <Button>ATUALIZAR MEDICAMENTO</Button>
         </Tab>
       </Tabs >
 
-      
+
 
 
 
