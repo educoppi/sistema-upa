@@ -57,6 +57,29 @@
   padding: 10px 15px;
   border: 1px solid #ddd;
   text-align: left;
+  position: relative;
+  text-align: left;
+}
+
+
+
+.tabela th button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  margin-left: 5px;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tabela th svg {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.tabela th button:hover svg {
+  color: #ffffff;
 }
 
 .tabela tbody tr:nth-child(even) {
@@ -77,6 +100,7 @@
   border-radius: 4px;
   font-weight: 600;
   text-align: center;
+  max-width: 300px;
 }
 
 
