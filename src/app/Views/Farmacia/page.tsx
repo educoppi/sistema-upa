@@ -35,7 +35,7 @@ export default function Farmacia() {
 
   const [isFiltered, setIsFiltered] = useState(false);
 
- 
+
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
 
   const [ordenarPor, setOrdenarPor] = useState<CampoOrdenavel | null>(null);
@@ -125,7 +125,6 @@ export default function Farmacia() {
   }
 
 
-
   type MedicamentoFiltro = {
     name?: string;
     type?: string;
@@ -134,6 +133,7 @@ export default function Farmacia() {
   }
 
   async function buscarMedicamentos(filtros: MedicamentoFiltro) {
+
     const params = new URLSearchParams();
 
     if (filtros.name) params.append('name', filtros.name.toLowerCase());
@@ -267,7 +267,14 @@ export default function Farmacia() {
                     />
 
                     <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>NOVA BUSCA</Button>
-                    <Button onClick={() => setIsFiltered(false)}>LIMPAR</Button>
+                    <Button onClick={() => {
+                      setIsFiltered(false);
+                      setBuscarMedicamento({
+                        name: '',
+                        dosage: '',
+                        type: '',
+                      })
+                    }}>LIMPAR</Button>
                   </div>
 
 
@@ -348,10 +355,10 @@ export default function Farmacia() {
                   ) : (
                     <div className={styles.buscaFiltrada}>
                       <div className={styles.noResults}>
-                      Nenhum medicamento encontrado.
+                        Nenhum medicamento encontrado.
+                      </div>
                     </div>
-                    </div>
-                  
+
                   )}
 
                 </div>
@@ -372,6 +379,10 @@ export default function Farmacia() {
           </div>
         </Tab>
       </Tabs >
+
+      <br /><br /><br />
     </>
+
+
   );
 }

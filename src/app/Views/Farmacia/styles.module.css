@@ -1,6 +1,4 @@
-
-
-.container{
+.container {
   display: flex;
   width: 400px;
   justify-content: center;
@@ -15,10 +13,10 @@
 
 
 .form {
-    display: flex;
-    flex-direction: column;
-    max-width: 500px;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  gap: 10px;
 }
 
 .buscaFiltrada {
@@ -33,18 +31,18 @@
 
 .tabela {
   width: 100%;
-  max-width: 800px;       
+  max-width: 800px;
   border-collapse: collapse;
-  margin-top: 20px;        
+  margin-top: 20px;
   font-family: Arial, sans-serif;
   font-size: 14px;
-  color: #333; 
+  color: #333;
 }
 
 .containerTabela {
   display: flex;
-  justify-content: center;  
-  align-items: center;  
+  justify-content: center;
+  align-items: center;
 }
 
 
@@ -53,7 +51,8 @@
   color: white;
 }
 
-.tabela th, .tabela td {
+.tabela th,
+.tabela td {
   padding: 10px 15px;
   border: 1px solid #ddd;
   text-align: left;
@@ -82,6 +81,8 @@
   color: #ffffff;
 }
 
+
+
 .tabela tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
@@ -102,5 +103,3 @@
   text-align: center;
   max-width: 300px;
 }
-
-
