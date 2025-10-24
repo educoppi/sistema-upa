@@ -3,6 +3,7 @@ import styles from '@/app/Views/Farmacia/styles.module.css'
 import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import TextField from "@/components/TextField";
+import MedicamentoModal from "@/components/MedicamentoModal";
 import Button from '@/components/Button';
 import Select from '@/components/Select';
 import { Tabs, Tab, Alert } from 'react-bootstrap';
@@ -35,6 +36,8 @@ export default function Farmacia() {
   const [alerta, setAlerta] = useState<{ tipo: 'success' | 'danger', mensagem: string } | null>(null);
 
   const [isFiltered, setIsFiltered] = useState(false);
+
+  const [editarMedicamento, setEditarMedicamento] = useState(true)
 
 
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
@@ -380,6 +383,7 @@ export default function Farmacia() {
 
         <Tab eventKey="estoque" title="ESTOQUE">
 
+              <MedicamentoModal />
         </Tab>
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
