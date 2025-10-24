@@ -37,7 +37,7 @@ export default function Farmacia() {
 
   const [isFiltered, setIsFiltered] = useState(false);
 
-  const [editarMedicamento, setEditarMedicamento] = useState(true)
+  const [editarMedicamento, setEditarMedicamento] = useState(false)
 
 
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
@@ -230,8 +230,6 @@ export default function Farmacia() {
 
         <Tab eventKey="busca" title="BUSCA">
           <>
-
-
             {!isFiltered && (
               <div className={styles.container}>
                 <div className={styles.form}>
@@ -383,14 +381,12 @@ export default function Farmacia() {
 
         <Tab eventKey="estoque" title="ESTOQUE">
 
-              <MedicamentoModal />
+              
         </Tab>
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
 
-          <div className={styles.buscaFiltrada}>
-            <Button>LISTAR MOVIMENTAÇÕES</Button>
-          </div>
+        <MedicamentoModal />
         </Tab>
       </Tabs >
 

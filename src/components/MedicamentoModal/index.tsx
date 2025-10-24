@@ -5,7 +5,7 @@ import TextField from '../TextField';
 import Select from '../Select';
 
 
-export default function MeuModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) {
+export default function MedicamentoModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) {
 
     return (
         <div className={styles.overlay}>
@@ -25,6 +25,8 @@ export default function MeuModal({ onClose, onConfirm }: { onClose: () => void; 
                             { value: 'capsula', label: 'Cápsulas' },
                             { value: 'outro', label: 'Outro' },
                         ]}
+                        value=""
+                        onChange={undefined}
 
                     />
                     <TextField type="date" />
