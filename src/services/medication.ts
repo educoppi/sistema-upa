@@ -24,6 +24,8 @@ const medicationService = {
             }
         });
     },
+
+    
 }
 
 export default medicationService;
