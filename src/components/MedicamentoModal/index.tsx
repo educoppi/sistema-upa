@@ -10,7 +10,7 @@ export default function MeuModal({ onClose, onConfirm }: { onClose: () => void; 
     return (
         <div className={styles.overlay}>
             <div className={styles.modal}>
-                <h2>Edição de </h2>
+                <h2>EDITAR</h2>
                 <div className={styles.container}>
                     <TextField type="text" placeholder="Nome:" />
                     <TextField type="text" placeholder="Dosagem:" />
