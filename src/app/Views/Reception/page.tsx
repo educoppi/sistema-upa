@@ -58,6 +58,32 @@ export default function Reception() {
       });
   }
 
+
+  function buscarPaciente (){
+    axios.get(`https://projeto-integrador-lf6v.onrender.com/users?cpf=${pesquisaCPF}` 
+    )
+      .then(function (response: AxiosResponse) {
+
+        const dados = Array.isArray(response.data) && response.data.length > 0 ? response.data[0] : null;
+        console.log(dados);
+
+        setPaciente({
+          name: dados.name || "",
+          lastName: dados.lastName || "",
+          cpf: dados.cpf || "",
+          phone: dados.phone || "",
+          email: dados.email || "",
+          allergy: dados.allergy || "",
+          birthDate: dados.birthDate || "",
+          situation: dados.situation || "AGUARDANDO TRIAGEM"
+        });
+
+      })
+      .catch(function () {
+        console.log("erro");
+      });
+  }
+
   return (
     <>
       <Header name={usuario?.name || "Usuário"} />
@@ -68,7 +94,7 @@ export default function Reception() {
 
         <div className={style.pesquisaField}>
           <TextFieldPesquisa type="text" placeholder="Pesquise pelo CPF do Paciente" onChange={setPesquisaCPF} text={pesquisaCPF} />
-            <Button className={style.buttonPesquisar}>Buscar</Button>
+            <Button onClick={buscarPaciente} className={style.buttonPesquisar}>Buscar</Button>
         </div>
 
         <div className={style.container}>
