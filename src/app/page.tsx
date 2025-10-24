@@ -62,19 +62,19 @@ export default function Home() {
   function direcionaTela(role: string) {
     console.log(usuario.role);
 
-    if ( usuario.role === 'DOCTOR' ) {
+    if ( role === 'DOCTOR' ) {
       router.push('/Views/Doctor');
     }
 
-    if( usuario.role === 'PHARMACY' ) {
+    if( role === 'PHARMACY' ) {
       router.push('/Views/Farmacia');
     }
 
-    if( usuario.role === 'RECEPCIONIST' ) {
+    if( role === 'RECEPCIONIST' ) {
       router.push('/Views/Reception');
     }
 
-    if( usuario.role === 'NURSE' ) {
+    if( role === 'NURSE' ) {
       router.push('/Views/Triage');
     }
 
