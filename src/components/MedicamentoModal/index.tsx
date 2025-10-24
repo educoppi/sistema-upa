@@ -12,10 +12,9 @@ export default function MeuModal({ onClose, onConfirm }: { onClose: () => void; 
             <div className={styles.modal}>
                 <h2>Edição de </h2>
                 <div className={styles.container}>
-                    <TextField type="text" label="Nome:" />
-                    <TextField type="text" label="Dosagem:" />
+                    <TextField type="text" placeholder="Nome:" />
+                    <TextField type="text" placeholder="Dosagem:" />
                     <Select
-                        label="Tipo"
                         name="type"
                         placeholder="Selecione um tipo"
                         campo="tipo"
@@ -28,16 +27,12 @@ export default function MeuModal({ onClose, onConfirm }: { onClose: () => void; 
                         ]}
 
                     />
-                    <TextField type="date" label="Vencimento:" />
+                    <TextField type="date" />
                 </div>
-
-
-
-
                 <p>Deseja confirmar esta ação?</p>
                 <div className={styles.actions}>
-                    <button onClick={onConfirm}>Salvar</button>
-                    <button onClick={onClose}>Cancelar</button>
+                    <button className={styles.button} onClick={onConfirm}>SALVAR</button>
+                    <button className={styles.button} onClick={onClose}>CANCELAR</button>
                 </div>
             </div>
         </div>
