@@ -5,7 +5,7 @@ import TituloMinimizavel from "../TituloMinimizavel";
 import SegmentoCard from "../SegmentoCard";
 import styles from "./styles.module.css";
 import PrescriptionModal from "../PrescriptionModal";
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2, FiEye } from "react-icons/fi";
 import EncaminhamentoModal from "../EncaminhamentoModal";
 
 type Patient = {
@@ -38,6 +38,7 @@ export default function Atendimento({ onFinalizar }: Props) {
   const [showEncaminhamento, setShowEncaminhamento] = useState(false);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [showEncaminhamentoModal, setShowEncaminhamentoModal] = useState(false);
+  const [showEncaminhamentoDetalhes, setShowEncaminhamentoDetalhes] = useState<Encaminhamento | null>(null);
   const [historico, setHistorico] = useState<string[]>([]);
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
 
@@ -69,8 +70,9 @@ export default function Atendimento({ onFinalizar }: Props) {
   function finalizarAtendimento() {
     if (!patient) return;
 
+    // Data local correta (não UTC)
     const hoje = new Date();
-    const dataHoje = hoje.toISOString().split("T")[0]; // formato yyyy-mm-dd
+    const dataHoje = `${hoje.getFullYear()}-${(hoje.getMonth()+1).toString().padStart(2,"0")}-${hoje.getDate().toString().padStart(2,"0")}`;
 
     const atendimentoDoDia = {
       id: Date.now(),
@@ -80,13 +82,13 @@ export default function Atendimento({ onFinalizar }: Props) {
       encaminhamentos,
     };
 
-    // salva histórico individual do paciente
+    // salva histórico individual
     const historicoSalvoString = localStorage.getItem(`historico_atendimentos_patient_${patient.id}`);
     const historicoSalvo = historicoSalvoString ? JSON.parse(historicoSalvoString) : [];
     const novoHistorico = [...historicoSalvo, atendimentoDoDia];
     localStorage.setItem(`historico_atendimentos_patient_${patient.id}`, JSON.stringify(novoHistorico));
 
-    // adiciona também no histórico global para o calendário
+    // salva também no histórico global (para calendário)
     const historicoGlobalString = localStorage.getItem("historico_global");
     const historicoGlobal = historicoGlobalString ? JSON.parse(historicoGlobalString) : [];
     const novoRegistro = {
@@ -100,7 +102,6 @@ export default function Atendimento({ onFinalizar }: Props) {
     };
     localStorage.setItem("historico_global", JSON.stringify([...historicoGlobal, novoRegistro]));
 
-    // Atualiza anotação no paciente
     const patientAtualizado = { ...patient, annotation: anotacoes };
     setPatient(patientAtualizado);
     localStorage.setItem("currentPatientId", JSON.stringify(patientAtualizado));
@@ -109,7 +110,6 @@ export default function Atendimento({ onFinalizar }: Props) {
     onFinalizar(anotacoes);
   }
 
-  // Deletar encaminhamento
   function deletarEncaminhamento(index: number) {
     if (!patient) return;
     if (confirm("Deseja deletar este encaminhamento?")) {
@@ -145,6 +145,7 @@ export default function Atendimento({ onFinalizar }: Props) {
         </SegmentoCard>
       )}
 
+      {/* RECEITA */}
       <TituloMinimizavel title="Receita" isOpen={showReceita} onAlterna={() => setShowReceita(!showReceita)} />
       {showReceita && (
         <SegmentoCard className={styles.card}>
@@ -152,9 +153,7 @@ export default function Atendimento({ onFinalizar }: Props) {
             <div className={styles.emptyBox}>
               <p>Não possui receitas recentes</p>
               <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px" }}>
-                CRIAR
-              </Button>
+              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px" }}>CRIAR</Button>
             </div>
           ) : (
             <div>
@@ -176,14 +175,13 @@ export default function Atendimento({ onFinalizar }: Props) {
                   <pre>{receita}</pre>
                 </div>
               ))}
-              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>
-                CRIAR
-              </Button>
+              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>CRIAR</Button>
             </div>
           )}
         </SegmentoCard>
       )}
 
+      {/* ENCAMINHAMENTO */}
       <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onAlterna={() => setShowEncaminhamento(!showEncaminhamento)} />
       {showEncaminhamento && (
         <SegmentoCard className={styles.card}>
@@ -191,42 +189,88 @@ export default function Atendimento({ onFinalizar }: Props) {
             <div className={styles.emptyBox}>
               <p>Não possui encaminhamentos recentes</p>
               <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px" }}>
-                CRIAR
-              </Button>
+              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px" }}>CRIAR</Button>
             </div>
           ) : (
             <div>
               <ul>
                 {encaminhamentos.map((e, i) => (
-                  <li key={i}>
+                  <li key={i} style={{ marginBottom: "10px" }}>
                     <strong>Data:</strong> {e.data} <br />
                     <strong>Descrição:</strong> {e.descricao} <br />
                     <strong>Medicamentos:</strong> {e.medicamentos || "-"}
-                    <button
-                      onClick={() => deletarEncaminhamento(i)}
-                      title="Excluir encaminhamento"
-                      style={{
-                        marginLeft: 10,
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FiTrash2 color="#c00" size={16} />
-                    </button>
+                    <div style={{ marginTop: 5, display: "flex", gap: 10 }}>
+                      <Button
+                        onClick={() => setShowEncaminhamentoDetalhes(e)}
+                        style={{ borderRadius: "8px", background: "#007bff", color: "#fff", padding: "5px 10px" }}
+                      >
+                        <FiEye size={16} style={{ marginRight: 4 }} /> Ver detalhes
+                      </Button>
+                      <button
+                        onClick={() => deletarEncaminhamento(i)}
+                        title="Excluir encaminhamento"
+                        style={{ background: "transparent", border: "none", cursor: "pointer" }}
+                      >
+                        <FiTrash2 color="#c00" size={18} />
+                      </button>
+                    </div>
                     <hr />
                   </li>
                 ))}
               </ul>
-              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>
-                CRIAR
-              </Button>
+              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>CRIAR</Button>
             </div>
           )}
         </SegmentoCard>
       )}
 
+      {/* MODAL DETALHES ENCAMINHAMENTO */}
+      {showEncaminhamentoDetalhes && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.35)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 999,
+          }}
+          onClick={() => setShowEncaminhamentoDetalhes(null)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 10,
+              padding: 20,
+              width: "400px",
+              boxShadow: "0 5px 20px rgba(0,0,0,0.3)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>Detalhes do Encaminhamento</h3>
+            <p><strong>Data:</strong> {showEncaminhamentoDetalhes.data}</p>
+            <p><strong>Descrição:</strong> {showEncaminhamentoDetalhes.descricao}</p>
+            <p><strong>Medicamentos:</strong> {showEncaminhamentoDetalhes.medicamentos || "-"}</p>
+            <Button
+              onClick={() => setShowEncaminhamentoDetalhes(null)}
+              style={{ marginTop: 15, borderRadius: "8px" }}
+            >
+              Fechar
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* BOTÃO FINALIZAR */}
+      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
+        <Button onClick={finalizarAtendimento} style={{ borderRadius: "12px" }}>FINALIZAR</Button>
+      </div>
+
+      {/* MODAIS DE CRIAÇÃO */}
       {showPrescriptionModal && patient && (
         <PrescriptionModal
           onClose={() => setShowPrescriptionModal(false)}
@@ -254,12 +298,6 @@ export default function Atendimento({ onFinalizar }: Props) {
           }}
         />
       )}
-
-      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-        <Button onClick={finalizarAtendimento} style={{ borderRadius: "12px" }}>
-          FINALIZAR
-        </Button>
-      </div>
     </div>
   );
 }
