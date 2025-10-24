@@ -65,7 +65,7 @@ export default function TextField(props: Props) {
 
     return (
         <>
-            {props.label}
+            <p className={styles.labelLogin}>{props.label}</p>
             <input type={props.type} placeholder={props.placeholder} value={props.text} onChange={handleInputChange} className={styles.input} />
         </>
     );

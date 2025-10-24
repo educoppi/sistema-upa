@@ -2,22 +2,19 @@
   width: 300px;
   height: 40px;
   border-radius: 10px;
-  margin-top: -15px;
   padding: 5px;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.5);
+  border: solid 1px black;
+  box-shadow: 0 4px 4px 0 rgba(129, 128, 128, 0.5);
 }
 
 .inputPesquisa {
   width: 250%;
   height: 40px;
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin-top: 15px;
+  margin-bottom: 15px;
   padding: 5px;
-}
-
-.inputPesquisa:focus{
-  outline: none;
-  border: 2px solid #0D9276;
+  border: none;
 }
 
 .input:focus {
@@ -32,4 +29,9 @@
 
 .label {
   font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.labelLogin {
+  margin-bottom: -5px;
 }
