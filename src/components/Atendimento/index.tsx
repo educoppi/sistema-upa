@@ -7,7 +7,7 @@ import styles from "./styles.module.css";
 import PrescriptionModal from "../PrescriptionModal";
 import { FiTrash2, FiEye } from "react-icons/fi";
 import EncaminhamentoModal from "../EncaminhamentoModal";
-
+ 
 type Patient = {
   id: number;
   name: string;
@@ -19,17 +19,17 @@ type Patient = {
   recentMedicine?: string;
   annotation?: string;
 };
-
+ 
 interface Encaminhamento {
   descricao: string;
   medicamentos: string;
   data: string;
 }
-
+ 
 interface Props {
   onFinalizar: (anotacoes: string) => void;
 }
-
+ 
 export default function Atendimento({ onFinalizar }: Props) {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [anotacoes, setAnotacoes] = useState("");
@@ -41,13 +41,13 @@ export default function Atendimento({ onFinalizar }: Props) {
   const [showEncaminhamentoDetalhes, setShowEncaminhamentoDetalhes] = useState<Encaminhamento | null>(null);
   const [historico, setHistorico] = useState<string[]>([]);
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
-
+ 
   // Carrega paciente e dados
   useEffect(() => {
     const patientString = localStorage.getItem("currentPatientId");
     if (patientString) setPatient(JSON.parse(patientString));
   }, []);
-
+ 
   useEffect(() => {
     if (!patient) return;
     setAnotacoes(patient.annotation ?? "");
@@ -56,7 +56,7 @@ export default function Atendimento({ onFinalizar }: Props) {
     const encString = localStorage.getItem(`encaminhamentos_patient_${patient.id}`);
     setEncaminhamentos(encString ? JSON.parse(encString) : []);
   }, [patient]);
-
+ 
   function formatDate(dateString?: string) {
     if (!dateString) return " - ";
     const date = new Date(dateString);
@@ -66,14 +66,14 @@ export default function Atendimento({ onFinalizar }: Props) {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   }
-
+ 
   function finalizarAtendimento() {
     if (!patient) return;
-
+ 
     // Data local correta (não UTC)
     const hoje = new Date();
     const dataHoje = `${hoje.getFullYear()}-${(hoje.getMonth()+1).toString().padStart(2,"0")}-${hoje.getDate().toString().padStart(2,"0")}`;
-
+ 
     const atendimentoDoDia = {
       id: Date.now(),
       data: dataHoje,
@@ -81,13 +81,13 @@ export default function Atendimento({ onFinalizar }: Props) {
       receitas: historico,
       encaminhamentos,
     };
-
+ 
     // salva histórico individual
     const historicoSalvoString = localStorage.getItem(`historico_atendimentos_patient_${patient.id}`);
     const historicoSalvo = historicoSalvoString ? JSON.parse(historicoSalvoString) : [];
     const novoHistorico = [...historicoSalvo, atendimentoDoDia];
     localStorage.setItem(`historico_atendimentos_patient_${patient.id}`, JSON.stringify(novoHistorico));
-
+ 
     // salva também no histórico global (para calendário)
     const historicoGlobalString = localStorage.getItem("historico_global");
     const historicoGlobal = historicoGlobalString ? JSON.parse(historicoGlobalString) : [];
@@ -101,15 +101,15 @@ export default function Atendimento({ onFinalizar }: Props) {
       encaminhamento: encaminhamentos.map((e) => e.descricao).join(", ") || "",
     };
     localStorage.setItem("historico_global", JSON.stringify([...historicoGlobal, novoRegistro]));
-
+ 
     const patientAtualizado = { ...patient, annotation: anotacoes };
     setPatient(patientAtualizado);
     localStorage.setItem("currentPatientId", JSON.stringify(patientAtualizado));
-
+ 
     alert("Atendimento finalizado e salvo no histórico!");
     onFinalizar(anotacoes);
   }
-
+ 
   function deletarEncaminhamento(index: number) {
     if (!patient) return;
     if (confirm("Deseja deletar este encaminhamento?")) {
@@ -118,7 +118,7 @@ export default function Atendimento({ onFinalizar }: Props) {
       localStorage.setItem(`encaminhamentos_patient_${patient.id}`, JSON.stringify(atualizados));
     }
   }
-
+ 
   return (
     <div className={styles.fichaContainer}>
       <TituloMinimizavel title="Ficha Médica" isOpen={showFicha} onAlterna={() => setShowFicha(!showFicha)} />
@@ -144,7 +144,7 @@ export default function Atendimento({ onFinalizar }: Props) {
           </div>
         </SegmentoCard>
       )}
-
+ 
       {/* RECEITA */}
       <TituloMinimizavel title="Receita" isOpen={showReceita} onAlterna={() => setShowReceita(!showReceita)} />
       {showReceita && (
@@ -180,7 +180,7 @@ export default function Atendimento({ onFinalizar }: Props) {
           )}
         </SegmentoCard>
       )}
-
+ 
       {/* ENCAMINHAMENTO */}
       <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onAlterna={() => setShowEncaminhamento(!showEncaminhamento)} />
       {showEncaminhamento && (
@@ -223,7 +223,7 @@ export default function Atendimento({ onFinalizar }: Props) {
           )}
         </SegmentoCard>
       )}
-
+ 
       {/* MODAL DETALHES ENCAMINHAMENTO */}
       {showEncaminhamentoDetalhes && (
         <div
@@ -264,12 +264,12 @@ export default function Atendimento({ onFinalizar }: Props) {
           </div>
         </div>
       )}
-
+ 
       {/* BOTÃO FINALIZAR */}
       <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
         <Button onClick={finalizarAtendimento} style={{ borderRadius: "12px" }}>FINALIZAR</Button>
       </div>
-
+ 
       {/* MODAIS DE CRIAÇÃO */}
       {showPrescriptionModal && patient && (
         <PrescriptionModal
@@ -281,7 +281,7 @@ export default function Atendimento({ onFinalizar }: Props) {
           }}
         />
       )}
-
+ 
       {showEncaminhamentoModal && patient && (
         <EncaminhamentoModal
           patientName={patient.name}
