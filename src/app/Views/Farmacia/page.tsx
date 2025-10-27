@@ -187,15 +187,25 @@ export default function Farmacia() {
 
   async function buscarEstoqueBaixo() {
     try {
-      const medicamentos = await medicationService.busca('', '', '');
-      const abaixoDe300 = medicamentos.filter((m: any) => Number(m.quantity) < 300);
-      setEstoqueBaixo(abaixoDe300);
+      const response = await axios.get(
+        'https://projeto-integrador-lf6v.onrender.com/medications/estoqueBaixo',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      setEstoqueBaixo(response.data);
     } catch (error) {
       console.error('Erro ao buscar estoque baixo:', error);
+      setAlerta({ tipo: 'danger', mensagem: 'Erro ao buscar estoque baixo.' });
     }
   }
+  
 
   useEffect(() => {
+    buscarEstoqueBaixo()
+
     const intervalo = setInterval(() => {
       buscarEstoqueBaixo();
     }, 30000);
