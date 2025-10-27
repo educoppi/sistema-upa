@@ -3,19 +3,31 @@ import { useState } from 'react';
 import styles from './styles.module.css';
 import TextField from '../TextField';
 import Select from '../Select';
+import Medication from '@/models/Medication';
+import Button from '../Button';
+
+type Props = { 
+    onClose: () => void;
+    onConfirm: () => void;
+    medicamento: Medication;    
+}
 
 
-export default function MeuModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: () => void }) {
+export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Props) {
+
+const [name, setName] = useState(medicamento.name)
+const [dosage, setDosage] = useState(medicamento.dosage)
+const [type, setType] = useState(medicamento.type)
+const [expiresAt, setExpiresAt] = useState(medicamento.expiresAt.toString())
 
     return (
         <div className={styles.overlay}>
             <div className={styles.modal}>
-                <h2>Edição de </h2>
+                <h2>EDITAR</h2>
                 <div className={styles.container}>
-                    <TextField type="text" label="Nome:" />
-                    <TextField type="text" label="Dosagem:" />
+                    <TextField type="text" placeholder="Nome:" text={medicamento.name} onChange={setName}/>
+                    <TextField type="text" placeholder="Dosagem:" text={medicamento.dosage} onChange={setDosage}/>
                     <Select
-                        label="Tipo"
                         name="type"
                         placeholder="Selecione um tipo"
                         campo="tipo"
@@ -26,18 +38,16 @@ export default function MeuModal({ onClose, onConfirm }: { onClose: () => void; 
                             { value: 'capsula', label: 'Cápsulas' },
                             { value: 'outro', label: 'Outro' },
                         ]}
+                        value={medicamento.type}
+                        onChange={setType}
 
                     />
-                    <TextField type="date" label="Vencimento:" />
+                    <TextField type="date" onChange={() => {}} text={expiresAt}/>
                 </div>
-
-
-
-
                 <p>Deseja confirmar esta ação?</p>
                 <div className={styles.actions}>
-                    <button onClick={onConfirm}>Salvar</button>
-                    <button onClick={onClose}>Cancelar</button>
+                    <Button className={styles.button} onClick={onConfirm}>SALVAR</Button>
+                    <Button className={styles.button} onClick={onClose}>CANCELAR</Button>
                 </div>
             </div>
         </div>
