@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./style.module.css";
-
+ 
 interface HistoricoItem {
   id: number;
   titulo: string;
@@ -11,14 +11,14 @@ interface HistoricoItem {
   receita?: string;
   encaminhamento?: string;
 }
-
+ 
 export default function Historico() {
   const hoje = new Date();
   const [selecionado, setSelecionado] = useState<HistoricoItem[] | null>(null);
   const [meses, setMeses] = useState<{ nome: string; ano: number; mes: number }[]>([]);
   const [itens, setItens] = useState<HistoricoItem[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-
+ 
   // Cria meses iniciais (6 meses atrás até mês atual)
   useEffect(() => {
     const tempMeses = Array.from({ length: 6 }, (_, i) => {
@@ -31,21 +31,21 @@ export default function Historico() {
     });
     setMeses(tempMeses);
   }, []);
-
+ 
   // 🔹 Carrega histórico real salvo no localStorage
   useEffect(() => {
     const historicoStr = localStorage.getItem("historico_global");
     const dados = historicoStr ? JSON.parse(historicoStr) : [];
     setItens(dados);
   }, []);
-
+ 
   const getEventosPorMes = (ano: number, mes: number) =>
     itens.filter((i) => i.data && new Date(i.data).getFullYear() === ano && new Date(i.data).getMonth() === mes);
-
+ 
   const handleDiaClick = (eventos: HistoricoItem[]) => {
     if (eventos.length > 0) setSelecionado(eventos);
   };
-
+ 
   // Atualiza meses automaticamente se o mês mudou
   useEffect(() => {
     const timer = setInterval(() => {
@@ -62,10 +62,10 @@ export default function Historico() {
         });
       }
     }, 1000 * 60 * 60);
-
+ 
     return () => clearInterval(timer);
   }, [meses]);
-
+ 
   return (
     <div className={styles.container}>
       <h2>Histórico (últimos 6 meses)</h2>
@@ -75,7 +75,7 @@ export default function Historico() {
           const diasNoMes = new Date(m.ano, m.mes + 1, 0).getDate();
           const dias = Array.from({ length: diasNoMes }, (_, i) => i + 1);
           const atual = m.mes === hoje.getMonth() && m.ano === hoje.getFullYear();
-
+ 
           return (
             <div key={m.nome} className={`${styles.mesCard} ${atual ? styles.mesAtual : ""}`}>
               <h3>{m.nome.charAt(0).toUpperCase() + m.nome.slice(1)}</h3>
@@ -98,7 +98,7 @@ export default function Historico() {
           );
         })}
       </div>
-
+ 
       {selecionado && (
         <div className={styles.modalOverlay} onClick={() => setSelecionado(null)}>
           <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>

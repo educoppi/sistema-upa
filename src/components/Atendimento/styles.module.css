@@ -1,39 +1,62 @@
-/* FichaMedica - ocupando 80% da tela */
+/* Container principal da ficha médica */
 .fichaContainer {
-  width: 80%;           /* ocupa 80% da largura da tela */
-  max-width: 1200px;    /* opcional: limite máximo para telas grandes */
-  margin: 20px auto;    /* centraliza horizontalmente */
+  width: 80%;
+  max-width: 1200px;
+  margin: 20px auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;            /* espaço entre seções */
+  gap: 16px;
   font-family: Arial, sans-serif;
 }
 
-/* Caixa de informações principais */
+/* Caixa de informações do paciente */
 .infoBox {
   border: 2px solid #1e9a81;
   padding: 16px;
   border-radius: 6px;
   display: flex;
-  flex-wrap: wrap;      /* permite que os itens quebrem linha */
+  flex-wrap: wrap;
   gap: 45px;
   font-size: 18px;
 }
 
-/* Cada item de informação dentro da infoBox */
+/* Cada item dentro da infoBox */
 .infoBox > div {
-  flex: 1 1 200px;      /* ocupa pelo menos 200px, cresce se houver espaço */
+  flex: 1 1 200px;
 }
 
-/* Anotações e cartões de receita/encaminhamento */
-.anotacoesBox, .card {
+/* Caixa de anotações */
+.anotacoesBox {
   border: 1px solid #ddd;
   padding: 16px;
   border-radius: 6px;
-  font-size: 20px;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-/* Caixa quando não houver receita ou encaminhamento */
+/* Textarea de anotações */
+.anotacoesBox textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-family: Arial, sans-serif;
+}
+
+/* Cartões gerais (receita ou histórico) */
+.card {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 6px;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+/* Caixa vazia quando não há histórico ou receita */
 .emptyBox {
   text-align: center;
   padding: 20px;
@@ -43,6 +66,7 @@
   align-items: center;
 }
 
+/* Cartão de receita */
 .receitaCard {
   background-color: #f9f9f9;
   border-left: 4px solid #007bff;
@@ -52,11 +76,13 @@
   font-family: 'Courier New', Courier, monospace;
 }
 
+/* Cabeçalho do cartão de receita (com botão de excluir) */
 .receitaHeader {
   display: flex;
   justify-content: flex-end;
 }
 
+/* Botão de deletar receita */
 .deleteButton {
   background: none;
   border: none;
@@ -67,31 +93,45 @@
 .deleteButton:hover svg {
   color: #e00;
 }
+
+/* Destaque para paciente nível 5 */
 .nivelCinco {
-  color: #b60000;       /* vermelho intenso */
-  font-weight: bold;    /* deixa mais evidente */
+  color: #b60000;
+  font-weight: bold;
 }
 
-/* Alerta de paciente nível 5 */
-.alertBox {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: #d00000;
-  color: #fff;
-  padding: 16px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  font-size: 16px;
-  z-index: 9999;
-  animation: fadeOut 5s forwards;
+/* Histórico de atendimentos */
+.historicoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.alertBox strong {
-  font-size: 18px;
+.historicoItem {
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #fefefe;
 }
 
-.alertBox p {
-  margin: 6px 0 0;
+/* Data e anotação dentro do histórico */
+.historicoItem p {
+  margin: 4px 0;
 }
 
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .fichaContainer {
+    width: 95%;
+  }
+  .infoBox {
+    gap: 20px;
+    font-size: 16px;
+  }
+  .anotacoesBox, .card, .receitaCard {
+    font-size: 16px;
+  }
+  .infoBox > div {
+    flex: 1 1 100%;
+  }
+}

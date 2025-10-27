@@ -10,6 +10,7 @@ import { Tabs, Tab, Alert } from 'react-bootstrap';
 import axios, { AxiosResponse } from 'axios';
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 import medicationService from '@/services/medication';
+import Medication from '@/models/Medication';
 
 
 export default function Farmacia() {
@@ -37,7 +38,12 @@ export default function Farmacia() {
 
   const [isFiltered, setIsFiltered] = useState(false);
 
-  const [editarMedicamento, setEditarMedicamento] = useState(true)
+  const [modalEditar, setModalEditar] = useState(false)
+
+  const [medicamentoSelecionado, setMedicamentoSelecionado] = useState<Medication>()
+
+  const [estoqueBaixo, setEstoqueBaixo] = useState<any[]>([]);
+
 
 
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
@@ -178,6 +184,35 @@ export default function Farmacia() {
     setUsuario(usuarioString ? JSON.parse(usuarioString) : null)
   }, []);
 
+
+  async function buscarEstoqueBaixo() {
+    try {
+      const response = await axios.get(
+        'https://projeto-integrador-lf6v.onrender.com/medications/estoqueBaixo',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      setEstoqueBaixo(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar estoque baixo:', error);
+      setAlerta({ tipo: 'danger', mensagem: 'Erro ao buscar estoque baixo.' });
+    }
+  }
+  
+
+  useEffect(() => {
+    buscarEstoqueBaixo()
+
+    const intervalo = setInterval(() => {
+      buscarEstoqueBaixo();
+    }, 30000);
+
+    return () => clearInterval(intervalo);
+  }, []);
+
   return (
     <>
       < Header name={usuario?.name || "Usuário"} />
@@ -230,8 +265,6 @@ export default function Farmacia() {
 
         <Tab eventKey="busca" title="BUSCA">
           <>
-
-
             {!isFiltered && (
               <div className={styles.container}>
                 <div className={styles.form}>
@@ -352,7 +385,7 @@ export default function Farmacia() {
 
                           <tbody>
                             {resultadosOrdenados.map((med, index) => (
-                              <tr key={index}>
+                              <tr onClick={() => { setMedicamentoSelecionado(med); setModalEditar(true) }} key={index}>
                                 <td>{med.name}</td>
                                 <td>{med.dosage}</td>
                                 <td>{med.type}</td>
@@ -377,20 +410,65 @@ export default function Farmacia() {
                 </div>
               </>
             )}
+
+            {modalEditar && medicamentoSelecionado && (
+              <MedicamentoModal
+                medicamento={medicamentoSelecionado}
+                onClose={() => {
+                  setModalEditar(false);
+                  setMedicamentoSelecionado(undefined);
+                }}
+                onConfirm={() => { }}
+              />
+            )}
           </>
         </Tab>
 
 
         <Tab eventKey="estoque" title="ESTOQUE">
 
-              <MedicamentoModal />
+          <div className={styles.containerTabela}>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+
+              <Button onClick={buscarEstoqueBaixo}>ATUALIZAR</Button>
+            </div>
+
+            {estoqueBaixo.length > 0 ? (
+              <table className={styles.tabela}>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Dosagem</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Vencimento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {estoqueBaixo.map((med, index) => (
+                    <tr key={index} style={{ backgroundColor: '#ffe5e5' }}>
+                      <td>{med.name}</td>
+                      <td>{med.dosage}</td>
+                      <td>{med.type}</td>
+                      <td style={{ color: 'red', fontWeight: 'bold' }}>{med.quantity}</td>
+                      <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                Nenhum medicamento com estoque baixo encontrado.
+              </div>
+            )}
+          </div>
+
         </Tab>
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
 
-          <div className={styles.buscaFiltrada}>
-            <Button>LISTAR MOVIMENTAÇÕES</Button>
-          </div>
+
         </Tab>
       </Tabs >
 
