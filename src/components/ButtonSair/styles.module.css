@@ -1,0 +1,18 @@
+.container {
+    gap: 8px;
+    cursor: pointer;
+    color: #ffffff;
+    font-weight: bold;
+    transition: color 0.2s ease;
+    margin-right: 15px;
+    margin-bottom: 100px;
+  }
+  
+  .container:hover {
+    color: #fcd4d4;
+  }
+  
+  .icon {
+    font-size: 1.2rem;
+  }
+  
