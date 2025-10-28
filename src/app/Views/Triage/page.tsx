@@ -62,7 +62,7 @@ export default function Triage() {
         console.log(level)
         console.log(symptom)
         console.log(recentMedicine)
-        console.log(new Date().toISOString().split('T')[0])
+        console.log(new Date().toISOString())
 
         axios.post('http://projeto-integrador-lf6v.onrender.com/records', {
             patientId: paciente.id,
@@ -130,7 +130,7 @@ export default function Triage() {
                 telaCadastro && (
                     <>
                         <div className={styles.space}>
-                            <h3 className={styles.name}>{paciente.name}</h3>
+                            <h3 className={styles.name}>{paciente.name + " " + paciente.lastName}</h3>
 
 
                             <div className={styles.container}>

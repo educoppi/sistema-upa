@@ -8,11 +8,8 @@ export default function ButtonSair() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
-
-
+    
     router.push('/');
-
-    // window.location.href = '/login';
   };
 
   return (
