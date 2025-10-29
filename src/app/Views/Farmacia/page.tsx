@@ -182,8 +182,22 @@ export default function Farmacia() {
   useEffect(() => {
     setToken(localStorage.getItem('token') || '');
     const usuarioString = localStorage.getItem('usuario');
-    setUsuario(usuarioString ? JSON.parse(usuarioString) : null)
+    setUsuario(usuarioString ? JSON.parse(usuarioString) : null);
   }, []);
+
+  
+  useEffect(() => {
+    if (!token) return;
+
+    buscarEstoqueBaixo();
+
+    const interval = setInterval(() => {
+      buscarEstoqueBaixo();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [token]);
+
 
 
   async function buscarEstoqueBaixo() {
