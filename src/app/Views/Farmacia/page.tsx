@@ -198,20 +198,11 @@ export default function Farmacia() {
       setEstoqueBaixo(response.data);
     } catch (error) {
       console.error('Erro ao buscar estoque baixo:', error);
-      setAlerta({ tipo: 'danger', mensagem: 'Erro ao buscar estoque baixo.' });
     }
   }
-  
 
-  useEffect(() => {
-    buscarEstoqueBaixo()
 
-    const intervalo = setInterval(() => {
-      buscarEstoqueBaixo();
-    }, 30000);
 
-    return () => clearInterval(intervalo);
-  }, []);
 
   return (
     <>
@@ -427,42 +418,47 @@ export default function Farmacia() {
 
         <Tab eventKey="estoque" title="ESTOQUE">
 
-          <div className={styles.containerTabela}>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-
+          <>
+            <div className={styles.buscaFiltrada}>
               <Button onClick={buscarEstoqueBaixo}>ATUALIZAR</Button>
-            </div>
 
-            {estoqueBaixo.length > 0 ? (
-              <table className={styles.tabela}>
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Dosagem</th>
-                    <th>Tipo</th>
-                    <th>Quantidade</th>
-                    <th>Vencimento</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {estoqueBaixo.map((med, index) => (
-                    <tr key={index} style={{ backgroundColor: '#ffe5e5' }}>
-                      <td>{med.name}</td>
-                      <td>{med.dosage}</td>
-                      <td>{med.type}</td>
-                      <td style={{ color: 'red', fontWeight: 'bold' }}>{med.quantity}</td>
-                      <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                Nenhum medicamento com estoque baixo encontrado.
+            </div>
+            <div className={styles.containerTabela}>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+
               </div>
-            )}
-          </div>
+
+              {estoqueBaixo.length > 0 ? (
+                <table className={styles.tabela}>
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Dosagem</th>
+                      <th>Tipo</th>
+                      <th>Quantidade</th>
+                      <th>Vencimento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {estoqueBaixo.map((med, index) => (
+                      <tr key={index} style={{ backgroundColor: '#ffe5e5' }}>
+                        <td>{med.name}</td>
+                        <td>{med.dosage}</td>
+                        <td>{med.type}</td>
+                        <td style={{ color: 'red', fontWeight: 'bold' }}>{med.quantity}</td>
+                        <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                  Nenhum medicamento com estoque baixo encontrado.
+                </div>
+              )}
+            </div>
+          </>
 
         </Tab>
 
