@@ -9,6 +9,7 @@ import Select from '@/components/Select';
 import { Tabs, Tab, Alert } from 'react-bootstrap';
 import axios, { AxiosResponse } from 'axios';
 import { FaSortUp, FaSortDown } from "react-icons/fa";
+import { IoReloadCircle } from 'react-icons/io5';
 import medicationService from '@/services/medication';
 import Medication from '@/models/Medication';
 
@@ -420,7 +421,7 @@ export default function Farmacia() {
 
           <>
             <div className={styles.buscaFiltrada}>
-              <Button onClick={buscarEstoqueBaixo}>ATUALIZAR</Button>
+              <Button onClick={buscarEstoqueBaixo}> ATUALIZAR </Button>
 
             </div>
             <div className={styles.containerTabela}>
