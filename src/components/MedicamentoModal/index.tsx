@@ -18,6 +18,7 @@ export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Pr
     const [name, setName] = useState(medicamento.name)
     const [dosage, setDosage] = useState(medicamento.dosage)
     const [type, setType] = useState(medicamento.type)
+    
     const [expiresAt, setExpiresAt] = useState(() => {
         const date = new Date(medicamento.expiresAt);
         if (isNaN(date.getTime())) return '';

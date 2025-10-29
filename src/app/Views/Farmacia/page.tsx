@@ -185,7 +185,7 @@ export default function Farmacia() {
     setUsuario(usuarioString ? JSON.parse(usuarioString) : null);
   }, []);
 
-  
+
   useEffect(() => {
     if (!token) return;
 
@@ -198,6 +198,16 @@ export default function Farmacia() {
     return () => clearInterval(interval);
   }, [token]);
 
+  
+useEffect(() => {
+  if (alerta) {
+    const timer = setTimeout(() => {
+      setAlerta(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }
+}, [alerta]);
 
 
   async function buscarEstoqueBaixo() {
@@ -230,7 +240,6 @@ export default function Farmacia() {
         <Tab eventKey="solicitacoes" title="SOLICITAÇÕES">
         </Tab>
 
-
         <Tab eventKey="cadastro" title="CADASTRO">
           <div className={styles.container}>
 
@@ -262,12 +271,12 @@ export default function Farmacia() {
                   {alerta.mensagem}
                 </Alert>
               )}
+              
 
 
             </div>
           </div>
         </Tab>
-
 
         <Tab eventKey="busca" title="BUSCA">
           <>
@@ -430,7 +439,6 @@ export default function Farmacia() {
           </>
         </Tab>
 
-
         <Tab eventKey="estoque" title="ESTOQUE">
 
           <>
@@ -479,6 +487,9 @@ export default function Farmacia() {
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
 
+          <div className={styles.buscaFiltrada}>
+            <Button>NOVA MOVIMENTAÇÃO</Button>
+          </div>
 
         </Tab>
       </Tabs >
