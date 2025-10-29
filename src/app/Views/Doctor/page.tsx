@@ -1,55 +1,52 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, Tab } from 'react-bootstrap';
 import { Header } from '@/components/Header';
 import TabelaIniciar from '@/components/TabelaIniciar';
-import FichaMedica from '@/components/Atendimento';
-import Historico from '@/components/Historico';
 import Atendimento from "@/components/Atendimento";
+import Historico from '@/components/Historico';
 
 export default function Doctor() {
 
-  const token = localStorage.getItem('token');
-  const usuarioString = localStorage.getItem('usuario');
-  const usuario = usuarioString ? JSON.parse(usuarioString) : null;
-
+  const [token, setToken] = useState<string | null>(null);
+  const [usuario, setUsuario] = useState<any>(null);
   const [iniciado, setIniciado] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState("atendimento");
 
-  const pacientePadrao = {
-    id: 1,
-    nome: "João Coppi Soares",
-    nivel: 5,
-    dataNascimento: "1990-05-10",
-    sintomas: "Dor de cabeça",
-    alergias: "Nenhuma",
-    remedioControlado: "Não",
-    anotacoes: ""
-  };
+  // Carregar token e usuário do localStorage
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    const usuarioString = localStorage.getItem('usuario');
+    setToken(storedToken);
+    setUsuario(usuarioString ? JSON.parse(usuarioString) : null);
+  }, []);
 
-  const [historicoAtendimentos, setHistoricoAtendimentos] = useState([
-    { id: 1, titulo: "Consulta – Dor de cabeça", data: "2025-10-05", descricao: "Paciente relatou melhora com medicação." },
-  ]);
-function finalizarAtendimento(anotacoes: string) {
-  const hojeStr = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
-  const novaEntrada = {
-    id: historicoAtendimentos.length + 1,
-    titulo: `Consulta – ${pacientePadrao.sintomas}`,
-    data: hojeStr,
-    descricao: anotacoes || "Sem anotações."
-  };
-  setHistoricoAtendimentos([novaEntrada, ...historicoAtendimentos]);
-  setIniciado(false);
-  setAbaAtiva("atendimento");
-}
+  // Paciente padrão (usado apenas para ID)
+  const pacientePadrao = { id: 1 };
 
-//console.log("Token:", token);
-//console.log("Usuário:", usuario.);
-//console.log("pega a role do user:", usuario.role[0]);
+  // Histórico local para controle de finalizações recentes
+  const [historicoAtendimentos, setHistoricoAtendimentos] = useState<any[]>([]);
+
+  function finalizarAtendimento(anotacoes: string) {
+    const hojeStr = new Date().toISOString().split("T")[0];
+    const novaEntrada = {
+      id: historicoAtendimentos.length + 1,
+      titulo: `Consulta – anotação`,
+      data: hojeStr,
+      descricao: anotacoes || "Sem anotações."
+    };
+    setHistoricoAtendimentos([novaEntrada, ...historicoAtendimentos]);
+    setIniciado(false);
+    setAbaAtiva("atendimento");
+  }
+
+  if (!token) {
+    return <p>Carregando ou usuário não autenticado...</p>;
+  }
 
   return (
     <>
-      <Header name={usuario?.name || "Usuário"}/>
+      <Header name={usuario?.name || "Usuário"} />
 
       {!iniciado ? (
         <TabelaIniciar onIniciar={() => setIniciado(true)} />
@@ -61,15 +58,15 @@ function finalizarAtendimento(anotacoes: string) {
         >
           <Tab eventKey="atendimento" title="ATENDIMENTO">
             <Atendimento
-              paciente={pacientePadrao}
+              patientId={pacientePadrao.id}
+              token={token}
               onVoltar={() => setIniciado(false)}
               onFinalizar={finalizarAtendimento}
             />
           </Tab>
 
           <Tab eventKey="historico" title="HISTÓRICO">
-            <Historico
-            />
+            <Historico token={token} />
           </Tab>
         </Tabs>
       )}

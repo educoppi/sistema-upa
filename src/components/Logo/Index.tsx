@@ -5,8 +5,8 @@ export default function Logo() {
         <div className={styles.logo}>
             <img className={styles.imagem} src="/images/logo.png" alt="oi" />
             <div className={styles.container}>
-                <h2>São Lucas</h2>
-                <h4>Pronto Atendimento</h4>
+                <h2>SisUPA</h2>
+                <h4>Unidade de Pronto Atendimento</h4>
             </div>
         </div>
     );

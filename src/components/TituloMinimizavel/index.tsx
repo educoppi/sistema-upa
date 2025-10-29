@@ -1,19 +1,24 @@
-// components/ToggleTitle.tsx
+'use client';
 import React from "react";
 
 interface Props {
   title: string;
   isOpen: boolean;
   onAlterna: () => void;
+  children?: React.ReactNode; // permite conteúdo dentro
 }
 
-export default function TituloMinimizavel({ title, isOpen, onAlterna }: Props) {
+export default function TituloMinimizavel({ title, isOpen, onAlterna, children }: Props) {
   return (
-    <h2 
-      style={{ cursor: "pointer" }}
-      onClick={onAlterna}
-    >
-      {isOpen ? "▼" : "▶"} {title}
-    </h2>
+    <div>
+      <h2 
+        style={{ cursor: "pointer" }}
+        onClick={onAlterna}
+      >
+        {isOpen ? "▼" : "▶"} {title}
+      </h2>
+
+      {isOpen && children}
+    </div>
   );
 }

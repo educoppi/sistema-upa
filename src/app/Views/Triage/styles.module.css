@@ -1,0 +1,60 @@
+.container {
+    display: flex;
+    width: 80%;
+    height: 150px;
+    column-gap: 100px;
+    flex-wrap: wrap;
+}
+
+.space {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.name {
+    margin-bottom: 50px;
+    font-size: 50px;
+}
+
+.pesquisaField {
+    background-color: #F2F2F2;
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+    gap: 50%;
+    align-content: space-between;
+    align-items: center;
+    border-radius: 15px;
+    margin-bottom: 100px;
+    margin-top: 20px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.titulo {
+    margin-top: 15px;
+}
+
+
+.buttonPesquisar {
+    background-color: #0D9276;
+    font-size: 20px;
+    border: none;
+}
+
+.buttonPesquisar:hover{
+    background-color: #1ec7a2;
+} 
+
+
+.buttonForm {
+    background-color: #0D9276;
+    font-size: 20px;
+    border: none;
+    width: 200px;
+    height: 50px;
+}
+
+.buttonForm:hover {
+    background-color: #1ec7a2;
+}
