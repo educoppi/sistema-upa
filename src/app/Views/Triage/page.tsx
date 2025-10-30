@@ -1,6 +1,6 @@
 'use client'
 import { Header } from "@/components/Header";
-import TextField, { TextFieldPesquisa, TextFieldReception } from "@/components/TextField";
+import TextField, { TextFieldAnnotation, TextFieldPesquisa, TextFieldReception } from "@/components/TextField";
 import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import axios, { AxiosResponse } from 'axios';
@@ -55,6 +55,8 @@ export default function Triage() {
 
     const [symptom, setSymptom] = useState("");
 
+    const [annotationTriage, setAnnotationTriage] = useState("");
+
     const [recentMedicine, setRecentMedicine] = useState("");
 
     function classificar() {
@@ -62,14 +64,16 @@ export default function Triage() {
         console.log(level)
         console.log(symptom)
         console.log(recentMedicine)
+        console.log(annotationTriage)
         console.log(new Date().toISOString())
 
-        axios.post('http://projeto-integrador-lf6v.onrender.com/records', {
+        axios.post('https://projeto-integrador-lf6v.onrender.com/records', {
             patientId: paciente.id,
             appointmentDate: new Date().toISOString().split('T')[0],
             level: level,
             symptom: symptom,
-            recentMedicine: recentMedicine
+            recentMedicine: recentMedicine,
+            annotationTriage: annotationTriage
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -90,7 +94,7 @@ export default function Triage() {
     }
 
     function atualizaAlergia(alergia: string, id: Number) {
-        axios.put(`http://projeto-integrador-lf6v.onrender.com/users/${id}`,
+        axios.put(`https://projeto-integrador-lf6v.onrender.com/users/${id}`,
             {
                 allergy: alergia
             },
@@ -156,6 +160,8 @@ export default function Triage() {
                                 < TextFieldReception type="text" label="Medicamento Controlado:" placeholder="Medicamento Controlado" onChange={setRecentMedicine} text={recentMedicine} />
 
                                 < TextFieldReception type="text" label="Alergia:" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
+
+                                < TextFieldAnnotation type="text" label="Anotação:" placeholder="Anotação" onChange={setAnnotationTriage} text={annotationTriage} />
 
                             </div>
                                 <Button className={styles.buttonForm} onClick={classificar}>Classificar</Button>
