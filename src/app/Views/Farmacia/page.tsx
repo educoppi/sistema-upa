@@ -403,7 +403,7 @@ export default function Farmacia() {
                           <tbody>
                             {resultadosOrdenados.map((med, index) => (
                               <tr onClick={() => { setMedicamentoSelecionado(med); setModalEditar(true) }} key={index}>
-                                <td>{tornarMaiusculo(med.name)}</td>
+                                <td><strong>{tornarMaiusculo(med.name)}</strong></td>
                                 <td>{med.dosage}</td>
                                 <td>{tornarMaiusculo(med.type)}</td>
                                 <td>{med.quantity}</td>
@@ -470,7 +470,7 @@ export default function Farmacia() {
                     <tbody>
                       {estoqueBaixo.map((med, index) => (
                         <tr key={index}>
-                          <td>{tornarMaiusculo(med.name)}</td>
+                          <td><strong>{tornarMaiusculo(med.name)}</strong></td>
                           <td>{med.dosage}</td>
                           <td>{tornarMaiusculo(med.type)}</td>
                           <td style={{ color: 'red', fontWeight: 'bolder', backgroundColor: '#ffe5e5' }}>{med.quantity}</td>
@@ -504,7 +504,7 @@ export default function Farmacia() {
                     <tbody>
                       {vencendo.map((med, index) => (
                         <tr key={index} >
-                          <td>{tornarMaiusculo(med.name)}</td>
+                          <td><strong>{tornarMaiusculo(med.name)}</strong></td>
                           <td>{med.dosage}</td>
                           <td>{tornarMaiusculo(med.type)}</td>
                           <td>{med.quantity}</td>
