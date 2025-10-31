@@ -234,6 +234,8 @@ export default function Farmacia() {
         className="mb-3"
       >
         <Tab eventKey="solicitacoes" title="SOLICITAÇÕES">
+
+
         </Tab>
 
         <Tab eventKey="cadastro" title="CADASTRO">
@@ -429,7 +431,9 @@ export default function Farmacia() {
                   setModalEditar(false);
                   setMedicamentoSelecionado(undefined);
                 }}
-                onConfirm={() => { }}
+                onConfirm={() => {
+                  buscarMedicamentos(buscarMedicamento);
+                }}
               />
             )}
           </>
