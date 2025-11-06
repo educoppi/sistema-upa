@@ -145,11 +145,11 @@ export default function Triage() {
                                     placeholder="Selecione um nível"
                                     campo="Nível"
                                     options={[
-                                        { value: '1', label: 'Prioridade Máxima' },
-                                        { value: '2', label: 'Prioridade Alta' },
+                                        { value: '5', label: 'Prioridade Máxima' },
+                                        { value: '4', label: 'Prioridade Alta' },
                                         { value: '3', label: 'Prioridade Média' },
-                                        { value: '4', label: 'Prioridade Baixa' },
-                                        { value: '5', label: 'Prioridade Mínima' },
+                                        { value: '2', label: 'Prioridade Baixa' },
+                                        { value: '1', label: 'Prioridade Mínima' },
                                     ]}
                                     value={level}
                                     onChange={setLevel}
