@@ -531,6 +531,10 @@ export default function Farmacia() {
             <Button>NOVA MOVIMENTAÇÃO</Button>
           </div>
 
+          <div>
+            
+          </div>
+
         </Tab>
       </Tabs >
     </>
