@@ -14,15 +14,23 @@
   border: 2px solid #1e9a81;
   padding: 16px;
   border-radius: 6px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 45px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 👈 duas colunas */
+  gap: 12px 60px; /* espaçamento entre linhas e colunas */
   font-size: 18px;
 }
 
 /* Cada item dentro da infoBox */
 .infoBox > div {
-  flex: 1 1 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Destaque para paciente nível 5 */
+.nivelCinco {
+  color: #b60000;
+  font-weight: bold;
 }
 
 /* Caixa de anotações */
@@ -36,7 +44,7 @@
   gap: 8px;
 }
 
-/* Textarea de anotações */
+/* Textarea */
 .anotacoesBox textarea {
   width: 100%;
   resize: vertical;
@@ -47,91 +55,32 @@
   font-family: Arial, sans-serif;
 }
 
-/* Cartões gerais (receita ou histórico) */
-.card {
-  border: 1px solid #ddd;
-  padding: 16px;
-  border-radius: 6px;
-  font-size: 18px;
-  margin-bottom: 16px;
-}
-
-/* Caixa vazia quando não há histórico ou receita */
-.emptyBox {
-  text-align: center;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-}
-
-/* Cartão de receita */
-.receitaCard {
-  background-color: #f9f9f9;
-  border-left: 4px solid #007bff;
-  padding: 12px;
-  margin-bottom: 16px;
-  white-space: pre-wrap;
-  font-family: 'Courier New', Courier, monospace;
-}
-
-/* Cabeçalho do cartão de receita (com botão de excluir) */
-.receitaHeader {
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Botão de deletar receita */
-.deleteButton {
-  background: none;
+/* Botão salvar */
+.anotacoesBox button {
+  background-color: #1e9a81;
+  color: white;
   border: none;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.deleteButton:hover svg {
-  color: #e00;
-}
-
-/* Destaque para paciente nível 5 */
-.nivelCinco {
-  color: #b60000;
-  font-weight: bold;
-}
-
-/* Histórico de atendimentos */
-.historicoContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.historicoItem {
-  border: 1px solid #ccc;
-  padding: 12px;
+  padding: 10px;
   border-radius: 6px;
-  background-color: #fefefe;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-/* Data e anotação dentro do histórico */
-.historicoItem p {
-  margin: 4px 0;
+.anotacoesBox button:hover {
+  background-color: #157a66;
 }
 
-/* Responsividade para telas menores */
+/* Responsividade */
 @media (max-width: 768px) {
   .fichaContainer {
     width: 95%;
   }
   .infoBox {
-    gap: 20px;
+    grid-template-columns: 1fr; /* 👈 vira uma coluna no celular */
     font-size: 16px;
   }
-  .anotacoesBox, .card, .receitaCard {
+  .anotacoesBox {
     font-size: 16px;
-  }
-  .infoBox > div {
-    flex: 1 1 100%;
   }
 }
