@@ -51,6 +51,24 @@ export function TextFieldReception(props: Props) {
     );
 }
 
+export function TextFieldAnnotation(props: Props) {
+    function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
+        if (props.onChange) {
+            props.onChange(e.target.value);
+        }
+    }
+
+
+    return (
+        <>
+            <div className={styles.content}>
+                <p className={styles.label}>{props.label}</p>
+                <input type={props.type} placeholder={props.placeholder} value={props.text} onChange={handleInputChange} className={styles.inputAnnotation} />
+            </div>
+        </>
+    );
+}
+
 export default function TextField(props: Props) {
 
     //const [texto, setTexto] = useState(props.text);

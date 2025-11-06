@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 type Record = {
   level: number | null;
   symptom: string | null;
-  annotation?: string;
+  annotationTriage?: string;
   appointmentDate?: Date;
   recentMedicine?: string;
   situation?: string;
@@ -17,7 +17,7 @@ type SimplifiedPatient = {
   patientId: number;
   level: number | null;
   symptom: string | null;
-  annotation?: string;
+  annotationTriage?: string;
   appointmentDate?: Date;
   recentMedicine?: string;
   situation?: string;
@@ -71,7 +71,7 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
             cpf: patient.cpf ?? '-',
             email: patient.email ?? '-',
             phone: patient.phone ?? '-',
-            annotation: record.annotationTraige ?? '-',//pegar do edu da triagem
+            annotationTriage: record.annotationTriage ?? '-',//pegar do edu da triagem
             appointmentDate: record.appointmentDate || patient.appointmentDate,
             recentMedicine: record.recentMedicine || patient.recentMedicine,
             situation: record.situation || patient.situation,
@@ -116,7 +116,7 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
                 <td>{item.name} {item.lastName}</td>
                 <td>{item.level ?? '-'}</td>
                 <td>{item.symptom ?? '-'}</td>
-                <td>{item.annotation ?? '-'}</td>
+                <td>{item.annotationTriage ?? '-'}</td>
                 <td>
                   <Button
                     onClick={() => {

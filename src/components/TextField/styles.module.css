@@ -7,6 +7,15 @@
   box-shadow: 0 4px 4px 0 rgba(129, 128, 128, 0.5);
 }
 
+.inputAnnotation {
+  width: 700px;
+  height: 40px;
+  border-radius: 10px;
+  padding: 5px;
+  border: solid 1px black;
+  box-shadow: 0 4px 4px 0 rgba(129, 128, 128, 0.5);
+}
+
 .inputPesquisa {
   width: 250%;
   height: 40px;
@@ -28,7 +37,6 @@
 }
 
 .label {
-  font-weight: bold;
   margin-bottom: 5px;
 }
 

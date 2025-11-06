@@ -41,8 +41,12 @@ export default function Reception() {
 
   // TA DANDO ERRO
   function cadastrar() {
+    const pacienteFormatado = {
+      ...paciente,
+      birthDate: paciente.birthDate ? new Date(paciente.birthDate).toISOString() : null
+    }
     console.log(paciente)
-    axios.post('https://projeto-integrador-lf6v.onrender.com/users/patient', paciente,
+    axios.post('https://projeto-integrador-lf6v.onrender.com/users/patient', pacienteFormatado,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +115,7 @@ export default function Reception() {
 
           <TextFieldReception type="text" label="Alergias" placeholder="Alergias" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
 
-          <TextFieldReception type="date" label="Data de Nascimento" placeholder="Data de Nascimento" onChange={birthDate => setPaciente({ ...paciente, birthDate: new Date(birthDate).toLocaleDateString() })} text={paciente.birthDate} />
+          <TextFieldReception type="date" label="Data de Nascimento" placeholder="Data de Nascimento" onChange={birthDate => setPaciente({ ...paciente, birthDate: birthDate })} text={paciente.birthDate} />
 
 
         </div>

@@ -3,7 +3,7 @@
     margin: 10px;
     align-items: center;
     justify-content: space-between;
-    width: 300px;
+    width: 400px;
 }
 
 .imagem {
@@ -13,10 +13,8 @@
 
 .container {
     color: #ffffff;
-}
-
-.container h2 {
-
+    width: 300px;
+    margin-left: 20px;
 }
 
 .container h4 {

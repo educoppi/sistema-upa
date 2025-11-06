@@ -42,7 +42,16 @@
 .containerTabela {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 20px;
+  
+}
+
+.tabelaEstoqueVencimento {
+  display: flex;
+  flex-direction: column;
+  align-items: center;  
+  margin: 0 100px;
 }
 
 

@@ -33,8 +33,6 @@ export default medicationService;
 
 
 
-
-
 // const medicamentos = await medicationService.busca('dipirona');
 
 // medicationService.busca('dipirona')

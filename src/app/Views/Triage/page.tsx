@@ -1,11 +1,12 @@
 'use client'
 import { Header } from "@/components/Header";
-import TextField from "@/components/TextField";
+import TextField, { TextFieldAnnotation, TextFieldPesquisa, TextFieldReception } from "@/components/TextField";
 import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import axios, { AxiosResponse } from 'axios';
-import styles from '@/app/Views/Farmacia/styles.module.css'
+import styles from '@/app/Views/Triage/styles.module.css'
 import Select from "@/components/Select";
+import { PiCpuFill } from "react-icons/pi";
 
 export default function Triage() {
 
@@ -29,7 +30,7 @@ export default function Triage() {
     const [telaCadastro, setTelaCadastro] = useState(false);
 
     function pesquisar() {
-        axios.get(`http://localhost:3000/users?cpf=${cpf}`, {
+        axios.get(`https://projeto-integrador-lf6v.onrender.com/users?cpf=${cpf}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -54,6 +55,8 @@ export default function Triage() {
 
     const [symptom, setSymptom] = useState("");
 
+    const [annotationTriage, setAnnotationTriage] = useState("");
+
     const [recentMedicine, setRecentMedicine] = useState("");
 
     function classificar() {
@@ -61,14 +64,16 @@ export default function Triage() {
         console.log(level)
         console.log(symptom)
         console.log(recentMedicine)
-        console.log(new Date().toISOString().split('T')[0])
+        console.log(annotationTriage)
+        console.log(new Date().toISOString())
 
-        axios.post('http://localhost:3000/records', {
+        axios.post('https://projeto-integrador-lf6v.onrender.com/records', {
             patientId: paciente.id,
             appointmentDate: new Date().toISOString().split('T')[0],
             level: level,
             symptom: symptom,
-            recentMedicine: recentMedicine
+            recentMedicine: recentMedicine,
+            annotationTriage: annotationTriage
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -82,30 +87,30 @@ export default function Triage() {
                 console.error('Erro na requisição:', error);
             });
 
-            if(paciente.allergy) {
-                atualizaAlergia(paciente.allergy, paciente.id)
-            }
+        if (paciente.allergy) {
+            atualizaAlergia(paciente.allergy, paciente.id)
+        }
 
     }
 
     function atualizaAlergia(alergia: string, id: Number) {
-        axios.put(`http://localhost:3000/users/${id}`, 
+        axios.put(`https://projeto-integrador-lf6v.onrender.com/users/${id}`,
             {
-              allergy: alergia
+                allergy: alergia
             },
             {
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
             }
-          )
-          .then(response => {
-            console.log('Resposta:', response.data);
-          })
-          .catch(error => {
-            console.error('Erro:', error.response ? error.response.data : error.message);
-          });
+        )
+            .then(response => {
+                console.log('Resposta:', response.data);
+            })
+            .catch(error => {
+                console.error('Erro:', error.response ? error.response.data : error.message);
+            });
     }
 
 
@@ -114,43 +119,54 @@ export default function Triage() {
         <>
             <Header name={usuario?.name || "Usuário"} />
 
-            <div className={styles.container_pesquisa}>
-                < TextField type="text" placeholder="Pesquise pelo CPF do Paciente" onChange={setCpf} text={cpf} />
+            <div className={styles.space}>
 
-                <Button onClick={pesquisar}>Pesquisar</Button>
+            <h1 className={styles.titulo} >Classificação de Paciente</h1>
 
+                <div className={styles.pesquisaField}>
+                    <TextFieldPesquisa type="text" placeholder="Pesquise pelo CPF do Paciente" onChange={setCpf} text={cpf} />
+                    <Button onClick={pesquisar} className={styles.buttonPesquisar}>Pesquisar</Button>
+                </div>
 
             </div>
 
             {
                 telaCadastro && (
                     <>
-                    <h3>{paciente.name}</h3>
+                        <div className={styles.space}>
+                            <h3 className={styles.name}>{paciente.name + " " + paciente.lastName}</h3>
 
 
-                        <Select
-                            label="Nível de Urgência"
-                            name="level"
-                            placeholder="Selecione um nível"
-                            campo="Nível"
-                            options={[
-                                { value: '1', label: 'Prioridade Máxima' },
-                                { value: '2', label: 'Prioridade Alta' },
-                                { value: '3', label: 'Prioridade Média' },
-                                { value: '4', label: 'Prioridade Baixa' },
-                                { value: '5', label: 'Prioridade Mínima' },
-                            ]}
-                            value={level}
-                            onChange={setLevel}
-                        />
+                            <div className={styles.container}>
 
-                        < TextField type="text" placeholder="Sintomas" onChange={setSymptom} text={symptom} />
+                                <Select
+                                    label="Nível de Urgência"
+                                    name="level"
+                                    placeholder="Selecione um nível"
+                                    campo="Nível"
+                                    options={[
+                                        { value: '5', label: 'Prioridade Máxima' },
+                                        { value: '4', label: 'Prioridade Alta' },
+                                        { value: '3', label: 'Prioridade Média' },
+                                        { value: '2', label: 'Prioridade Baixa' },
+                                        { value: '1', label: 'Prioridade Mínima' },
+                                    ]}
+                                    value={level}
+                                    onChange={setLevel}
+                                />
 
-                        < TextField type="text" placeholder="Medicamento Recente" onChange={setRecentMedicine} text={recentMedicine} />
+                                < TextFieldReception type="text" label="Sintomas:" placeholder="Sintomas" onChange={setSymptom} text={symptom} />
 
-                        <TextField type="text" label="Alergia" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
+                                < TextFieldReception type="text" label="Medicamento Controlado:" placeholder="Medicamento Controlado" onChange={setRecentMedicine} text={recentMedicine} />
 
-                        <Button onClick={classificar}>Classificar</Button>
+                                < TextFieldReception type="text" label="Alergia:" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
+
+                                < TextFieldAnnotation type="text" label="Anotação:" placeholder="Anotação" onChange={setAnnotationTriage} text={annotationTriage} />
+
+                            </div>
+                                <Button className={styles.buttonForm} onClick={classificar}>Classificar</Button>
+                        </div>
+
                     </>
                 )
             }
