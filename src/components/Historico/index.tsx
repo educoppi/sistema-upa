@@ -32,7 +32,7 @@ export default function Historico() {
     setMeses(tempMeses);
   }, []);
  
-  // 🔹 Carrega histórico real salvo no localStorage
+  //  Carrega histórico real salvo no localStorage
   useEffect(() => {
     const historicoStr = localStorage.getItem("historico_global");
     const dados = historicoStr ? JSON.parse(historicoStr) : [];
