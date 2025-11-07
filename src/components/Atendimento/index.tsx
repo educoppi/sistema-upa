@@ -274,7 +274,7 @@ export default function Atendimento({ onFinalizar }: Props) {
       {showPrescriptionModal && patient && (
         <PrescriptionModal
           onClose={() => setShowPrescriptionModal(false)}
-          patientName={patient.name}
+          patientName={`${patient.name}${patient.lastName ? " " + patient.lastName : ""}`}
           onSave={(novaReceita: string) => {
             setHistorico((prev) => [...prev, novaReceita]);
             setShowPrescriptionModal(false);

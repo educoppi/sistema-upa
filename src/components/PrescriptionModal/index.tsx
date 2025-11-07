@@ -30,25 +30,34 @@ export default function PrescriptionModal({ onClose, patientName, onSave }: Pres
     onSave(receitaCompleta.trim());
 };
 
-
-  const [date, setDate] = useState('');
+  const [dateTime, setDateTime] = useState('');
 
   useEffect(() => {
-    const today = new Date();
-    const formatted = today.toLocaleDateString('pt-BR');
-    setDate(formatted);
-  }, []);
-  
+    const updateDateTime = () => {
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString('pt-BR');
+      const formattedTime = now.toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+  });
+  setDateTime(`${formattedDate} ${formattedTime}`);
+};
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 6000); 
+    return () => clearInterval(interval);
+}, []);
+
   return (
     <div className={styles.overlay}>
       <div className={styles.page}>
         {/* Cabeçalho */}
         <header className={styles.header}>
           <div className={styles.logoArea}>
-            <img src="/images/logo.png" alt="Logo São Lucas" className={styles.logo} />
+            <img src="/images/logo.png" alt="Logo SisUPA" className={styles.logo} />
             <div className={styles.headerText}>
-              <h1>São Lucas</h1>
-              <p>Pronto Atendimento</p>
+              <h1>SisUPA</h1>
+              <p>Unidade de Pronto</p>
+              <p>Atendimento</p>
             </div>
           </div>
           <div className={styles.headerTitle}>PRESCRIÇÃO</div>
@@ -59,8 +68,8 @@ export default function PrescriptionModal({ onClose, patientName, onSave }: Pres
           <h2>Receita do Paciente</h2>
 
           <div className={styles.fieldGroup}>
-            <label>Data:</label>
-            <input type="text" value={date} readOnly/>
+            <label>Data e Hora:</label>
+            <input type="text" value={dateTime} readOnly/>
           </div>
 
           <div className={styles.fieldGroup}>
