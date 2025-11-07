@@ -1,296 +1,219 @@
-"use client";
 import React, { useState, useEffect } from "react";
-import Button from "../Button";
-import TituloMinimizavel from "../TituloMinimizavel";
-import SegmentoCard from "../SegmentoCard";
+import { SimplifiedPatient } from "../../types/types";
 import styles from "./styles.module.css";
-import PrescriptionModal from "../PrescriptionModal";
-import { FiTrash2, FiEye } from "react-icons/fi";
-import EncaminhamentoModal from "../EncaminhamentoModal";
+import Button from "../Button";
+import api from "../../services/api";
 
-type Patient = {
-  id: number;
-  name: string;
-  lastName?: string;
-  level: number;
-  birthDate?: string;
-  symptom?: string;
-  allergy?: string;
-  recentMedicine?: string;
-  annotation?: string;
+type AtendimentoProps = {
+  patient: SimplifiedPatient | null;
+  onFinalizar: (updatedPatients: SimplifiedPatient[]) => void;
 };
 
-interface Encaminhamento {
+type Receita = {
   descricao: string;
-  medicamentos: string;
   data: string;
-}
+};
 
-interface Props {
-  onFinalizar: (anotacoes: string) => void;
-}
+type Encaminhamento = {
+  destino: string;
+  motivo: string;
+  data: string;
+};
 
-export default function Atendimento({ onFinalizar }: Props) {
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [anotacoes, setAnotacoes] = useState("");
-  const [showFicha, setShowFicha] = useState(true);
-  const [showReceita, setShowReceita] = useState(false);
-  const [showEncaminhamento, setShowEncaminhamento] = useState(false);
-  const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
-  const [showEncaminhamentoModal, setShowEncaminhamentoModal] = useState(false);
-  const [showEncaminhamentoDetalhes, setShowEncaminhamentoDetalhes] = useState<Encaminhamento | null>(null);
-  const [historico, setHistorico] = useState<string[]>([]);
+export default function Atendimento({ patient, onFinalizar }: AtendimentoProps) {
+  const [anotacoes, setAnotacoes] = useState<string>("");
+  const [historico, setHistorico] = useState<SimplifiedPatient[]>([]);
+  const [receitas, setReceitas] = useState<Receita[]>([]);
+  const [receitaDescricao, setReceitaDescricao] = useState<string>("");
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
+  const [encaminhamentoDestino, setEncaminhamentoDestino] = useState<string>("");
+  const [encaminhamentoMotivo, setEncaminhamentoMotivo] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const patientString = localStorage.getItem("currentPatientId");
-    if (patientString) setPatient(JSON.parse(patientString));
-  }, []);
-
-  useEffect(() => {
-    if (!patient) return;
-    setAnotacoes(patient.annotation ?? "");
-    const histString = localStorage.getItem(`receitas_patient_${patient.id}`);
-    setHistorico(histString ? JSON.parse(histString) : []);
-    const encString = localStorage.getItem(`encaminhamentos_patient_${patient.id}`);
-    setEncaminhamentos(encString ? JSON.parse(encString) : []);
+    async function loadHistorico() {
+      if (patient?.patientId) {
+        setLoading(true);
+        try {
+          const res = await api.get(`/records?patientId=${patient.patientId}`);
+          const data = res.data as SimplifiedPatient[];
+          setHistorico(data);
+          setAnotacoes(data.length > 0 && data[0].annotationTriage ? data[0].annotationTriage : "");
+          // Simule histórico receitas e encaminhamentos:
+          setReceitas([]);
+          setEncaminhamentos([]);
+        } catch (error) {
+          console.error("Erro ao carregar histórico", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+    loadHistorico();
   }, [patient]);
 
-  function formatDate(dateString?: string) {
-    if (!dateString) return " - ";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Data inválida";
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+  function validarCampos() {
+    if (!patient?.level) {
+      alert("Informe o nível!");
+      return false;
+    }
+    if (!patient?.appointmentDate) {
+      alert("Informe a data do atendimento!");
+      return false;
+    }
+    return true;
   }
 
-  function finalizarAtendimento() {
-    if (!patient) return;
-
-    const hoje = new Date();
-    const dataHoje = `${hoje.getFullYear()}-${(hoje.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-${hoje.getDate().toString().padStart(2, "0")}`;
-
-    const atendimentoDoDia = {
-      id: Date.now(),
-      data: dataHoje,
-      anotacoes,
-      receitas: historico,
+  async function finalizarAtendimento() {
+    if (!validarCampos() || !patient) return;
+    const recordData = {
+      patientId: patient.patientId,
+      appointmentDate: patient.appointmentDate || new Date().toISOString(),
+      level: patient.level,
+      symptom: patient.symptom,
+      recentMedicine: patient.recentMedicine,
+      annotationMedic: anotacoes,
+      receitas,
       encaminhamentos,
     };
 
-    const historicoSalvoString = localStorage.getItem(`historico_atendimentos_patient_${patient.id}`);
-    const historicoSalvo = historicoSalvoString ? JSON.parse(historicoSalvoString) : [];
-    const novoHistorico = [...historicoSalvo, atendimentoDoDia];
-    localStorage.setItem(`historico_atendimentos_patient_${patient.id}`, JSON.stringify(novoHistorico));
-
-    const patientAtualizado = { ...patient, annotation: anotacoes };
-    setPatient(patientAtualizado);
-    localStorage.setItem("currentPatientId", JSON.stringify(patientAtualizado));
-
-    alert("Atendimento finalizado e salvo no histórico!");
-    onFinalizar(anotacoes);
+    try {
+      setLoading(true);
+      await api.post("/records", recordData);
+      alert("Atendimento finalizado com sucesso!");
+      const res = await api.get("/users/patient/awaitingAttendance");
+      const updatedPatients = res.data as SimplifiedPatient[];
+      onFinalizar(updatedPatients);
+      setAnotacoes("");
+      setReceitas([]);
+      setEncaminhamentos([]);
+      setHistorico([]);
+    } catch (error) {
+      alert("Erro ao finalizar atendimento");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function deletarEncaminhamento(index: number) {
-    if (!patient) return;
-    if (confirm("Deseja deletar este encaminhamento?")) {
-      const atualizados = encaminhamentos.filter((_, i) => i !== index);
-      setEncaminhamentos(atualizados);
-      localStorage.setItem(`encaminhamentos_patient_${patient.id}`, JSON.stringify(atualizados));
-    }
+  if (!patient) {
+    return <div className={styles.selecioneAviso}>Selecione um paciente para iniciar atendimento.</div>;
+  }
+
+  // Adicionar receita
+  function adicionarReceita() {
+    if (!receitaDescricao.trim()) return;
+    setReceitas([...receitas, { descricao: receitaDescricao, data: new Date().toLocaleDateString("pt-BR") }]);
+    setReceitaDescricao("");
+  }
+
+  // Adicionar encaminhamento
+  function adicionarEncaminhamento() {
+    if (!encaminhamentoDestino.trim() || !encaminhamentoMotivo.trim()) return;
+    setEncaminhamentos([
+      ...encaminhamentos,
+      { destino: encaminhamentoDestino, motivo: encaminhamentoMotivo, data: new Date().toLocaleDateString("pt-BR") }
+    ]);
+    setEncaminhamentoDestino("");
+    setEncaminhamentoMotivo("");
   }
 
   return (
     <div className={styles.fichaContainer}>
-      <TituloMinimizavel title="Ficha Médica" isOpen={showFicha} onAlterna={() => setShowFicha(!showFicha)} />
-      {showFicha && patient && (
-        <SegmentoCard className={styles.card}>
-          <div className={styles.infoBox}>
-            <div>
-              <strong>Nome:</strong> {patient.name} {patient.lastName ?? ""}
-            </div>
-            <div>
-              <strong>Data nascimento:</strong> {formatDate(patient.birthDate)}
-            </div>
-            <div>
-              <strong>Nível:</strong>{" "}
-              {patient.level === 5 ? (
-                <span className={styles.nivelCinco}>{patient.level}</span>
-              ) : (
-                patient.level
-              )}
-            </div>
-            <div><strong>Sintomas:</strong> {patient.symptom ?? " "}</div>
-            <div><strong>Alergias:</strong> {patient.allergy ?? " "}</div>
-            <div><strong>Remédio controlado:</strong> {patient.recentMedicine ?? "-"}</div>
-          </div>
-          <div className={styles.anotacoesBox}>
-            <strong>Anotações:</strong>
-            <textarea
-              value={anotacoes}
-              onChange={(e) => setAnotacoes(e.target.value)}
-              placeholder="Digite aqui ..."
-              rows={6}
-              className={styles.textarea}
-            />
-          </div>
-        </SegmentoCard>
-      )}
-
-      <TituloMinimizavel title="Receita" isOpen={showReceita} onAlterna={() => setShowReceita(!showReceita)} />
-      {showReceita && (
-        <SegmentoCard className={styles.card}>
-          {historico.length === 0 ? (
-            <div className={styles.centerContent}>
-              <p>Não possui receitas recentes</p>
-              <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px" }}>CRIAR</Button>
-            </div>
-          ) : (
-            <div>
-              {historico.map((receita, i) => (
-                <div key={i} className={styles.receitaCard}>
-                  <div className={styles.receitaHeader}>
-                    <button
-                      onClick={() => {
-                        if (confirm("Deseja deletar esta receita?")) {
-                          setHistorico((prev) => prev.filter((_, index) => index !== i));
-                        }
-                      }}
-                      className={styles.deleteButton}
-                      title="Excluir receita"
-                    >
-                      <FiTrash2 size={18} color="#c00" />
-                    </button>
-                  </div>
-                  <pre>{receita}</pre>
-                </div>
-              ))}
-              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>CRIAR</Button>
-            </div>
-          )}
-        </SegmentoCard>
-      )}
-
-      <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onAlterna={() => setShowEncaminhamento(!showEncaminhamento)} />
-      {showEncaminhamento && (
-        <SegmentoCard className={styles.card}>
-          {encaminhamentos.length === 0 ? (
-            <div className={styles.centerContent}>
-              <p>Não possui encaminhamentos recentes</p>
-              <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px" }}>CRIAR</Button>
-            </div>
-          ) : (
-            <div>
-              <ul>
-                {encaminhamentos.map((e, i) => (
-                  <li key={i} style={{ marginBottom: "10px" }}>
-                    <strong>Data:</strong> {e.data} <br />
-                    <strong>Descrição:</strong> {e.descricao} <br />
-                    <strong>Medicamentos:</strong> {e.medicamentos || "-"}
-                    <div style={{ marginTop: 5, display: "flex", gap: 10 }}>
-                      <Button
-                        onClick={() => setShowEncaminhamentoDetalhes(e)}
-                        style={{ borderRadius: "8px", background: "#007bff", color: "#fff", padding: "5px 10px" }}
-                      >
-                        <FiEye size={16} style={{ marginRight: 4 }} /> Ver detalhes
-                      </Button>
-                      <button
-                        onClick={() => deletarEncaminhamento(i)}
-                        title="Excluir encaminhamento"
-                        style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                      >
-                        <FiTrash2 color="#c00" size={18} />
-                      </button>
-                    </div>
-                    <hr />
-                  </li>
-                ))}
-              </ul>
-              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>CRIAR</Button>
-            </div>
-          )}
-        </SegmentoCard>
-      )}
-
-      {showEncaminhamentoDetalhes && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.35)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 999,
-          }}
-          onClick={() => setShowEncaminhamentoDetalhes(null)}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 10,
-              padding: 20,
-              width: "400px",
-              boxShadow: "0 5px 20px rgba(0,0,0,0.3)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>Detalhes do Encaminhamento</h3>
-            <p><strong>Data:</strong> {showEncaminhamentoDetalhes.data}</p>
-            <p><strong>Descrição:</strong> {showEncaminhamentoDetalhes.descricao}</p>
-            <p><strong>Medicamentos:</strong> {showEncaminhamentoDetalhes.medicamentos || "-"}</p>
-            <Button
-              onClick={() => setShowEncaminhamentoDetalhes(null)}
-              style={{ marginTop: 15, borderRadius: "8px" }}
-            >
-              Fechar
-            </Button>
-          </div>
+      <h2 className={styles.fichaTitulo}>▼ Ficha Médica</h2>
+      <div className={styles.infoBox}>
+        <div className={styles.infoLinha}>
+          <span><strong>Nome:</strong> {patient.name} {patient.lastName}</span>
+          <span><strong>Data nascimento:</strong> {patient.birthDate ? new Date(patient.birthDate).toLocaleDateString("pt-BR") : "-"}</span>
         </div>
-      )}
+        <div className={styles.infoLinha}>
+          <span><strong>Nível:</strong> <span className={patient.level === 5 ? styles.nivelCinco : ""}>{patient.level ?? "-"}</span></span>
+          <span><strong>Sintomas:</strong> {patient.symptom ?? "-"}</span>
+        </div>
+        <div className={styles.infoLinha}>
+          <span><strong>Alergias:</strong> {patient.allergy ?? "-"}</span>
+          <span><strong>Remédio controlado:</strong> {patient.recentMedicine ?? "-"}</span>
+        </div>
+      </div>
 
-      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-        <Button onClick={finalizarAtendimento} style={{ borderRadius: "12px" }}>
-          FINALIZAR
+      <div className={styles.anotacoesBox}>
+        <strong>Anotações:</strong>
+        <textarea
+          value={anotacoes}
+          onChange={e => setAnotacoes(e.target.value)}
+          placeholder="Digite aqui ..."
+          rows={6}
+          className={styles.textarea}
+        />
+      </div>
+
+      {/* RECEITA */}
+      <h3 className={styles.subtitulo}>▼ Receita</h3>
+      <div className={styles.receitaBox}>
+        {receitas.length === 0 && <p className={styles.textoSecundario}>Não possui receitas recentes</p>}
+        {receitas.map((r, i) => (
+          <div key={i} className={styles.receitaCard}>
+            <span>{r.descricao}</span>
+            <span className={styles.receitaData}>{r.data}</span>
+          </div>
+        ))}
+        <textarea
+          value={receitaDescricao}
+          onChange={e => setReceitaDescricao(e.target.value)}
+          placeholder="Nova receita..."
+          rows={2}
+          className={styles.textarea}
+        />
+        <Button onClick={adicionarReceita} style={{ marginTop: 8 }}>+</Button>
+      </div>
+
+      {/* ENCAMINHAMENTO */}
+      <h3 className={styles.subtitulo}>▼ Encaminhamento</h3>
+      <div className={styles.encaminhamentoBox}>
+        {encaminhamentos.length === 0 && <p className={styles.textoSecundario}>Nenhum encaminhamento registrado</p>}
+        {encaminhamentos.map((e, i) => (
+          <div key={i} className={styles.encaminhamentoCard}>
+            <span><strong>Destino:</strong> {e.destino}</span>
+            <span><strong>Motivo:</strong> {e.motivo}</span>
+            <span className={styles.encaminhamentoData}>{e.data}</span>
+          </div>
+        ))}
+        <input
+          value={encaminhamentoDestino}
+          onChange={e => setEncaminhamentoDestino(e.target.value)}
+          placeholder="Destino"
+          className={styles.input}
+        />
+        <input
+          value={encaminhamentoMotivo}
+          onChange={e => setEncaminhamentoMotivo(e.target.value)}
+          placeholder="Motivo"
+          className={styles.input}
+        />
+        <Button onClick={adicionarEncaminhamento} style={{ marginTop: 8 }}>+</Button>
+      </div>
+
+      {/* FINALIZAR */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
+        <Button onClick={finalizarAtendimento} disabled={loading} style={{ borderRadius: "12px" }}>
+          {loading ? "Salvando..." : "FINALIZAR"}
         </Button>
       </div>
 
-      {showPrescriptionModal && patient && (
-        <PrescriptionModal
-          onClose={() => setShowPrescriptionModal(false)}
-          patientName={patient.name}
-          onSave={(novaReceita: string) => {
-            setHistorico((prev) => [...prev, novaReceita]);
-            setShowPrescriptionModal(false);
-          }}
-        />
-      )}
-
-      {showEncaminhamentoModal && patient && (
-        <EncaminhamentoModal
-          patientName={patient.name}
-          onClose={() => setShowEncaminhamentoModal(false)}
-          onSave={(novo) => {
-            const novoEnc = {
-              ...novo,
-              data: new Date().toLocaleDateString("pt-BR"),
-            };
-            const atualizados = [...encaminhamentos, novoEnc];
-            setEncaminhamentos(atualizados);
-            localStorage.setItem(`encaminhamentos_patient_${patient.id}`, JSON.stringify(atualizados));
-            setShowEncaminhamentoModal(false);
-          }}
-        />
-      )}
+      {/* HISTÓRICO */}
+      <h3 className={styles.subtitulo}>▼ Histórico de Atendimentos</h3>
+      <div className={styles.historicoBox}>
+        {loading && <p>Carregando histórico...</p>}
+        {!loading && historico.length === 0 && <p>Sem histórico disponível.</p>}
+        {historico.map((item, idx) => (
+          <div key={idx} className={styles.recordCard}>
+            <p><strong>Data:</strong> {item.appointmentDate ? new Date(item.appointmentDate).toLocaleDateString("pt-BR") : "-"}</p>
+            <p><strong>Nível:</strong> {item.level}</p>
+            <p><strong>Sintomas:</strong> {item.symptom ?? "-"}</p>
+            <p><strong>Anotação:</strong> {item.annotationTriage ?? "-"}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
