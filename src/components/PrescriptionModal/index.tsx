@@ -90,10 +90,7 @@ export default function PrescriptionModal({ onClose, patientName, onSave, doctor
                 onChange={(e) => setMedications(e.target.value)}
                 placeholder={`Exemplo:
                   • Omeprazol 20 mg (comprimidos)
-                  Tomar 1 comprimido oral, por 30 dias. Quantidade: 30 unidades.
-                  
-                  • Ondansetrona 8 mg (comprimidos)
-                  Tomar se necessário.`}
+                  Tomar 1 comprimido oral, por 30 dias. Quantidade: 30 unidades.`}
               />
           </div>
 
