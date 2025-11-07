@@ -22,6 +22,7 @@ export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Pr
     const [name, setName] = useState(medicamento.name)
     const [dosage, setDosage] = useState(medicamento.dosage)
     const [type, setType] = useState(medicamento.type)
+    const [quantity, setQuantity] = useState(medicamento.quantity)
 
     const [expiresAt, setExpiresAt] = useState(() => {
         const date = new Date(medicamento.expiresAt);
@@ -46,6 +47,7 @@ export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Pr
               dosage,
               type,
               expiresAt: new Date(expiresAt).toISOString(),
+              quantity
             },
             {
               headers: {
@@ -109,6 +111,11 @@ export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Pr
                         type="date"
                         text={expiresAt}
                         onChange={setExpiresAt}
+                    />
+                    <TextField 
+                      type='string'
+                      text={quantity.toString()}
+                      onChange={(value) => setQuantity(Number(value))}
                     />
                 </div>
                 <p>Deseja confirmar esta ação?</p>
