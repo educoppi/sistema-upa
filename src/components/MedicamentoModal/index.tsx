@@ -47,6 +47,7 @@ export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Pr
               dosage,
               type,
               expiresAt: new Date(expiresAt).toISOString(),
+              quantity
             },
             {
               headers: {
