@@ -8,6 +8,8 @@ import PrescriptionModal from "../PrescriptionModal";
 import { FiTrash2, FiEye } from "react-icons/fi";
 import EncaminhamentoModal from "../EncaminhamentoModal";
 
+
+
 type Patient = {
   id: number;
   name: string;
@@ -41,6 +43,17 @@ export default function Atendimento({ onFinalizar }: Props) {
   const [showEncaminhamentoDetalhes, setShowEncaminhamentoDetalhes] = useState<Encaminhamento | null>(null);
   const [historico, setHistorico] = useState<string[]>([]);
   const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
+
+  const [doctorName, setDoctorName] = useState("");
+
+  useEffect(() => {
+  const usuarioString = localStorage.getItem("usuario");
+  if (usuarioString) {
+    const usuario = JSON.parse(usuarioString);
+    setDoctorName(usuario.name || "Médico não identificado");
+  }
+}, []);
+
 
   useEffect(() => {
     const patientString = localStorage.getItem("currentPatientId");
@@ -268,6 +281,7 @@ export default function Atendimento({ onFinalizar }: Props) {
         <PrescriptionModal
           onClose={() => setShowPrescriptionModal(false)}
           patientName={`${patient.name}${patient.lastName ? " " + patient.lastName : ""}`}
+          doctorName={doctorName}
           onSave={(novaReceita: string) => {
             setHistorico((prev) => [...prev, novaReceita]);
             setShowPrescriptionModal(false);

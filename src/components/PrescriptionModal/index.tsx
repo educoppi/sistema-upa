@@ -5,9 +5,10 @@ interface PrescriptionModalProps {
   onClose: () => void;
   patientName: string;
   onSave: (receitaTexto: string) => void;
+  doctorName?: string;
 }
 
-export default function PrescriptionModal({ onClose, patientName, onSave }: PrescriptionModalProps) {
+export default function PrescriptionModal({ onClose, patientName, onSave, doctorName}: PrescriptionModalProps) {
   const [medications, setMedications] = useState('');
   const [observations, setObservations] = useState('');
   const now = new Date();
@@ -25,7 +26,12 @@ export default function PrescriptionModal({ onClose, patientName, onSave }: Pres
     
     Observações:
     ${observations}
+
+    Assinatura: ___________________________
+    Dr. ${doctorName || 'Nome do Médico'}
   `;
+
+    
 
     onSave(receitaCompleta.trim());
 };
@@ -102,7 +108,7 @@ export default function PrescriptionModal({ onClose, patientName, onSave }: Pres
 
           <div className={styles.signature}>
             <p>_________________________________</p>
-            <span>Dr. Osvaldo Mendes</span>
+            <span>Dr. {doctorName}</span>
           </div>
         </main>
 
