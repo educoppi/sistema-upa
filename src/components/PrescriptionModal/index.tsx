@@ -27,8 +27,8 @@ export default function PrescriptionModal({ onClose, patientName, onSave, doctor
     Observações:
     ${observations}
 
-    Assinatura: ___________________________
-    Dr. ${doctorName || 'Nome do Médico'}
+    Assinatura: 
+    ${doctorName}
   `;
 
     
@@ -108,7 +108,7 @@ export default function PrescriptionModal({ onClose, patientName, onSave, doctor
 
           <div className={styles.signature}>
             <p>_________________________________</p>
-            <span>Dr. {doctorName}</span>
+            <span>Dr.{doctorName}</span>
           </div>
         </main>
 
@@ -117,7 +117,12 @@ export default function PrescriptionModal({ onClose, patientName, onSave, doctor
           <button className={styles.cancel} onClick={onClose}>
             Cancelar
           </button>
-          <button className={styles.finalize} onClick={handleFinalize}>Finalizar</button>
+          <button className={styles.finalize} 
+                  onClick={handleFinalize}   
+                  disabled={!medications.trim()}
+              >
+                Finalizar
+              </button>
         </footer>
       </div>
     </div>
