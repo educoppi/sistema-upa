@@ -246,8 +246,6 @@ export default function Farmacia() {
         className="mb-3"
       >
         <Tab eventKey="solicitacoes" title="SOLICITAÇÕES">
-
-
         </Tab>
 
         <Tab eventKey="cadastro" title="CADASTRO">
