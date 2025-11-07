@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "react-bootstrap";
 import axios, { AxiosResponse } from 'axios';
 import style from "./styles.module.css";
+import Swal from 'sweetalert2';
 
 export default function Reception() {
 
@@ -13,19 +14,6 @@ export default function Reception() {
   const usuario = usuarioString ? JSON.parse(usuarioString) : null;
 
   const [pesquisaCPF, setPesquisaCPF] = useState("");
-
-  function formatDate(dateString?: string) {
-    if (!dateString) return " - ";
-  
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Data inválida";
-  
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // mês começa em 0
-    const year = date.getFullYear();
-  
-    return `${day}/${month}/${year}`;
-  }
 
   const [paciente, setPaciente] = useState({
     name: '',
@@ -45,6 +33,17 @@ export default function Reception() {
       ...paciente,
       birthDate: paciente.birthDate ? new Date(paciente.birthDate).toISOString() : null
     }
+
+    if(paciente.name == "" || paciente.lastName == "" || paciente.cpf == "" || paciente.phone == "" || paciente.email == "" || paciente.birthDate == "" ){
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos obrigatórios',
+        text: 'Preencha os campos obrigatórios antes de cadastrar.',
+        confirmButtonColor: '#3085d6',
+      });
+
+      return;
+    }
     console.log(paciente)
     axios.post('https://projeto-integrador-lf6v.onrender.com/users/patient', pacienteFormatado,
       {
@@ -55,16 +54,26 @@ export default function Reception() {
       }
     )
       .then(function (response: AxiosResponse) {
-        console.log("deu certo");
+        Swal.fire({
+          icon: 'success',
+          title: 'Sucesso!',
+          text: 'Paciente cadastrado com sucesso!',
+          confirmButtonColor: '#3085d6',
+        });
       })
       .catch(function () {
-        console.log("erro");
+              Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao Cadastrar Paciente.',
+                confirmButtonColor: '#d33',
+              });
       });
   }
 
 
-  function buscarPaciente (){
-    axios.get(`https://projeto-integrador-lf6v.onrender.com/users?cpf=${pesquisaCPF}` 
+  function buscarPaciente() {
+    axios.get(`https://projeto-integrador-lf6v.onrender.com/users?cpf=${pesquisaCPF}`
     )
       .then(function (response: AxiosResponse) {
 
@@ -84,7 +93,12 @@ export default function Reception() {
 
       })
       .catch(function () {
-        console.log("erro");
+              Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao buscar paciente. CPF Incorreto!',
+                confirmButtonColor: '#d33',
+              });
       });
   }
 
@@ -98,29 +112,29 @@ export default function Reception() {
 
         <div className={style.pesquisaField}>
           <TextFieldPesquisa type="text" placeholder="Pesquise pelo CPF do Paciente" onChange={setPesquisaCPF} text={pesquisaCPF} />
-            <Button onClick={buscarPaciente} className={style.buttonPesquisar}>Buscar</Button>
+          <Button onClick={buscarPaciente} className={style.buttonPesquisar}>Buscar</Button>
         </div>
 
         <div className={style.container}>
 
-          <TextFieldReception type="text" label="Nome" placeholder="Nome" onChange={name => setPaciente({ ...paciente, name: name })} text={paciente.name} />
+          <TextFieldReception type="text" label="Nome" placeholder="Nome" required onChange={name => setPaciente({ ...paciente, name: name })} text={paciente.name} />
 
-          <TextFieldReception type="text" label="Sobrenome" placeholder="Sobrenome" onChange={lastName => setPaciente({ ...paciente, lastName: lastName })} text={paciente.lastName} />
+          <TextFieldReception type="text" label="Sobrenome" placeholder="Sobrenome" required onChange={lastName => setPaciente({ ...paciente, lastName: lastName })} text={paciente.lastName} />
 
-          <TextFieldReception type="text" label="CPF" placeholder="CPF" onChange={cpf => setPaciente({ ...paciente, cpf: cpf })} text={paciente.cpf} />
+          <TextFieldReception type="text" label="CPF" placeholder="CPF" required onChange={cpf => setPaciente({ ...paciente, cpf: cpf })} text={paciente.cpf} />
 
-          <TextFieldReception type="text" label="Celular" placeholder="Celular" onChange={phone => setPaciente({ ...paciente, phone: phone })} text={paciente.phone} />
+          <TextFieldReception type="text" label="Celular" placeholder="Celular" required onChange={phone => setPaciente({ ...paciente, phone: phone })} text={paciente.phone} />
 
-          <TextFieldReception type="text" label="Email" placeholder="Email" onChange={email => setPaciente({ ...paciente, email: email })} text={paciente.email} />
+          <TextFieldReception type="text" label="Email" placeholder="Email" required onChange={email => setPaciente({ ...paciente, email: email })} text={paciente.email} />
 
           <TextFieldReception type="text" label="Alergias" placeholder="Alergias" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
 
-          <TextFieldReception type="date" label="Data de Nascimento" placeholder="Data de Nascimento" onChange={birthDate => setPaciente({ ...paciente, birthDate: birthDate })} text={paciente.birthDate} />
+          <TextFieldReception type="date" label="Data de Nascimento" placeholder="Data de Nascimento" required onChange={birthDate => setPaciente({ ...paciente, birthDate: birthDate })} text={paciente.birthDate ? paciente.birthDate.split('T')[0] : ''} />
 
 
         </div>
 
-          <Button className={style.buttonForm} onClick={cadastrar}>CADASTRAR</Button>
+        <Button className={style.buttonForm} onClick={cadastrar}>CADASTRAR</Button>
 
       </div>
 

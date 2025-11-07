@@ -6,7 +6,7 @@ import { Button } from "react-bootstrap";
 import axios, { AxiosResponse } from 'axios';
 import styles from '@/app/Views/Triage/styles.module.css'
 import Select from "@/components/Select";
-import { PiCpuFill } from "react-icons/pi";
+import Swal from 'sweetalert2';
 
 export default function Triage() {
 
@@ -81,10 +81,20 @@ export default function Triage() {
             }
         })
             .then(response => {
-                console.log('Resposta do servidor:', response.data);
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Sucesso!',
+                          text: 'Paciente cadastrado com sucesso!',
+                          confirmButtonColor: '#3085d6',
+                        });
             })
             .catch(error => {
-                console.error('Erro na requisição:', error);
+                              Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Erro ao Cadastrar Paciente.',
+                                confirmButtonColor: '#d33',
+                              });
             });
 
         if (paciente.allergy) {
