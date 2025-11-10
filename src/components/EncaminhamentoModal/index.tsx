@@ -24,6 +24,8 @@ export default function EncaminhamentoModal({
       return;
     }
 
+    
+
     onSave({ descricao, medicamentos });
   }
 

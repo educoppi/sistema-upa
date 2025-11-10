@@ -11,7 +11,9 @@ type TabelaIniciarProps = {
 
 export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
   const [patients, setPatients] = useState<SimplifiedPatient[]>([]);
+  const [loadingId, setLoadingId] = useState<number | null>(null);
 
+  // 🔹 Carrega pacientes aguardando atendimento
   useEffect(() => {
     async function loadPatients() {
       try {
@@ -19,7 +21,9 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
         const data = response.data as any[];
 
         const simplified = data.flatMap((patient: any) => {
-          const records = Array.isArray(patient.recordsAsDoctor) ? patient.recordsAsDoctor : [];
+          const records = Array.isArray(patient.recordsAsDoctor)
+            ? patient.recordsAsDoctor
+            : [];
           return records.map((record: any) => ({
             patientId: patient.patientId,
             name: patient.name ?? "Sem nome",
@@ -32,7 +36,9 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
             email: patient.email ?? "-",
             phone: patient.phone ?? "-",
             annotationTriage: record.annotationTriage ?? "-",
-            appointmentDate: record.appointmentDate ? new Date(record.appointmentDate) : undefined,
+            appointmentDate: record.appointmentDate
+              ? new Date(record.appointmentDate)
+              : undefined,
             recentMedicine: record.recentMedicine ?? "-",
             situation: record.situation ?? "-",
             recordsAsDoctor: patient.recordsAsDoctor,
@@ -47,6 +53,22 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
     }
     loadPatients();
   }, []);
+
+  // 🔹 Inicia o atendimento — remove da lista local, sem mudar o banco
+  const handleIniciar = (item: SimplifiedPatient) => {
+    setLoadingId(item.patientId ?? null);
+
+    // Salva o paciente localmente
+    localStorage.setItem("pacienteSelecionado", JSON.stringify(item));
+
+    // Remove o paciente da lista (sem mexer no banco)
+    setPatients((prev) => prev.filter((p) => p.patientId !== item.patientId));
+
+    // Notifica o componente pai
+    onIniciar(item);
+
+    setLoadingId(null);
+  };
 
   return (
     <div className={styles.container}>
@@ -66,19 +88,31 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
               key={`${item.patientId ?? "noid"}-${index}`}
               className={item.level === 5 ? styles.nivelAlto : ""}
             >
-              <td>{item.name} {item.lastName}</td>
+              <td>
+                {item.name} {item.lastName}
+              </td>
               <td>{item.level ?? "-"}</td>
               <td>{item.symptom ?? "-"}</td>
               <td>{item.annotationTriage ?? "-"}</td>
               <td>
-                <Button onClick={() => onIniciar(item)} style={{ borderRadius: "12px" }}>
-                  INICIAR
+                <Button
+                  disabled={loadingId === item.patientId}
+                  onClick={() => handleIniciar(item)}
+                  style={{ borderRadius: "12px" }}
+                >
+                  {loadingId === item.patientId ? "Iniciando..." : "INICIAR"}
                 </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {patients.length === 0 && (
+        <p style={{ textAlign: "center", marginTop: 20, color: "#555" }}>
+          Nenhum paciente aguardando atendimento.
+        </p>
+      )}
     </div>
   );
 }
