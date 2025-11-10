@@ -1,306 +1,271 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../Button";
 import TituloMinimizavel from "../TituloMinimizavel";
 import SegmentoCard from "../SegmentoCard";
-import styles from "./styles.module.css";
 import PrescriptionModal from "../PrescriptionModal";
-import { FiTrash2, FiEye } from "react-icons/fi";
 import EncaminhamentoModal from "../EncaminhamentoModal";
+import styles from "./styles.module.css";
+import { FiTrash2, FiEye } from "react-icons/fi";
+import api from "../../services/api";
 
-
-
-type Patient = {
-  id: number;
-  name: string;
+type SimplifiedPatient = {
+  patientId?: string | number;
+  id?: number;
+  name?: string;
+  nome?: string;
   lastName?: string;
-  level: number;
   birthDate?: string;
+  level?: number;
   symptom?: string;
   allergy?: string;
   recentMedicine?: string;
-  annotation?: string;
+  annotationTriage?: string;
+  cpf?: string;
+  email?: string;
+  phone?: string;
 };
 
-interface Encaminhamento {
+type EncaminhamentoType = {
   descricao: string;
-  medicamentos: string;
-  data: string;
-}
+  medicamentos?: string;
+  data?: string;
+};
 
-interface Props {
-  onFinalizar: (anotacoes: string) => void;
-}
+type AtendimentoProps = {
+  onFinalizar?: (updatedPatients: any[]) => void;
+};
 
-export default function Atendimento({ onFinalizar }: Props) {
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [anotacoes, setAnotacoes] = useState("");
-  const [showFicha, setShowFicha] = useState(true);
-  const [showReceita, setShowReceita] = useState(false);
-  const [showEncaminhamento, setShowEncaminhamento] = useState(false);
+export default function Atendimento({ onFinalizar }: AtendimentoProps) {
+  const [patient, setPatient] = useState<SimplifiedPatient | null>(null);
+  const [anotacoes, setAnotacoes] = useState<string>("");
+  const [receitas, setReceitas] = useState<string[]>([]);
+  const [encaminhamentos, setEncaminhamentos] = useState<EncaminhamentoType[]>([]);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
   const [showEncaminhamentoModal, setShowEncaminhamentoModal] = useState(false);
-  const [showEncaminhamentoDetalhes, setShowEncaminhamentoDetalhes] = useState<Encaminhamento | null>(null);
-  const [historico, setHistorico] = useState<string[]>([]);
-  const [encaminhamentos, setEncaminhamentos] = useState<Encaminhamento[]>([]);
+  const [detalhesEncaminhamento, setDetalhesEncaminhamento] = useState<EncaminhamentoType | null>(null);
 
-  const [doctorName, setDoctorName] = useState("");
-
-  useEffect(() => {
-  const usuarioString = localStorage.getItem("usuario");
-  if (usuarioString) {
-    const usuario = JSON.parse(usuarioString);
-    setDoctorName(usuario.name || "Médico não identificado");
-  }
-}, []);
-
+  // estados para o TituloMinimizavel (abre/fecha)
+  const [openReceita, setOpenReceita] = useState<boolean>(true);
+  const [openEncaminhamento, setOpenEncaminhamento] = useState<boolean>(true);
 
   useEffect(() => {
-    const patientString = localStorage.getItem("currentPatientId");
-    if (patientString) setPatient(JSON.parse(patientString));
+    const saved = localStorage.getItem("pacienteSelecionado");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as SimplifiedPatient;
+        setPatient(parsed);
+        setAnotacoes(parsed.annotationTriage ?? "");
+        // não buscamos receitas/encaminhamentos do server aqui
+      } catch (e) {
+        console.error("Erro ao parsear pacienteSelecionado:", e);
+      }
+    }
   }, []);
 
-  useEffect(() => {
-    if (!patient) return;
-    setAnotacoes(patient.annotation ?? "");
-    const histString = localStorage.getItem(`receitas_patient_${patient.id}`);
-    setHistorico(histString ? JSON.parse(histString) : []);
-    const encString = localStorage.getItem(`encaminhamentos_patient_${patient.id}`);
-    setEncaminhamentos(encString ? JSON.parse(encString) : []);
-  }, [patient]);
+  async function postRecordToServer(extra: { receitas?: any[]; encaminhamentos?: any[] } = {}) {
+    if (!patient?.patientId && !patient?.id) return;
 
-  function formatDate(dateString?: string) {
-    if (!dateString) return " - ";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Data inválida";
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
-
-  function finalizarAtendimento() {
-    if (!patient) return;
-
-    const hoje = new Date();
-    const dataHoje = `${hoje.getFullYear()}-${(hoje.getMonth() + 1)
-      .toString()
-      .padStart(2, "0")}-${hoje.getDate().toString().padStart(2, "0")}`;
-
-    const atendimentoDoDia = {
-      id: Date.now(),
-      data: dataHoje,
-      anotacoes,
-      receitas: historico,
-      encaminhamentos,
+    const patientId = patient.patientId ?? patient.id;
+    const recordData = {
+      patientId,
+      appointmentDate: new Date().toISOString(),
+      level: patient.level ?? null,
+      symptom: patient.symptom ?? null,
+      recentMedicine: patient.recentMedicine ?? null,
+      annotationMedic: anotacoes ?? null,
+      receitas: extra.receitas ?? receitas.map((r) => ({ descricao: r, data: new Date().toLocaleDateString("pt-BR") })),
+      encaminhamentos: extra.encaminhamentos ?? encaminhamentos,
     };
 
-    const historicoSalvoString = localStorage.getItem(`historico_atendimentos_patient_${patient.id}`);
-    const historicoSalvo = historicoSalvoString ? JSON.parse(historicoSalvoString) : [];
-    const novoHistorico = [...historicoSalvo, atendimentoDoDia];
-    localStorage.setItem(`historico_atendimentos_patient_${patient.id}`, JSON.stringify(novoHistorico));
-
-    const patientAtualizado = { ...patient, annotation: anotacoes };
-    setPatient(patientAtualizado);
-    localStorage.setItem("currentPatientId", JSON.stringify(patientAtualizado));
-
-    alert("Atendimento finalizado e salvo no histórico!");
-    onFinalizar(anotacoes);
+    try {
+      await api.post("/records", recordData);
+    } catch (err) {
+      console.error("Erro ao salvar record no servidor:", err);
+      alert("Erro ao salvar no servidor. Dados foram mantidos localmente.");
+    }
   }
 
-  function deletarEncaminhamento(index: number) {
-    if (!patient) return;
-    if (confirm("Deseja deletar este encaminhamento?")) {
-      const atualizados = encaminhamentos.filter((_, i) => i !== index);
-      setEncaminhamentos(atualizados);
-      localStorage.setItem(`encaminhamentos_patient_${patient.id}`, JSON.stringify(atualizados));
+  async function handleSaveReceita(receitaTexto: string) {
+    const nova = receitaTexto.trim();
+    if (!nova) return;
+    const novaReceitas = [...receitas, nova];
+    setReceitas(novaReceitas);
+    await postRecordToServer({ receitas: novaReceitas.map((r) => ({ descricao: r, data: new Date().toLocaleDateString("pt-BR") })) });
+  }
+
+  async function handleSaveEncaminhamento(novo: { descricao: string; medicamentos?: string }) {
+    const novoEnc: EncaminhamentoType = { ...novo, data: new Date().toLocaleDateString("pt-BR") };
+    const novos = [...encaminhamentos, novoEnc];
+    setEncaminhamentos(novos);
+    await postRecordToServer({ encaminhamentos: novos });
+  }
+
+  function handleDeleteReceita(index: number) {
+    const atual = receitas.filter((_, i) => i !== index);
+    setReceitas(atual);
+    postRecordToServer({ receitas: atual.map((r) => ({ descricao: r, data: new Date().toLocaleDateString("pt-BR") })) }).catch(() => {});
+  }
+
+  function handleDeleteEncaminhamento(index: number) {
+    const atual = encaminhamentos.filter((_, i) => i !== index);
+    setEncaminhamentos(atual);
+    postRecordToServer({ encaminhamentos: atual }).catch(() => {});
+  }
+
+  function formatDateStr(d?: string) {
+    if (!d) return "-";
+    try {
+      return new Date(d).toLocaleDateString("pt-BR");
+    } catch {
+      return d;
     }
+  }
+
+  async function finalizarAtendimento() {
+    await postRecordToServer();
+    localStorage.removeItem("pacienteSelecionado");
+    setPatient(null);
+    setAnotacoes("");
+    setReceitas([]);
+    setEncaminhamentos([]);
+    if (onFinalizar) onFinalizar([]);
+    alert("Atendimento finalizado e salvo.");
+  }
+
+  if (!patient) {
+    return <div className={styles.selecioneAviso}>Selecione um paciente para iniciar atendimento.</div>;
   }
 
   return (
     <div className={styles.fichaContainer}>
-      <TituloMinimizavel title="Ficha Médica" isOpen={showFicha} onAlterna={() => setShowFicha(!showFicha)} />
-      {showFicha && patient && (
-        <SegmentoCard className={styles.card}>
-          <div className={styles.infoBox}>
-            <div>
-              <strong>Nome:</strong> {patient.name} {patient.lastName ?? ""}
-            </div>
-            <div>
-              <strong>Data nascimento:</strong> {formatDate(patient.birthDate)}
-            </div>
-            <div>
-              <strong>Nível:</strong>{" "}
-              {patient.level === 5 ? (
-                <span className={styles.nivelCinco}>{patient.level}</span>
-              ) : (
-                patient.level
-              )}
-            </div>
-            <div><strong>Sintomas:</strong> {patient.symptom ?? " "}</div>
-            <div><strong>Alergias:</strong> {patient.allergy ?? " "}</div>
-            <div><strong>Remédio controlado:</strong> {patient.recentMedicine ?? "-"}</div>
-          </div>
-          <div className={styles.anotacoesBox}>
-            <strong>Anotações:</strong>
-            <textarea
-              value={anotacoes}
-              onChange={(e) => setAnotacoes(e.target.value)}
-              placeholder="Digite aqui ..."
-              rows={6}
-              className={styles.textarea}
-            />
-          </div>
-        </SegmentoCard>
-      )}
+      <h2 className={styles.fichaTitulo}>Ficha Médica</h2>
 
-      <TituloMinimizavel title="Receita" isOpen={showReceita} onAlterna={() => setShowReceita(!showReceita)} />
-      {showReceita && (
+      <div className={styles.infoBox}>
+        <div className={styles.infoLinha}>
+          <div><strong>Nome:</strong> {patient.name ?? patient.nome ?? "Sem nome"} {patient.lastName ?? ""}</div>
+          <div><strong>Data nascimento:</strong> {formatDateStr(patient.birthDate)}</div>
+        </div>
+
+        <div className={styles.infoLinha}>
+          <div><strong>Nível:</strong> <span className={patient.level === 5 ? styles.nivelCinco : ""}>{patient.level ?? "-"}</span></div>
+          <div><strong>Sintomas:</strong> {patient.symptom ?? "-"}</div>
+        </div>
+
+        <div className={styles.infoLinha}>
+          <div><strong>Alergias:</strong> {patient.allergy ?? "-"}</div>
+          <div><strong>Remédio controlado:</strong> {patient.recentMedicine ?? "-"}</div>
+        </div>
+      </div>
+
+      {/* Campo de anotações (FIXO) */}
+      <h3 className={styles.subtitulo}>Anotações Médicas</h3>
+      <SegmentoCard className={styles.card}>
+        <textarea
+          className={styles.textarea}
+          placeholder="Digite aqui suas observações, diagnósticos e anotações clínicas..."
+          value={anotacoes}
+          onChange={(e) => setAnotacoes(e.target.value)}
+        />
+      </SegmentoCard>
+
+      {/* RECEITA - minimizável */}
+      <TituloMinimizavel title="Receita" isOpen={openReceita} onAlterna={() => setOpenReceita(!openReceita)}>
         <SegmentoCard className={styles.card}>
-          {historico.length === 0 ? (
-            <div className={styles.centerContent}>
+          {receitas.length === 0 ? (
+            <div className={styles.emptyBox}>
               <p>Não possui receitas recentes</p>
-              <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px" }}>CRIAR</Button>
+              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: 12 }}>CRIAR</Button>
             </div>
           ) : (
-            <div>
-              {historico.map((receita, i) => (
+            <div className={styles.receitaBox}>
+              {receitas.map((r, i) => (
                 <div key={i} className={styles.receitaCard}>
-                  <div className={styles.receitaHeader}>
-                    <button
-                      onClick={() => {
-                        if (confirm("Deseja deletar esta receita?")) {
-                          setHistorico((prev) => prev.filter((_, index) => index !== i));
-                        }
-                      }}
-                      className={styles.deleteButton}
-                      title="Excluir receita"
-                    >
-                      <FiTrash2 size={18} color="#c00" />
+                  <div style={{ whiteSpace: "pre-wrap", flex: 1 }}>{r}</div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <button onClick={() => alert(r)} title="Ver receita" style={{ background: "transparent", border: "none", cursor: "pointer" }}>
+                      <FiEye size={18} />
+                    </button>
+                    <button onClick={() => { if (confirm("Deseja deletar esta receita?")) handleDeleteReceita(i); }} title="Excluir" style={{ background: "transparent", border: "none", cursor: "pointer" }}>
+                      <FiTrash2 color="#c00" size={18} />
                     </button>
                   </div>
-                  <pre>{receita}</pre>
                 </div>
               ))}
-              <Button onClick={() => setShowPrescriptionModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>CRIAR</Button>
             </div>
           )}
         </SegmentoCard>
-      )}
+      </TituloMinimizavel>
 
-      <TituloMinimizavel title="Encaminhamento" isOpen={showEncaminhamento} onAlterna={() => setShowEncaminhamento(!showEncaminhamento)} />
-      {showEncaminhamento && (
+      {/* ENCAMINHAMENTO - minimizável */}
+      <TituloMinimizavel title="Encaminhamento" isOpen={openEncaminhamento} onAlterna={() => setOpenEncaminhamento(!openEncaminhamento)}>
         <SegmentoCard className={styles.card}>
           {encaminhamentos.length === 0 ? (
-            <div className={styles.centerContent}>
+            <div className={styles.emptyBox}>
               <p>Não possui encaminhamentos recentes</p>
-              <div style={{ fontSize: 30 }}>+</div>
-              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px" }}>CRIAR</Button>
+              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: 12 }}>CRIAR</Button>
             </div>
           ) : (
-            <div>
-              <ul>
-                {encaminhamentos.map((e, i) => (
-                  <li key={i} style={{ marginBottom: "10px" }}>
-                    <strong>Data:</strong> {e.data} <br />
-                    <strong>Descrição:</strong> {e.descricao} <br />
-                    <strong>Medicamentos:</strong> {e.medicamentos || "-"}
-                    <div style={{ marginTop: 5, display: "flex", gap: 10 }}>
-                      <Button
-                        onClick={() => setShowEncaminhamentoDetalhes(e)}
-                        style={{ borderRadius: "8px", background: "#007bff", color: "#fff", padding: "5px 10px" }}
-                      >
-                        <FiEye size={16} style={{ marginRight: 4 }} /> Ver detalhes
-                      </Button>
-                      <button
-                        onClick={() => deletarEncaminhamento(i)}
-                        title="Excluir encaminhamento"
-                        style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                      >
-                        <FiTrash2 color="#c00" size={18} />
-                      </button>
-                    </div>
-                    <hr />
-                  </li>
-                ))}
-              </ul>
-              <Button onClick={() => setShowEncaminhamentoModal(true)} style={{ borderRadius: "12px", marginTop: "16px" }}>CRIAR</Button>
+            <div className={styles.encaminhamentoBox}>
+              {encaminhamentos.map((e, i) => (
+                <div key={i} className={styles.encaminhamentoCard}>
+                  <div>
+                    <div><strong>Data:</strong> {e.data}</div>
+                    <div style={{ whiteSpace: "pre-wrap" }}>{e.descricao}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <button onClick={() => setDetalhesEncaminhamento(e)} title="Ver detalhes" style={{ background: "transparent", border: "none", cursor: "pointer" }}>
+                      <FiEye size={18} color="#009688" />
+                    </button>
+                    <button onClick={() => { if (confirm("Deseja deletar este encaminhamento?")) handleDeleteEncaminhamento(i); }} title="Excluir" style={{ background: "transparent", border: "none", cursor: "pointer" }}>
+                      <FiTrash2 color="#c00" size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </SegmentoCard>
-      )}
+      </TituloMinimizavel>
 
-      {showEncaminhamentoDetalhes && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.35)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 999,
-          }}
-          onClick={() => setShowEncaminhamentoDetalhes(null)}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 10,
-              padding: 20,
-              width: "400px",
-              boxShadow: "0 5px 20px rgba(0,0,0,0.3)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+      {/* Modal de detalhes do encaminhamento */}
+      {detalhesEncaminhamento && (
+        <div className={styles.modalOverlay} onClick={() => setDetalhesEncaminhamento(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <h3>Detalhes do Encaminhamento</h3>
-            <p><strong>Data:</strong> {showEncaminhamentoDetalhes.data}</p>
-            <p><strong>Descrição:</strong> {showEncaminhamentoDetalhes.descricao}</p>
-            <p><strong>Medicamentos:</strong> {showEncaminhamentoDetalhes.medicamentos || "-"}</p>
-            <Button
-              onClick={() => setShowEncaminhamentoDetalhes(null)}
-              style={{ marginTop: 15, borderRadius: "8px" }}
-            >
-              Fechar
-            </Button>
+            <p><strong>Data:</strong> {detalhesEncaminhamento.data}</p>
+            <p><strong>Descrição:</strong> {detalhesEncaminhamento.descricao}</p>
+            <p><strong>Medicamentos:</strong> {detalhesEncaminhamento.medicamentos ?? "-"}</p>
+            <div style={{ textAlign: "right", marginTop: 12 }}>
+              <Button onClick={() => setDetalhesEncaminhamento(null)} style={{ borderRadius: 8 }}>Fechar</Button>
+            </div>
           </div>
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-        <Button onClick={finalizarAtendimento} style={{ borderRadius: "12px" }}>
-          FINALIZAR
-        </Button>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
+        <Button onClick={finalizarAtendimento} style={{ borderRadius: 12 }}>FINALIZAR</Button>
       </div>
 
-      {showPrescriptionModal && patient && (
+      {/* MODAIS */}
+      {showPrescriptionModal && (
         <PrescriptionModal
           onClose={() => setShowPrescriptionModal(false)}
-          patientName={`${patient.name}${patient.lastName ? " " + patient.lastName : ""}`}
-          doctorName={doctorName}
-          onSave={(novaReceita: string) => {
-            setHistorico((prev) => [...prev, novaReceita]);
+          patientName={patient.name ?? patient.nome ?? ""}
+          doctorName={localStorage.getItem("usuario") ? JSON.parse(localStorage.getItem("usuario")!).name : undefined}
+          onSave={async (receitaTexto: string) => {
+            await handleSaveReceita(receitaTexto);
             setShowPrescriptionModal(false);
           }}
         />
       )}
 
-      {showEncaminhamentoModal && patient && (
+      {showEncaminhamentoModal && (
         <EncaminhamentoModal
-          patientName={patient.name}
           onClose={() => setShowEncaminhamentoModal(false)}
-          onSave={(novo) => {
-            const novoEnc = {
-              ...novo,
-              data: new Date().toLocaleDateString("pt-BR"),
-            };
-            const atualizados = [...encaminhamentos, novoEnc];
-            setEncaminhamentos(atualizados);
-            localStorage.setItem(`encaminhamentos_patient_${patient.id}`, JSON.stringify(atualizados));
+          patientName={patient.name ?? patient.nome ?? ""}
+          onSave={async (novo) => {
+            await handleSaveEncaminhamento(novo);
             setShowEncaminhamentoModal(false);
           }}
         />

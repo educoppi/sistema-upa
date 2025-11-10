@@ -1,97 +1,172 @@
-/* Container principal da ficha médica */
 .fichaContainer {
-  width: 80%;
-  max-width: 1200px;
+  width: 90%;               /* Agora ocupa quase toda a largura da tela */
+  max-width: 1500px;        /* Aumentado para monitores grandes */
   margin: 20px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 30px 40px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px #0002;
   font-family: Arial, sans-serif;
+  font-size: 18px;          /* Tamanho base maior */
 }
 
-/* Caixa de informações do paciente */
-.infoBox {
-  border: 2px solid #1e9a81;
-  padding: 16px;
-  border-radius: 6px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px 60px;
-  font-size: 18px;
-}
-
-/* Cada item dentro da infoBox */
-.infoBox > div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Destaque para paciente nível 5 */
-.nivelCinco {
-  color: #b60000;
+.fichaTitulo {
+  font-size: 2.4rem;        /* Título maior */
   font-weight: bold;
+  margin-bottom: 1.8rem;
+  text-align: center;
+  color: #004d40;
 }
 
-/* Caixa de anotações */
-.anotacoesBox {
-  border: 1px solid #ddd;
-  padding: 16px;
-  border-radius: 6px;
-  font-size: 18px;
+.infoBox {
+  border: 2px solid #009688;
+  border-radius: 10px;
+  padding: 18px 26px;        /* Compacto, mas com leve respiro */
+  background: #f6faf9;
+  margin-bottom: 22px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-/* Textarea */
+.infoLinha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 18px;            /* Espaçamento uniforme entre colunas */
+  width: 100%;
+}
+
+.infoLinha div {
+  flex: 1 1 45%;             /* Mantém duas colunas equilibradas */
+  font-size: 1.25rem;        /* 🔹 Letras maiores */
+  color: #1e1e1e;
+  line-height: 1.5;
+}
+
+.infoLinha strong {
+  color: #00695c;            /* Verde mais escuro para contraste */
+  font-weight: 700;
+  font-size: 1.3rem;         /* 🔹 Destaque ainda maior para os rótulos */
+}
+
+
+
+.subtitulo {
+  margin-top: 28px;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #00695c;
+}
+
+.anotacoesBox {
+  margin-top: 20px;
+}
+
 .textarea {
   width: 100%;
+  font-size: 18px;
+  min-height: 90px;
+  border-radius: 8px;
+  border: 1px solid #aaa;
+  padding: 12px;
   resize: vertical;
-  padding: 8px;
-  font-size: 16px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-family: Arial, sans-serif;
+  margin-bottom: 12px;
 }
 
-/* Botão salvar */
-.anotacoesBox button {
-  background-color: #1e9a81;
-  color: white;
-  border: none;
-  padding: 10px;
+.input {
+  width: 48%;
+  font-size: 17px;
+  margin-bottom: 10px;
   border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  border: 1px solid #aaa;
+  padding: 8px 10px;
 }
 
-.anotacoesBox button:hover {
-  background-color: #157a66;
+.nivelCinco {
+  color: #d32f2f;
+  font-weight: 900;
+  font-size: 1.2rem;
 }
 
-/* Centraliza conteúdo do botão criar + e texto */
-.centerContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 20px 0;
+.selecioneAviso {
+  margin: 24px auto;
+  font-size: 1.3rem;
+  color: #666;
+  padding: 16px 0;
   text-align: center;
 }
 
+.receitaBox, .encaminhamentoBox {
+  padding: 16px 0;
+}
+
+.receitaCard, .encaminhamentoCard {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #f7f7f7;
+  margin-bottom: 12px;
+  padding: 14px 18px;
+  font-size: 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.textoSecundario {
+  color: #555;
+  margin-bottom: 10px;
+  font-size: 17px;
+}
+
+.receitaData, .encaminhamentoData {
+  font-size: 15px;
+  color: #888;
+}
+
+.botaoFinalizar {
+  display: block;
+  margin: 40px auto 0;
+  background: #009688;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 28px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.botaoFinalizar:hover {
+  background: #00796b;
+  transform: scale(1.05);
+}
+
 /* Responsividade */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .fichaContainer {
     width: 95%;
+    padding: 24px 30px;
+    font-size: 17px;
   }
-  .infoBox {
-    grid-template-columns: 1fr;
+
+  .input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .fichaContainer {
+    width: 96%;
+    padding: 20px;
     font-size: 16px;
   }
-  .anotacoesBox {
-    font-size: 16px;
+
+  .fichaTitulo {
+    font-size: 1.8rem;
   }
 }
