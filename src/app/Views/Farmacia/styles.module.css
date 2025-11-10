@@ -67,6 +67,7 @@
   text-align: left;
   position: relative;
   text-align: left;
+  white-space: nowrap;
 }
 
 

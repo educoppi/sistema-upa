@@ -12,6 +12,7 @@ import { FaSortUp, FaSortDown } from "react-icons/fa";
 import { IoReloadCircle } from 'react-icons/io5';
 import medicationService from '@/services/medication';
 import Medication from '@/models/Medication';
+import Movement from '@/models/Movement';
 import api from '@/services/api';
 import Swal from 'sweetalert2';
 
@@ -44,6 +45,7 @@ export default function Farmacia() {
   const [vencendo, setVencendo] = useState<Medication[]>([]);
   const [ordenarPor, setOrdenarPor] = useState<CampoOrdenavel | null>(null);
   const [ordemAscendente, setOrdemAscendente] = useState(true);
+  const [movements, setMovements] = useState<Movement[]>([]);
 
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
 
@@ -89,6 +91,13 @@ export default function Farmacia() {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  }
+
+  function traduzirMovementType(type: string | undefined) {
+    if (!type) return '-';
+    if (type.toLowerCase() === 'inbound') return 'Entrada';
+    if (type.toLowerCase() === 'outbound') return 'Saída';
+    return type;
   }
 
 
@@ -144,10 +153,10 @@ export default function Farmacia() {
         text: 'Medicamento cadastrado com sucesso!',
         confirmButtonColor: '#3085d6',
       });
-      
+
     } catch (error: unknown) {
       console.error('Erro ao criar medicamento:', axios.isAxiosError(error) ? error.response?.data || error.message : error);
-      
+
       Swal.fire({
         icon: 'error',
         title: 'Erro!',
@@ -164,6 +173,19 @@ export default function Farmacia() {
     quantity?: number | string;
     dosage?: string;
   }
+
+  type Movement = {
+    id: number;
+    quantity: number;
+    createdAt: string;
+    updatedAt: string;
+    movementType: string;
+    approvedMovement: boolean;
+    user: { name: string, lastName: string };
+    doctor: { name: string, lastName: string };
+    medication: { name: string };
+  };
+
 
   async function buscarMedicamentos(filtros: MedicamentoFiltro) {
 
@@ -200,7 +222,7 @@ export default function Farmacia() {
         text: `Não foi possível buscar medicamentos: ${error}`,
         confirmButtonColor: '#d33',
       });
-      
+
     }
   }
 
@@ -223,6 +245,18 @@ export default function Farmacia() {
     return () => clearInterval(interval);
   }, [token]);
 
+  useEffect(() => {
+    const fetchMovements = async () => {
+      try {
+        const response = await api.get('https://projeto-integrador-lf6v.onrender.com/movements');
+        setMovements(response.data);
+      } catch (error) {
+        console.error('Erro ao carregar movimentos:', error);
+      }
+    };
+
+    fetchMovements();
+  }, []);
 
   const buscarAlertas = async () => {
     try {
@@ -526,11 +560,41 @@ export default function Farmacia() {
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
 
           <div className={styles.buscaFiltrada}>
-            <Button>NOVA MOVIMENTAÇÃO</Button>
+            {/*COLOCAR BOTÕES AQUI*/}
           </div>
 
-          <div>
-            
+          <div className={styles.tabelaEstoqueVencimento}>
+
+            {movements.length > 0 ? (
+              <table className={styles.tabela}>
+                <thead>
+                  <tr>
+                    <th>Requisitado por</th>
+                    <th>Aprovado por</th>
+                    <th>Medicamento</th>
+                    <th>Quantidade</th>
+                    <th>Tipo</th>
+                    <th>Solicitado em</th>
+                    <th>Aprovado em</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {movements.map((mov) => (
+                    <tr key={mov.id}>
+                      <td>{tornarMaiusculo(mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : '-')}</td>
+                      <td>{tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : '-')}</td>
+                      <td>{tornarMaiusculo(mov.medication?.name || '-')}</td>
+                      <td>{mov.quantity}</td>
+                      <td>{traduzirMovementType(mov.movementType)}</td>
+                      <td>{new Date(mov.createdAt).toLocaleDateString()}</td>
+                      <td>{new Date(mov.updatedAt).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div>Nenhum movimento encontrado.</div>
+            )}
           </div>
 
         </Tab>
