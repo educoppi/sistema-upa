@@ -7,6 +7,7 @@ type Props = {
     placeholder?: string;
     type: string;
     text?: string;
+    required?: boolean;
     onChange?(texto: string): void;
 }
 
@@ -44,7 +45,9 @@ export function TextFieldReception(props: Props) {
     return (
         <>
             <div className={styles.content}>
-                <p className={styles.label}>{props.label}</p>
+                {props.required
+                    ? <p className={styles.label}>{props.label} <span className={styles.asteristico}>*</span></p>
+                    : <p className={styles.label}>{props.label}</p>}
                 <input type={props.type} placeholder={props.placeholder} value={props.text} onChange={handleInputChange} className={styles.input} />
             </div>
         </>
