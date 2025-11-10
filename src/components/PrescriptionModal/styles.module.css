@@ -14,14 +14,17 @@
    
   /* Página principal */
   .page {
-    background: #fff;
-    border-radius: 12px;
-    width: 800px;
-    padding: 0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    font-family: 'Inter', sans-serif;
-    overflow: hidden;
-  }
+  background: #fff;
+  border-radius: 12px;
+  width: 1000px; /* mantém a largura */
+  height: 95vh; /* aumenta o comprimento do modal */
+  padding: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden; /* remove qualquer rolagem */
+}
+
+
    
   /* Cabeçalho */
   .header {
@@ -95,7 +98,7 @@
   }
    
   .fieldGroup textarea {
-    height: 100px;
+    height: 160px;
     resize: none;
   }
    
@@ -164,4 +167,10 @@
   .finalize:hover {
     background: #0D9276;
   }
+
+  .finalize:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
    
