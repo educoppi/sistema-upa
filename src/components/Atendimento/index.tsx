@@ -124,12 +124,16 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
 
   async function finalizarAtendimento() {
     await postRecordToServer();
+
+    
     localStorage.removeItem("pacienteSelecionado");
     setPatient(null);
     setAnotacoes("");
     setReceitas([]);
     setEncaminhamentos([]);
     if (onFinalizar) onFinalizar([]);
+
+
     alert("Atendimento finalizado e salvo.");
   }
 

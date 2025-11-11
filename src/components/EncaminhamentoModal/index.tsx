@@ -1,11 +1,17 @@
 "use client";
 import React, { useState } from "react";
 import styles from "./styles.module.css";
+import medicationService from "@/services/medication";
+import movementService from "@/services/movement";
+import Medication from "@/models/Medication";
+import axios, { AxiosResponse } from 'axios';
+import Movement from "@/models/Movement";
+import { header } from "framer-motion/client";
 
-interface Medicamento {
-  nome: string;
-  dose: string;
-  tipo: string;
+
+const token = localStorage.getItem('token');
+
+interface Medicamento extends Medication {
   qtd: number;
 }
 
@@ -23,58 +29,108 @@ export default function EncaminhamentoModal({
   const [descricao, setDescricao] = useState("");
   const [busca, setBusca] = useState("");
   const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
+  const [resultadosBusca, setResultadosBusca] = useState<Medication[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const dataAtual = new Date().toLocaleDateString("pt-BR");
 
-  const medicamentosDisponiveis = [
-    { nome: "Dipirona", dose: "500mg", tipo: "Comprimido" },
-    { nome: "Dipirona", dose: "1g", tipo: "Gotas" },
-    { nome: "Paracetamol", dose: "750mg", tipo: "Comprimido" },
-    { nome: "Ibuprofeno", dose: "600mg", tipo: "Comprimido" },
-    { nome: "Amoxicilina", dose: "500mg", tipo: "Cápsula" },
-    { nome: "Losartana", dose: "50mg", tipo: "Comprimido" },
-  ];
+  async function buscarMedicamentos() {
+    if (!busca.trim()) {
+      setResultadosBusca([]);
+      return;
+    }
 
-  const resultadosBusca = busca.trim()
-    ? medicamentosDisponiveis.filter((med) =>
-        med.nome.toLowerCase().includes(busca.toLowerCase())
-      )
-    : [];
+    setLoading(true);
+    try {
+      const meds = await medicationService.busca(busca);
+      setResultadosBusca(meds);
+    } catch (error) {
+      console.error("Erro ao buscar medicamentos:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  function adicionarMedicamento(med: { nome: string; dose: string; tipo: string }) {
+  function adicionarMedicamento(med: Medication) {
+    const jaExiste = medicamentos.find((m) => m.id === med.id);
+    if (jaExiste) {
+      alert("Esse medicamento já foi adicionado.");
+      return;
+    }
+
     const novo: Medicamento = { ...med, qtd: 1 };
-    setMedicamentos([...medicamentos, novo]);
+    setMedicamentos((prev) => [...prev, novo]);
     setBusca("");
+    setResultadosBusca([]);
   }
 
   function removerMedicamento(index: number) {
-    setMedicamentos(medicamentos.filter((_, i) => i !== index));
+    setMedicamentos((prev) => prev.filter((_, i) => i !== index));
   }
 
   function atualizarQuantidade(index: number, qtd: number) {
-    const novos = [...medicamentos];
-    novos[index].qtd = Math.max(1, qtd);
-    setMedicamentos(novos);
+    setMedicamentos((prev) => {
+      const novos = [...prev];
+      novos[index].qtd = Math.max(1, qtd);
+      return novos;
+    });
   }
 
-  function handleSalvar() {
+  async function handleSalvar() {
     if (!descricao.trim()) {
       alert("Por favor, insira uma descrição.");
       return;
     }
 
-    const medicamentosTexto = medicamentos
-      .map((m) => `${m.nome} ${m.dose} - ${m.tipo} (${m.qtd})`)
-      .join(", ");
+    if (medicamentos.length === 0) {
+      alert("Adicione pelo menos um medicamento.");
+      return;
+    }
 
-    onSave({ descricao, medicamentos: medicamentosTexto });
+
+
+    try {
+      for (const med of medicamentos) {
+        await axios.post('https://projeto-integrador-lf6v.onrender.com/movements', {
+          medicationId: med.id,
+          quantity: med.qtd
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => {
+            console.log(response.data);
+          })
+          .catch(error => {
+            console.error('Erro ao criar movimentação:', error.response ? error.response.data : error.message);
+          })
+      }
+
+      const medicamentosTexto = medicamentos
+        .map((m) => `${m.name} ${m.dosage} - ${m.type} (${m.qtd})`)
+        .join(", ");
+
+      onSave({ descricao, medicamentos: medicamentosTexto });
+      alert("Solicitação enviada para a farmácia com sucesso!");
+      onClose();
+    } catch (error) {
+      console.error("Erro ao salvar encaminhamento:", error);
+      alert("Erro ao enviar solicitação à farmácia.");
+    }
   }
 
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContainer}>
         <h2>Encaminhamento</h2>
-        <p><strong>Paciente:</strong> {patientName}</p>
-        <p><strong>Data:</strong> {dataAtual}</p>
+        <p>
+          <strong>Paciente:</strong> {patientName}
+        </p>
+        <p>
+          <strong>Data:</strong> {dataAtual}
+        </p>
 
         <div className={styles.formGroup}>
           <label>Descrição:</label>
@@ -93,9 +149,12 @@ export default function EncaminhamentoModal({
               type="text"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Pesquisar medicamento..."
+              placeholder="Digite o nome do medicamento..."
+              onKeyDown={(e) => e.key === "Enter" && buscarMedicamentos()}
             />
-            <button onClick={() => setBusca("")}>Busca</button>
+            <button onClick={buscarMedicamentos}>
+              {loading ? "Buscando..." : "Buscar"}
+            </button>
           </div>
 
           {resultadosBusca.length > 0 && (
@@ -106,9 +165,9 @@ export default function EncaminhamentoModal({
                   className={styles.searchItem}
                   onClick={() => adicionarMedicamento(med)}
                 >
-                  <div className={styles.searchItemTitle}>{med.nome}</div>
+                  <div className={styles.searchItemTitle}>{med.name}</div>
                   <div className={styles.searchItemSub}>
-                    {med.dose} - {med.tipo}
+                    {med.dosage} - {med.type}
                   </div>
                 </div>
               ))}
@@ -117,7 +176,10 @@ export default function EncaminhamentoModal({
 
           {medicamentos.length > 0 && (
             <div className={styles.medicamentosList}>
-              <button onClick={() => setMedicamentos([])} className={styles.novaBuscaBtn}>
+              <button
+                onClick={() => setMedicamentos([])}
+                className={styles.novaBuscaBtn}
+              >
                 Nova Busca
               </button>
 
@@ -134,9 +196,9 @@ export default function EncaminhamentoModal({
                 <tbody>
                   {medicamentos.map((med, i) => (
                     <tr key={i}>
-                      <td>{med.nome}</td>
-                      <td>{med.dose}</td>
-                      <td>{med.tipo}</td>
+                      <td>{med.name}</td>
+                      <td>{med.dosage}</td>
+                      <td>{med.type}</td>
                       <td>
                         <input
                           type="number"
@@ -164,8 +226,12 @@ export default function EncaminhamentoModal({
         </div>
 
         <div className={styles.buttonGroup}>
-          <button onClick={onClose} className={styles.cancelBtn}>Cancelar</button>
-          <button onClick={handleSalvar} className={styles.saveBtn}>Salvar</button>
+          <button onClick={onClose} className={styles.cancelBtn}>
+            Cancelar
+          </button>
+          <button onClick={handleSalvar} className={styles.saveBtn}>
+            Salvar
+          </button>
         </div>
       </div>
     </div>
