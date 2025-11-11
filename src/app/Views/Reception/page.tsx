@@ -1,7 +1,7 @@
 'use client'
 import { Header } from "@/components/Header";
 import TextField, { TextFieldReception, TextFieldPesquisa } from "@/components/TextField";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import axios, { AxiosResponse } from 'axios';
 import style from "./styles.module.css";
@@ -9,9 +9,17 @@ import Swal from 'sweetalert2';
 
 export default function Reception() {
 
-  const token = localStorage.getItem('token');
-  const usuarioString = localStorage.getItem('usuario');
-  const usuario = usuarioString ? JSON.parse(usuarioString) : null;
+    const [token, setToken] = useState<string | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [usuario, setUsuario] = useState<any>(null);
+
+    useEffect(() => {
+        // Só executa no cliente
+        const t = localStorage.getItem('token');
+        const u = localStorage.getItem('usuario');
+        setToken(t);
+        setUsuario(u ? JSON.parse(u) : null);
+    }, []);
 
   const [pesquisaCPF, setPesquisaCPF] = useState("");
   

@@ -13,5 +13,6 @@ export type SimplifiedPatient = {
   cpf?: string;
   email?: string;
   phone?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recordsAsDoctor: any[];
 };

@@ -11,7 +11,7 @@ export default function PainelAtendimento() {
     setPacienteSelecionado(patient);
   }
 
-  function handleFinalizar(updatedPatients: SimplifiedPatient[]) {
+  function handleFinalizar() {
     setPacienteSelecionado(null);
     // Atualizar lista ou estado se necessário
   }
@@ -19,7 +19,7 @@ export default function PainelAtendimento() {
   return (
     <>
       <TabelaIniciar onIniciar={handleIniciar} />
-      <Atendimento patient={pacienteSelecionado} onFinalizar={handleFinalizar} />
+      <Atendimento onFinalizar={handleFinalizar} />
     </>
   );
 }
