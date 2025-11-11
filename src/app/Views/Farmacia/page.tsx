@@ -46,6 +46,7 @@ export default function Farmacia() {
   const [ordenarPor, setOrdenarPor] = useState<CampoOrdenavel | null>(null);
   const [ordemAscendente, setOrdemAscendente] = useState(true);
   const [movements, setMovements] = useState<Movement[]>([]);
+  const [pendingMovements, setPendingMovements] = useState<Movement[]>([]);
 
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
 
@@ -246,17 +247,50 @@ export default function Farmacia() {
   }, [token]);
 
   useEffect(() => {
-    const fetchMovements = async () => {
+    const buscarTodasMovimentacoes = async () => {
       try {
-        const response = await api.get('https://projeto-integrador-lf6v.onrender.com/movements');
+        const response = await api.get('/movements');
         setMovements(response.data);
       } catch (error) {
         console.error('Erro ao carregar movimentos:', error);
       }
     };
 
-    fetchMovements();
+    buscarTodasMovimentacoes();
   }, []);
+
+
+  useEffect(() => {
+    buscarMovimentosPendentes();
+  }, []);
+
+
+  const buscarMovimentosPendentes = async () => {
+
+
+    try {
+      const response = await api.get('/movements?approvedMovement=false');
+      setPendingMovements(response.data);
+    } catch (err) {
+      console.error('Erro ao buscar movimentos pendentes:', err);
+    }
+  };
+  
+
+  const aprovarMovimento = async (id: number) => {
+    if (!window.confirm('Deseja realmente aprovar este movimento?')) return;
+
+    console.log(id)
+
+    try {
+      await api.put(`https://projeto-integrador-lf6v.onrender.com/movements/updateFarmacia/${id}`);
+      alert('Movimento aprovado com sucesso!');
+      buscarMovimentosPendentes();
+    } catch (err) {
+      console.error('Erro ao aprovar movimento:', err);
+      alert('Erro ao aprovar movimento.');
+    }
+  };
 
   const buscarAlertas = async () => {
     try {
@@ -280,6 +314,41 @@ export default function Farmacia() {
         className="mb-3"
       >
         <Tab eventKey="solicitacoes" title="SOLICITAÇÕES">
+          <div className={styles.tabelaEstoqueVencimento}>
+            {pendingMovements.length > 0 ? (
+              <table className={styles.tabela}>
+                <thead>
+                  <tr>
+                    <th>Solicitado por</th>
+                    <th>Medicamento</th>
+                    <th>Quantidade</th>
+                    <th>Data da Solicitação</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingMovements.map((mov) => (
+                    <tr key={mov.id}>
+                      <td>{tornarMaiusculo(mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : '-')}</td>
+                      <td>{tornarMaiusculo(mov.medication?.name || '-')}</td>
+                      <td>{mov.quantity}</td>
+                      <td>{new Date(mov.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <Button
+                          onClick={() => aprovarMovimento(mov.id)}
+                        >
+                          Aprovar
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div>Nenhuma solicitação pendente.</div>
+            )}
+          </div>
+
         </Tab>
 
         <Tab eventKey="cadastro" title="CADASTRO">
