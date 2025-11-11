@@ -60,13 +60,6 @@ export default function Triage() {
     const [recentMedicine, setRecentMedicine] = useState("");
 
     function classificar() {
-        console.log(paciente.id)
-        console.log(level)
-        console.log(symptom)
-        console.log(recentMedicine)
-        console.log(annotationTriage)
-        console.log(new Date().toISOString())
-
         axios.post('https://projeto-integrador-lf6v.onrender.com/records', {
             patientId: paciente.id,
             appointmentDate: new Date().toISOString().split('T')[0],
@@ -116,7 +109,6 @@ export default function Triage() {
             }
         )
             .then(response => {
-                console.log('Resposta:', response.data);
             })
             .catch(error => {
                 console.error('Erro:', error.response ? error.response.data : error.message);
