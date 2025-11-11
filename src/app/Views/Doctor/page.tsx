@@ -9,7 +9,17 @@ import Historico from '@/components/Historico';
 export default function Doctor() {
 
   const [token, setToken] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [usuario, setUsuario] = useState<any>(null);
+
+  useEffect(() => {
+      // Só executa no cliente
+      const t = localStorage.getItem('token');
+      const u = localStorage.getItem('usuario');
+      setToken(t);
+      setUsuario(u ? JSON.parse(u) : null);
+  }, []);
+
   const [iniciado, setIniciado] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState("atendimento");
 
@@ -21,10 +31,8 @@ export default function Doctor() {
     setUsuario(usuarioString ? JSON.parse(usuarioString) : null);
   }, []);
 
-  // Paciente padrão (usado apenas para ID)
-  const pacientePadrao = { id: 1 };
-
   // Histórico local para controle de finalizações recentes
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [historicoAtendimentos, setHistoricoAtendimentos] = useState<any[]>([]);
 
   function finalizarAtendimento(anotacoes: string) {
@@ -58,15 +66,12 @@ export default function Doctor() {
         >
           <Tab eventKey="atendimento" title="ATENDIMENTO">
             <Atendimento
-              patientId={pacientePadrao.id}
-              token={token}
-              onVoltar={() => setIniciado(false)}
               onFinalizar={finalizarAtendimento}
             />
           </Tab>
 
           <Tab eventKey="historico" title="HISTÓRICO">
-            <Historico token={token} />
+            <Historico />
           </Tab>
         </Tabs>
       )}

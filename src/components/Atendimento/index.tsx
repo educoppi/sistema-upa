@@ -33,7 +33,7 @@ type EncaminhamentoType = {
 };
 
 type AtendimentoProps = {
-  onFinalizar?: (updatedPatients: any[]) => void;
+  onFinalizar?: (updatedPatients: string) => void;
 };
 
 export default function Atendimento({ onFinalizar }: AtendimentoProps) {
@@ -63,6 +63,7 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
     }
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function postRecordToServer(extra: { receitas?: any[]; encaminhamentos?: any[] } = {}) {
     if (!patient?.patientId && !patient?.id) return;
 
@@ -131,9 +132,7 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
     setAnotacoes("");
     setReceitas([]);
     setEncaminhamentos([]);
-    if (onFinalizar) onFinalizar([]);
-
-
+    if (onFinalizar) onFinalizar('');
     alert("Atendimento finalizado e salvo.");
   }
 

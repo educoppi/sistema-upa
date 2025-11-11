@@ -10,9 +10,17 @@ import Swal from 'sweetalert2';
 
 export default function Triage() {
 
-    const token = localStorage.getItem('token');
-    const usuarioString = localStorage.getItem('usuario');
-    const usuario = usuarioString ? JSON.parse(usuarioString) : null;
+    const [token, setToken] = useState<string | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [usuario, setUsuario] = useState<any>(null);
+
+    useEffect(() => {
+        // Só executa no cliente
+        const t = localStorage.getItem('token');
+        const u = localStorage.getItem('usuario');
+        setToken(t);
+        setUsuario(u ? JSON.parse(u) : null);
+    }, []);
 
     const [cpf, setCpf] = useState("");
 
@@ -96,7 +104,7 @@ export default function Triage() {
 
     }
 
-    function atualizaAlergia(alergia: string, id: Number) {
+    function atualizaAlergia(alergia: string, id: number) {
         axios.put(`https://projeto-integrador-lf6v.onrender.com/users/${id}`,
             {
                 allergy: alergia

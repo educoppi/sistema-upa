@@ -20,8 +20,17 @@ import Swal from 'sweetalert2';
 
 export default function Farmacia() {
 
-  const [token, setToken] = useState('');
-  const [usuario, setUsuario] = useState({ name: '', id: 0 });
+  const [token, setToken] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [usuario, setUsuario] = useState<any>(null);
+
+  useEffect(() => {
+      // Só executa no cliente
+      const t = localStorage.getItem('token');
+      const u = localStorage.getItem('usuario');
+      setToken(t);
+      setUsuario(u ? JSON.parse(u) : null);
+  }, []);
 
   const [cadastrarMedicamento, setCadastrarMedicamento] = useState({
     name: '',
@@ -37,6 +46,7 @@ export default function Farmacia() {
     type: '',
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
   const [isFiltered, setIsFiltered] = useState(false);
   const [modalEditar, setModalEditar] = useState(false)
@@ -46,6 +56,7 @@ export default function Farmacia() {
   const [ordenarPor, setOrdenarPor] = useState<CampoOrdenavel | null>(null);
   const [ordemAscendente, setOrdemAscendente] = useState(true);
   const [movements, setMovements] = useState<Movement[]>([]);
+  const [pendingMovements, setPendingMovements] = useState<Movement[]>([]);
 
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
 
@@ -240,23 +251,83 @@ export default function Farmacia() {
 
     const interval = setInterval(() => {
       buscarAlertas();
+      buscarMovimentosPendentes();
+
     }, 30000);
 
     return () => clearInterval(interval);
   }, [token]);
 
-  useEffect(() => {
-    const fetchMovements = async () => {
-      try {
-        const response = await api.get('https://projeto-integrador-lf6v.onrender.com/movements');
-        setMovements(response.data);
-      } catch (error) {
-        console.error('Erro ao carregar movimentos:', error);
-      }
-    };
+  const buscarTodasMovimentacoes = async () => {
+    try {
+      const response = await api.get('/movements');
+      setMovements(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar movimentos:', error);
+    }
+  };
 
-    fetchMovements();
+
+  useEffect(() => {
+    buscarTodasMovimentacoes();
   }, []);
+
+
+  useEffect(() => {
+    buscarMovimentosPendentes();
+  }, []);
+
+
+  const buscarMovimentosPendentes = async () => {
+
+
+    try {
+      const response = await api.get('/movements?approvedMovement=false');
+      setPendingMovements(response.data);
+    } catch (err) {
+      console.error('Erro ao buscar movimentos pendentes:', err);
+    }
+  };
+
+
+  const aprovarMovimento = async (id: number) => {
+    // Substituindo window.confirm por Swal.fire
+    const result = await Swal.fire({
+      title: 'Deseja aprovar essa solicitação de medicamento?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sim, aprovar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+    });
+  
+    if (!result.isConfirmed) return; // Sai se clicar em cancelar
+  
+    console.log(id);
+  
+    try {
+      await api.put(`https://projeto-integrador-lf6v.onrender.com/movements/updateFarmacia/${id}`);
+  
+      // Substituindo alert por Swal.fire
+      Swal.fire({
+        icon: 'success',
+        title: 'Solicitação aprovada!',
+        confirmButtonColor: '#3085d6',
+      });
+  
+      buscarMovimentosPendentes();
+    } catch (err) {
+      console.error('Erro ao aprovar solicitação:', err);
+  
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao aprovar movimento',
+        text: 'Ocorreu um problema ao tentar aprovar esta solicitação.',
+        confirmButtonColor: '#3085d6',
+      });
+    }
+  };
 
   const buscarAlertas = async () => {
     try {
@@ -280,6 +351,41 @@ export default function Farmacia() {
         className="mb-3"
       >
         <Tab eventKey="solicitacoes" title="SOLICITAÇÕES">
+          <div className={styles.tabelaEstoqueVencimento}>
+            {pendingMovements.length > 0 ? (
+              <table className={styles.tabela}>
+                <thead>
+                  <tr>
+                    <th>Solicitado por</th>
+                    <th>Medicamento</th>
+                    <th>Quantidade</th>
+                    <th>Data da Solicitação</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingMovements.map((mov) => (
+                    <tr key={mov.id}>
+                      <td>{tornarMaiusculo(mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : '-')}</td>
+                      <td>{tornarMaiusculo(mov.medication?.name || '-')}</td>
+                      <td>{mov.quantity}</td>
+                      <td>{new Date(mov.createdAt).toLocaleDateString()}</td>
+                      <td>
+                        <Button
+                          onClick={() => aprovarMovimento(mov.id)}
+                        >
+                          Aprovar
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div>Nenhuma solicitação pendente.</div>
+            )}
+          </div>
+
         </Tab>
 
         <Tab eventKey="cadastro" title="CADASTRO">
@@ -558,9 +664,8 @@ export default function Farmacia() {
         </Tab>
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
-
           <div className={styles.buscaFiltrada}>
-            {/*COLOCAR BOTÕES AQUI*/}
+            <Button onClick={buscarTodasMovimentacoes}>ATUALIZAR</Button>
           </div>
 
           <div className={styles.tabelaEstoqueVencimento}>
@@ -579,7 +684,8 @@ export default function Farmacia() {
                   </tr>
                 </thead>
                 <tbody>
-                  {movements.map((mov) => (
+
+                  {movements.filter((mov) => mov.approvedMovement).map((mov) => (
                     <tr key={mov.id}>
                       <td>{tornarMaiusculo(mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : '-')}</td>
                       <td>{tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : '-')}</td>

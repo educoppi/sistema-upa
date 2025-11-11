@@ -18,12 +18,15 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
     async function loadPatients() {
       try {
         const response = await api.get("/users/patient/awaitingAttendance");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = response.data as any[];
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const simplified = data.flatMap((patient: any) => {
           const records = Array.isArray(patient.recordsAsDoctor)
             ? patient.recordsAsDoctor
             : [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return records.map((record: any) => ({
             patientId: patient.patientId,
             name: patient.name ?? "Sem nome",
