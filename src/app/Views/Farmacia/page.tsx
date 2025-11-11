@@ -20,8 +20,17 @@ import Swal from 'sweetalert2';
 
 export default function Farmacia() {
 
-  const [token, setToken] = useState('');
-  const [usuario, setUsuario] = useState({ name: '', id: 0 });
+  const [token, setToken] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [usuario, setUsuario] = useState<any>(null);
+
+  useEffect(() => {
+      // Só executa no cliente
+      const t = localStorage.getItem('token');
+      const u = localStorage.getItem('usuario');
+      setToken(t);
+      setUsuario(u ? JSON.parse(u) : null);
+  }, []);
 
   const [cadastrarMedicamento, setCadastrarMedicamento] = useState({
     name: '',
@@ -37,6 +46,7 @@ export default function Farmacia() {
     type: '',
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
   const [isFiltered, setIsFiltered] = useState(false);
   const [modalEditar, setModalEditar] = useState(false)
