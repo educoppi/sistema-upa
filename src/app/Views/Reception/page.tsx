@@ -14,8 +14,12 @@ export default function Reception() {
   const usuario = usuarioString ? JSON.parse(usuarioString) : null;
 
   const [pesquisaCPF, setPesquisaCPF] = useState("");
+  
+  const [atualizaPaciente, setAtualizaPaciente] = useState(false);
+
 
   const [paciente, setPaciente] = useState({
+    id: 0,
     name: '',
     lastName: '',
     cpf: '',
@@ -29,46 +33,78 @@ export default function Reception() {
 
   // TA DANDO ERRO
   function cadastrar() {
-    const pacienteFormatado = {
-      ...paciente,
-      birthDate: paciente.birthDate ? new Date(paciente.birthDate).toISOString() : null
-    }
 
-    if(paciente.name == "" || paciente.lastName == "" || paciente.cpf == "" || paciente.phone == "" || paciente.email == "" || paciente.birthDate == "" ){
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campos obrigatórios',
-        text: 'Preencha os campos obrigatórios antes de cadastrar.',
-        confirmButtonColor: '#3085d6',
-      });
+    if(atualizaPaciente){
 
-      return;
-    }
-    console.log(paciente)
-    axios.post('https://projeto-integrador-lf6v.onrender.com/users/patient', pacienteFormatado,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      console.log(paciente);
+
+      axios.put(`https://projeto-integrador-lf6v.onrender.com/users/${paciente.id}`, paciente,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         }
+      )
+        .then(function (response: AxiosResponse) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Paciente enviado para a Triagem com sucesso!',
+            confirmButtonColor: '#3085d6',
+          });
+        })
+        .catch(function () {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Erro!',
+                  text: 'Erro ao enviar Paciente para a Triagem.',
+                  confirmButtonColor: '#d33',
+                });
+        });
+    } else {
+      const pacienteFormatado = {
+        ...paciente,
+        birthDate: paciente.birthDate ? new Date(paciente.birthDate).toISOString() : null
       }
-    )
-      .then(function (response: AxiosResponse) {
+  
+      if(paciente.name == "" || paciente.lastName == "" || paciente.cpf == "" || paciente.phone == "" || paciente.email == "" || paciente.birthDate == "" ){
         Swal.fire({
-          icon: 'success',
-          title: 'Sucesso!',
-          text: 'Paciente cadastrado com sucesso!',
+          icon: 'warning',
+          title: 'Campos obrigatórios',
+          text: 'Preencha os campos obrigatórios antes de cadastrar.',
           confirmButtonColor: '#3085d6',
         });
-      })
-      .catch(function () {
-              Swal.fire({
-                icon: 'error',
-                title: 'Erro!',
-                text: 'Erro ao Cadastrar Paciente.',
-                confirmButtonColor: '#d33',
-              });
-      });
+  
+        return;
+      }
+      console.log(paciente)
+      axios.post('https://projeto-integrador-lf6v.onrender.com/users/patient', pacienteFormatado,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
+        .then(function (response: AxiosResponse) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Paciente enviado para a Triagem com sucesso!',
+            confirmButtonColor: '#3085d6',
+          });
+        })
+        .catch(function () {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Erro!',
+                  text: 'Erro ao enviar Paciente para a Triagem.',
+                  confirmButtonColor: '#d33',
+                });
+        });
+    }
+
   }
 
 
@@ -81,6 +117,7 @@ export default function Reception() {
         console.log(dados);
 
         setPaciente({
+          id: dados.name || 0,
           name: dados.name || "",
           lastName: dados.lastName || "",
           cpf: dados.cpf || "",
@@ -90,6 +127,8 @@ export default function Reception() {
           birthDate: dados.birthDate || "",
           situation: dados.situation || "AGUARDANDO TRIAGEM"
         });
+
+        setAtualizaPaciente(true)
 
       })
       .catch(function () {
@@ -134,7 +173,7 @@ export default function Reception() {
 
         </div>
 
-        <Button className={style.buttonForm} onClick={cadastrar}>CADASTRAR</Button>
+        <Button className={style.buttonForm} onClick={cadastrar}>Enviar para Triagem</Button>
 
       </div>
 
