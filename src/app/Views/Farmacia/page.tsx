@@ -648,7 +648,8 @@ export default function Farmacia() {
                   </tr>
                 </thead>
                 <tbody>
-                  {movements.map((mov) => (
+
+                  {movements.filter((mov) => mov.approvedMovement).map((mov) => (
                     <tr key={mov.id}>
                       <td>{tornarMaiusculo(mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : '-')}</td>
                       <td>{tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : '-')}</td>
