@@ -11,13 +11,17 @@ export default function Doctor() {
   const [token, setToken] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [usuario, setUsuario] = useState<any>(null);
+  const [loading, setLoading] = useState(true); // adiciona estado de carregamento
 
   useEffect(() => {
-      // Só executa no cliente
+    // garante que o código só rode no cliente
+    if (typeof window !== "undefined") {
       const t = localStorage.getItem('token');
       const u = localStorage.getItem('usuario');
       setToken(t);
       setUsuario(u ? JSON.parse(u) : null);
+    }
+    setLoading(false);
   }, []);
 
   const [iniciado, setIniciado] = useState(false);
