@@ -23,14 +23,6 @@ export default function Doctor() {
   const [iniciado, setIniciado] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState("atendimento");
 
-  // Carregar token e usuário do localStorage
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const usuarioString = localStorage.getItem('usuario');
-    setToken(storedToken);
-    setUsuario(usuarioString ? JSON.parse(usuarioString) : null);
-  }, []);
-
   // Histórico local para controle de finalizações recentes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [historicoAtendimentos, setHistoricoAtendimentos] = useState<any[]>([]);
