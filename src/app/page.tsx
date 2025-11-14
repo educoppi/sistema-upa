@@ -87,15 +87,6 @@ export default function Home() {
     <div className={style.tela}>
     <HeaderLogin />
 
-    <br />
-    <Link href="/Views/Doctor">Doutor</Link>
-    <br />
-    <Link href="/Views/Farmacia">Farmácia</Link>
-    <br />
-    <Link href="/Views/Reception">Recepção</Link>
-    <br />
-    <Link href="/Views/Triage">Triagem</Link>
-
       <div className={style.centralizador}>
 
         <div className={style.container}>
