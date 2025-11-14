@@ -15,6 +15,7 @@ import Medication from '@/models/Medication';
 import Movement from '@/models/Movement';
 import api from '@/services/api';
 import Swal from 'sweetalert2';
+import { BiBorderRadius } from 'react-icons/bi';
 
 
 
@@ -25,11 +26,11 @@ export default function Farmacia() {
   const [usuario, setUsuario] = useState<any>(null);
 
   useEffect(() => {
-      // Só executa no cliente
-      const t = localStorage.getItem('token');
-      const u = localStorage.getItem('usuario');
-      setToken(t);
-      setUsuario(u ? JSON.parse(u) : null);
+    // Só executa no cliente
+    const t = localStorage.getItem('token');
+    const u = localStorage.getItem('usuario');
+    setToken(t);
+    setUsuario(u ? JSON.parse(u) : null);
   }, []);
 
   const [cadastrarMedicamento, setCadastrarMedicamento] = useState({
@@ -291,7 +292,6 @@ export default function Farmacia() {
 
 
   const aprovarMovimento = async (id: number) => {
-    // Substituindo window.confirm por Swal.fire
     const result = await Swal.fire({
       title: 'Deseja aprovar essa solicitação de medicamento?',
       icon: 'question',
@@ -301,25 +301,24 @@ export default function Farmacia() {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
     });
-  
-    if (!result.isConfirmed) return; // Sai se clicar em cancelar
-  
+
+    if (!result.isConfirmed) return;
+
     console.log(id);
-  
+
     try {
       await api.put(`https://projeto-integrador-lf6v.onrender.com/movements/updateFarmacia/${id}`);
-  
-      // Substituindo alert por Swal.fire
+
       Swal.fire({
         icon: 'success',
         title: 'Solicitação aprovada!',
         confirmButtonColor: '#3085d6',
       });
-  
+
       buscarMovimentosPendentes();
     } catch (err) {
       console.error('Erro ao aprovar solicitação:', err);
-  
+
       Swal.fire({
         icon: 'error',
         title: 'Erro ao aprovar movimento',
@@ -370,11 +369,12 @@ export default function Farmacia() {
                       <td>{tornarMaiusculo(mov.medication?.name || '-')}</td>
                       <td>{mov.quantity}</td>
                       <td>{new Date(mov.createdAt).toLocaleDateString()}</td>
-                      <td>
-                        <Button
+                      <td style={{ textAlign: "center" }}>
+                        <Button style={{ borderRadius: "5px" }}
+
                           onClick={() => aprovarMovimento(mov.id)}
                         >
-                          Aprovar
+                          APROVAR
                         </Button>
                       </td>
                     </tr>
@@ -412,7 +412,7 @@ export default function Farmacia() {
               <TextField type="text" label="Quantidade:" onChange={quantity => setCadastrarMedicamento({ ...cadastrarMedicamento, quantity: quantity })} text={cadastrarMedicamento.quantity} />
               <TextField type="date" label="Vencimento:" onChange={expiresAt => setCadastrarMedicamento({ ...cadastrarMedicamento, expiresAt: expiresAt })} text={cadastrarMedicamento.expiresAt} />
 
-              <Button onClick={cadastrar}>CADASTRAR</Button>
+              <Button style={{ borderRadius: "5px" }} onClick={cadastrar}>CADASTRAR</Button>
 
             </div>
           </div>
@@ -441,7 +441,7 @@ export default function Farmacia() {
                     value={buscarMedicamento.type}
                   />
 
-                  <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>BUSCAR</Button>
+                  <Button style={{ borderRadius: "5px" }} onClick={() => buscarMedicamentos(buscarMedicamento)}>BUSCAR</Button>
                 </div>
               </div>
             )}
@@ -467,8 +467,8 @@ export default function Farmacia() {
                       value={buscarMedicamento.type}
                     />
 
-                    <Button onClick={() => buscarMedicamentos(buscarMedicamento)}>NOVA BUSCA</Button>
-                    <Button onClick={() => {
+                    <Button style={{ borderRadius: "5px" }} onClick={() => buscarMedicamentos(buscarMedicamento)}>NOVA BUSCA</Button>
+                    <Button style={{ borderRadius: "5px" }} onClick={() => {
                       setIsFiltered(false);
                       setBuscarMedicamento({
                         name: '',
@@ -584,7 +584,7 @@ export default function Farmacia() {
         <Tab eventKey="estoque" title="ESTOQUE">
           <>
             <div className={styles.buscaFiltrada}>
-              <Button onClick={buscarAlertas}>ATUALIZAR</Button>
+              <Button style={{ borderRadius: "5px" }} onClick={buscarAlertas}>ATUALIZAR</Button>
             </div>
 
             <div
@@ -665,7 +665,7 @@ export default function Farmacia() {
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
           <div className={styles.buscaFiltrada}>
-            <Button onClick={buscarTodasMovimentacoes}>ATUALIZAR</Button>
+            <Button style={{ borderRadius: "5px" }} onClick={buscarTodasMovimentacoes}>ATUALIZAR</Button>
           </div>
 
           <div className={styles.tabelaEstoqueVencimento}>
@@ -691,7 +691,7 @@ export default function Farmacia() {
                       <td>{tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : '-')}</td>
                       <td>{tornarMaiusculo(mov.medication?.name || '-')}</td>
                       <td>{mov.quantity}</td>
-                      <td>{traduzirMovementType(mov.movementType)}</td>
+                      <td style={{fontWeight: "bold",color: mov.movementType === "INBOUND" ? "green" : "red", backgroundColor: mov.movementType === "INBOUND" ? "#baf7cf" : "#ffe5e5"}}>{traduzirMovementType(mov.movementType)}</td>
                       <td>{new Date(mov.createdAt).toLocaleDateString()}</td>
                       <td>{new Date(mov.updatedAt).toLocaleDateString()}</td>
                     </tr>
