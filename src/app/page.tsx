@@ -1,5 +1,4 @@
 'use client'
-import Link from "next/link";
 import style from "./page.module.css";
 import Button from "@/components/Button";
 import TextField from "@/components/TextField";
@@ -17,6 +16,7 @@ export default function Home() {
   const [cpf, setCpf] = useState("");
   const [senha, setSenha] = useState("");
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [token, setToken] = useState("");
 
   const [usuario, setUsuario] = useState({
