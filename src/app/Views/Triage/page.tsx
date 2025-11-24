@@ -85,7 +85,7 @@ export default function Triage() {
                         Swal.fire({
                           icon: 'success',
                           title: 'Sucesso!',
-                          text: 'Paciente cadastrado com sucesso!',
+                          text: 'Paciente classificado com sucesso!',
                           confirmButtonColor: '#3085d6',
                         });
             })
@@ -93,7 +93,7 @@ export default function Triage() {
                               Swal.fire({
                                 icon: 'error',
                                 title: 'Erro!',
-                                text: 'Erro ao Cadastrar Paciente.',
+                                text: 'Erro ao classificar Paciente.',
                                 confirmButtonColor: '#d33',
                               });
             });

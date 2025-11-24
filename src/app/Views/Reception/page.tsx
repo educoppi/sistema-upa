@@ -38,8 +38,6 @@ export default function Reception() {
     situation: 'AGUARDANDO TRIAGEM'
   });
 
-
-  // TA DANDO ERRO
   function cadastrar() {
 
     if(atualizaPaciente){
@@ -125,18 +123,25 @@ export default function Reception() {
         console.log(dados);
 
         setPaciente({
-          id: dados.name || 0,
-          name: dados.name || "",
-          lastName: dados.lastName || "",
-          cpf: dados.cpf || "",
-          phone: dados.phone || "",
-          email: dados.email || "",
-          allergy: dados.allergy || "",
-          birthDate: dados.birthDate || "",
-          situation: dados.situation || "AGUARDANDO TRIAGEM"
+          id: dados.id,
+          name: dados.name,
+          lastName: dados.lastName,
+          cpf: dados.cpf,
+          phone: dados.phone,
+          email: dados.email,
+          allergy: dados.allergy,
+          birthDate: dados.birthDate,
+          situation: "AGUARDANDO TRIAGEM"
         });
 
         setAtualizaPaciente(true)
+
+            Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Paciente Buscado com sucesso!',
+            confirmButtonColor: '#3085d6',
+          });
 
       })
       .catch(function () {
