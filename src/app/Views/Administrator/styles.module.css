@@ -1,7 +1,7 @@
 .container {
     display: flex;
     width: 80%;
-    height: 240px;
+    height: 320px;
     column-gap: 100px;
     flex-wrap: wrap;
     justify-content: center;
@@ -14,11 +14,6 @@
     padding-top: 20px;
 }
 
-.name {
-    margin-bottom: 50px;
-    font-size: 50px;
-}
-
 .pesquisaField {
     background-color: #F2F2F2;
     width: 50%;
@@ -28,15 +23,10 @@
     align-content: space-between;
     align-items: center;
     border-radius: 15px;
-    margin-bottom: 100px;
+    margin-bottom: 150px;
     margin-top: 20px;
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.5);
 }
-
-.titulo {
-    margin-top: 15px;
-}
-
 
 .buttonPesquisar {
     background-color: #0D9276;
@@ -48,7 +38,6 @@
     background-color: #1ec7a2;
 } 
 
-
 .buttonForm {
     background-color: #0D9276;
     font-size: 20px;
@@ -59,4 +48,36 @@
 
 .buttonForm:hover {
     background-color: #1ec7a2;
+}
+
+.buttons {
+    display: flex;
+    justify-content:center;
+    width: 30%;
+    margin-bottom: 50px;
+}
+
+.buttonClear {
+    font-size: 20px;
+    border: none;
+    width: 200px;
+    height: 50px;
+    margin-right: 50px;
+}
+
+.deleteButton {
+  background-color: #e53935;
+  border: none;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 100px;
+}
+
+.deleteButton:hover {
+  background-color: #c62828;
 }

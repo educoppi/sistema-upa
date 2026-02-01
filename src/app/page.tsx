@@ -8,9 +8,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-
-  //home
-
   const router = useRouter();
 
   const [cpf, setCpf] = useState("");
@@ -78,6 +75,10 @@ export default function Home() {
 
     if( role === 'NURSE' ) {
       router.push('/Views/Triage');
+    }
+
+    if( role === 'ADMIN' ) {
+      router.push('/Views/Administrator');
     }
 
   }
