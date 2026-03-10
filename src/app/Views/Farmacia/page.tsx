@@ -265,6 +265,7 @@ export default function Farmacia() {
     const interval = setInterval(() => {
       buscarAlertas();
       buscarMovimentosPendentes();
+      buscarTodasMovimentacoes
     }, 30000);
 
     return () => clearInterval(interval);
@@ -323,12 +324,12 @@ export default function Farmacia() {
     return nomeMatch && medicamentoMatch && dataMatch && tipoMatch;
   });
 
-  useEffect(() => {
-    buscarTodasMovimentacoes();
-  }, []);
+
 
   useEffect(() => {
+    buscarTodasMovimentacoes();
     buscarMovimentosPendentes();
+    buscarMedicamentos({ name: "", dosage: "", type: "" });
   }, []);
 
 
