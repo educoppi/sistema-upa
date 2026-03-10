@@ -45,7 +45,6 @@ export default function Farmacia() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
-  const [isFiltered, setIsFiltered] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [medicamentoSelecionado, setMedicamentoSelecionado] =
     useState<Medication>();
@@ -232,7 +231,6 @@ export default function Farmacia() {
       //   }
       // });
 
-      setIsFiltered(true);
       // setResultadosBusca(response.data);
       // console.log('Resultado da busca:', response.data);
       setResultadosBusca(medications);
@@ -303,7 +301,6 @@ export default function Farmacia() {
       nomeRequisitado.includes(filtroNome) ||
       nomeAprovador.includes(filtroNome);
 
-    // Medicamento
     const medicamentoMatch =
       filtroMed === "" || nomeMedicamento.includes(filtroMed);
 
@@ -317,7 +314,7 @@ export default function Farmacia() {
         dataAprov.toDateString() === dataObj.toDateString();
     }
 
-    // Tipo
+
     const tipoMatch =
       filtroTipo === "" ||
       (filtroTipo === "entrada" && tipoMov === "inbound") ||
@@ -333,6 +330,8 @@ export default function Farmacia() {
   useEffect(() => {
     buscarMovimentosPendentes();
   }, []);
+
+
 
   const buscarMovimentosPendentes = async () => {
     try {
@@ -391,6 +390,7 @@ export default function Farmacia() {
       console.error("Erro ao buscar alertas de medicamentos:", error);
     }
   };
+
 
   return (
     <>
@@ -521,235 +521,162 @@ export default function Farmacia() {
 
         <Tab eventKey="busca" title="BUSCA">
           <>
-            {!isFiltered && (
-              <div className={styles.container}>
-                <div className={styles.form}>
-                  <TextField
-                    type="text"
-                    label="Nome:"
-                    onChange={(name) =>
-                      setBuscarMedicamento({ ...buscarMedicamento, name: name })
-                    }
-                    text={buscarMedicamento.name}
-                  />
-                  <TextField
-                    type="text"
-                    label="Dosagem:"
-                    onChange={(dosage) =>
-                      setBuscarMedicamento({
-                        ...buscarMedicamento,
-                        dosage: dosage,
-                      })
-                    }
-                    text={buscarMedicamento.dosage}
-                  />
-                  <Select
-                    name="type"
-                    placeholder="Tipo"
-                    label="Tipo"
-                    campo="tipo"
-                    options={[
-                      { value: "comprimido", label: "Comprimidos" },
-                      { value: "ampola", label: "Ampola" },
-                      { value: "frasco", label: "Frasco" },
-                      { value: "capsula", label: "Cápsulas" },
-                      { value: "gotas", label: "Gotas" },
-                    ]}
-                    onChange={(type) =>
-                      setBuscarMedicamento({ ...buscarMedicamento, type: type })
-                    }
-                    value={buscarMedicamento.type}
-                  />
+            <div className={styles.buscaFiltrada}>
+              <TextField
+                type="text"
+                placeholder="Nome"
+                onChange={(name) =>
+                  setBuscarMedicamento({ ...buscarMedicamento, name })
+                }
+                text={buscarMedicamento.name}
+              />
+              <TextField
+                type="text"
+                placeholder="Dosagem"
+                onChange={(dosage) =>
+                  setBuscarMedicamento({ ...buscarMedicamento, dosage })
+                }
+                text={buscarMedicamento.dosage}
+              />
+              <Select
+                name="type"
+                placeholder="Tipo"
+                campo="tipo"
+                options={[
+                  { value: "comprimido", label: "Comprimidos" },
+                  { value: "ampola", label: "Ampola" },
+                  { value: "frasco", label: "Frasco" },
+                  { value: "capsula", label: "Cápsulas" },
+                  { value: "gotas", label: "Gotas" },
+                  { value: "outro", label: "Outro" },
+                ]}
+                onChange={(type) =>
+                  setBuscarMedicamento({ ...buscarMedicamento, type })
+                }
+                value={buscarMedicamento.type}
+              />
 
-                  <Button
-                    style={{ borderRadius: "5px" }}
-                    onClick={() => buscarMedicamentos(buscarMedicamento)}
-                  >
-                    BUSCAR
-                  </Button>
+              <Button
+                style={{ borderRadius: "5px" }}
+                onClick={() => buscarMedicamentos(buscarMedicamento)}
+              >
+                BUSCAR
+              </Button>
+              <Button
+                style={{ borderRadius: "5px" }}
+                onClick={() => {
+                  setBuscarMedicamento({ name: "", dosage: "", type: "" });
+                  buscarMedicamentos({ name: "", dosage: "", type: "" });
+                }}
+              >
+                LIMPAR
+              </Button>
+            </div>
+
+            {resultadosBusca.length > 0 ? (
+              <div className={styles.containerTabela}>
+                <table className={styles.tabela}>
+                  <thead>
+                    <tr>
+                      <th>
+                        Nome
+                        <button onClick={() => ordenar("name")}>
+                          {ordenarPor === "name" ? (
+                            ordemAscendente ? (
+                              <FaSortUp />
+                            ) : (
+                              <FaSortDown />
+                            )
+                          ) : (
+                            <FaSortDown style={{ opacity: 0.3 }} />
+                          )}
+                        </button>
+                      </th>
+                      <th>
+                        Dosagem
+                        <button onClick={() => ordenar("dosage")}>
+                          {ordenarPor === "dosage" ? (
+                            ordemAscendente ? (
+                              <FaSortUp />
+                            ) : (
+                              <FaSortDown />
+                            )
+                          ) : (
+                            <FaSortDown style={{ opacity: 0.3 }} />
+                          )}
+                        </button>
+                      </th>
+                      <th>
+                        Tipo
+                        <button onClick={() => ordenar("type")}>
+                          {ordenarPor === "type" ? (
+                            ordemAscendente ? (
+                              <FaSortUp />
+                            ) : (
+                              <FaSortDown />
+                            )
+                          ) : (
+                            <FaSortDown style={{ opacity: 0.3 }} />
+                          )}
+                        </button>
+                      </th>
+                      <th>
+                        Quantidade
+                        <button onClick={() => ordenar("quantity")}>
+                          {ordenarPor === "quantity" ? (
+                            ordemAscendente ? (
+                              <FaSortUp />
+                            ) : (
+                              <FaSortDown />
+                            )
+                          ) : (
+                            <FaSortDown style={{ opacity: 0.3 }} />
+                          )}
+                        </button>
+                      </th>
+                      <th>
+                        Vencimento
+                        <button onClick={() => ordenar("expiresAt")}>
+                          {ordenarPor === "expiresAt" ? (
+                            ordemAscendente ? (
+                              <FaSortUp />
+                            ) : (
+                              <FaSortDown />
+                            )
+                          ) : (
+                            <FaSortDown style={{ opacity: 0.3 }} />
+                          )}
+                        </button>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultadosOrdenados.map((med, index) => (
+                      <tr
+                        key={index}
+                        onClick={() => {
+                          setMedicamentoSelecionado(med);
+                          setModalEditar(true);
+                        }}
+                      >
+                        <td>
+                          <strong>{tornarMaiusculo(med.name)}</strong>
+                        </td>
+                        <td>{med.dosage}</td>
+                        <td>{tornarMaiusculo(med.type)}</td>
+                        <td>{med.quantity}</td>
+                        <td>{new Date(med.expiresAt).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className={styles.buscaFiltrada}>
+                <div className={styles.noResults}>
+                  Nenhum medicamento encontrado.
                 </div>
               </div>
-            )}
-
-            {isFiltered && (
-              <>
-                <div>
-                  <div className={styles.buscaFiltrada}>
-                    <TextField
-                      type="text"
-                      placeholder="Nome"
-                      onChange={(name) =>
-                        setBuscarMedicamento({
-                          ...buscarMedicamento,
-                          name: name,
-                        })
-                      }
-                      text={buscarMedicamento.name}
-                    />
-                    <TextField
-                      type="text"
-                      placeholder="Dosagem"
-                      onChange={(dosage) =>
-                        setBuscarMedicamento({
-                          ...buscarMedicamento,
-                          dosage: dosage,
-                        })
-                      }
-                      text={buscarMedicamento.dosage}
-                    />
-                    <Select
-                      name="type"
-                      placeholder="Tipo"
-                      campo="tipo"
-                      options={[
-                        { value: "comprimido", label: "Comprimidos" },
-                        { value: "ampola", label: "Ampola" },
-                        { value: "frasco", label: "Frasco" },
-                        { value: "capsula", label: "Cápsulas" },
-                        { value: "outro", label: "Outro" },
-                      ]}
-                      onChange={(type) =>
-                        setBuscarMedicamento({
-                          ...buscarMedicamento,
-                          type: type,
-                        })
-                      }
-                      value={buscarMedicamento.type}
-                    />
-
-                    <Button
-                      style={{ borderRadius: "5px" }}
-                      onClick={() => buscarMedicamentos(buscarMedicamento)}
-                    >
-                      NOVA BUSCA
-                    </Button>
-                    <Button
-                      style={{ borderRadius: "5px" }}
-                      onClick={() => {
-                        setIsFiltered(false);
-                        setBuscarMedicamento({
-                          name: "",
-                          dosage: "",
-                          type: "",
-                        });
-                      }}
-                    >
-                      LIMPAR
-                    </Button>
-                  </div>
-
-                  {resultadosBusca.length > 0 ? (
-                    <>
-                      <div className={styles.containerTabela}>
-                        <table className={styles.tabela}>
-                          <thead>
-                            <tr>
-                              <th>
-                                Nome
-                                <button onClick={() => ordenar("name")}>
-                                  {ordenarPor === "name" ? (
-                                    ordemAscendente ? (
-                                      <FaSortUp />
-                                    ) : (
-                                      <FaSortDown />
-                                    )
-                                  ) : (
-                                    <FaSortDown style={{ opacity: 0.3 }} />
-                                  )}
-                                </button>
-                              </th>
-                              <th>
-                                Dosagem
-                                <button onClick={() => ordenar("dosage")}>
-                                  {ordenarPor === "dosage" ? (
-                                    ordemAscendente ? (
-                                      <FaSortUp />
-                                    ) : (
-                                      <FaSortDown />
-                                    )
-                                  ) : (
-                                    <FaSortDown style={{ opacity: 0.3 }} />
-                                  )}
-                                </button>
-                              </th>
-                              <th>
-                                Tipo
-                                <button onClick={() => ordenar("type")}>
-                                  {ordenarPor === "type" ? (
-                                    ordemAscendente ? (
-                                      <FaSortUp />
-                                    ) : (
-                                      <FaSortDown />
-                                    )
-                                  ) : (
-                                    <FaSortDown style={{ opacity: 0.3 }} />
-                                  )}
-                                </button>
-                              </th>
-                              <th>
-                                Quantidade
-                                <button onClick={() => ordenar("quantity")}>
-                                  {ordenarPor === "quantity" ? (
-                                    ordemAscendente ? (
-                                      <FaSortUp />
-                                    ) : (
-                                      <FaSortDown />
-                                    )
-                                  ) : (
-                                    <FaSortDown style={{ opacity: 0.3 }} />
-                                  )}
-                                </button>
-                              </th>
-                              <th>
-                                Vencimento
-                                <button onClick={() => ordenar("expiresAt")}>
-                                  {ordenarPor === "expiresAt" ? (
-                                    ordemAscendente ? (
-                                      <FaSortUp />
-                                    ) : (
-                                      <FaSortDown />
-                                    )
-                                  ) : (
-                                    <FaSortDown style={{ opacity: 0.3 }} />
-                                  )}
-                                </button>
-                              </th>
-                            </tr>
-                          </thead>
-
-                          <tbody>
-                            {resultadosOrdenados.map((med, index) => (
-                              <tr
-                                onClick={() => {
-                                  setMedicamentoSelecionado(med);
-                                  setModalEditar(true);
-                                }}
-                                key={index}
-                              >
-                                <td>
-                                  <strong>{tornarMaiusculo(med.name)}</strong>
-                                </td>
-                                <td>{med.dosage}</td>
-                                <td>{tornarMaiusculo(med.type)}</td>
-                                <td>{med.quantity}</td>
-                                <td>
-                                  {new Date(med.expiresAt).toLocaleDateString()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </>
-                  ) : (
-                    <div className={styles.buscaFiltrada}>
-                      <div className={styles.noResults}>
-                        Nenhum medicamento encontrado.
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
             )}
 
             {modalEditar && medicamentoSelecionado && (
