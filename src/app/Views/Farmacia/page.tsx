@@ -803,7 +803,6 @@ export default function Farmacia() {
 
         <Tab eventKey="movement" title="MOVIMENTAÇÕES">
           <div className={styles.buscaFiltrada}>
-            {/* Inputs de filtro */}
             <TextField
               type="text"
               placeholder="Nome (requisitante ou aprovador)"
@@ -837,16 +836,7 @@ export default function Farmacia() {
               value={filtroMov.tipo}
             />
 
-            {/* Botões */}
-            <Button
-              style={{ borderRadius: "5px" }}
-              onClick={() => {
-                // Força a re-renderização com os filtros atuais (já está em movementsFiltrados)
-                // Se quiser limpar os filtros, pode usar o botão LIMPAR
-              }}
-            >
-              FILTRAR
-            </Button>
+
             <Button
               style={{ borderRadius: "5px" }}
               onClick={() => {
