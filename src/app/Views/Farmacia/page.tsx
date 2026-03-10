@@ -73,7 +73,19 @@ export default function Farmacia() {
     }
   };
 
-  const resultadosOrdenados = [...resultadosBusca].sort((a, b) => {
+  const medicamentosFiltrados = resultadosBusca.filter((med) => {
+    const nome = buscarMedicamento.name.toLowerCase().trim();
+    const dosage = buscarMedicamento.dosage.toLowerCase().trim();
+    const tipo = buscarMedicamento.type.toLowerCase().trim();
+
+    return (
+      (nome === "" || med.name.toLowerCase().includes(nome)) &&
+      (dosage === "" || med.dosage.toLowerCase().includes(dosage)) &&
+      (tipo === "" || med.type.toLowerCase() === tipo)
+    );
+  });
+
+  const resultadosOrdenados = [...medicamentosFiltrados].sort((a, b) => {
     if (!ordenarPor) return 0;
 
     if (ordenarPor === "expiresAt") {
@@ -265,7 +277,7 @@ export default function Farmacia() {
     const interval = setInterval(() => {
       buscarAlertas();
       buscarMovimentosPendentes();
-      buscarTodasMovimentacoes
+      buscarTodasMovimentacoes;
     }, 30000);
 
     return () => clearInterval(interval);
@@ -315,7 +327,6 @@ export default function Farmacia() {
         dataAprov.toDateString() === dataObj.toDateString();
     }
 
-
     const tipoMatch =
       filtroTipo === "" ||
       (filtroTipo === "entrada" && tipoMov === "inbound") ||
@@ -324,15 +335,11 @@ export default function Farmacia() {
     return nomeMatch && medicamentoMatch && dataMatch && tipoMatch;
   });
 
-
-
   useEffect(() => {
     buscarTodasMovimentacoes();
     buscarMovimentosPendentes();
     buscarMedicamentos({ name: "", dosage: "", type: "" });
   }, []);
-
-
 
   const buscarMovimentosPendentes = async () => {
     try {
@@ -391,7 +398,6 @@ export default function Farmacia() {
       console.error("Erro ao buscar alertas de medicamentos:", error);
     }
   };
-
 
   return (
     <>
@@ -559,22 +565,24 @@ export default function Farmacia() {
 
               <Button
                 style={{ borderRadius: "5px" }}
-                onClick={() => buscarMedicamentos(buscarMedicamento)}
-              >
-                BUSCAR
-              </Button>
-              <Button
-                style={{ borderRadius: "5px" }}
                 onClick={() => {
                   setBuscarMedicamento({ name: "", dosage: "", type: "" });
-                  buscarMedicamentos({ name: "", dosage: "", type: "" });
                 }}
               >
                 LIMPAR
               </Button>
+
+              <Button
+                style={{ borderRadius: "5px" }}
+                onClick={() =>
+                  buscarMedicamentos({ name: "", dosage: "", type: "" })
+                }
+              >
+                ATUALIZAR
+              </Button>
             </div>
 
-            {resultadosBusca.length > 0 ? (
+            {medicamentosFiltrados.length > 0 ? (
               <div className={styles.containerTabela}>
                 <table className={styles.tabela}>
                   <thead>
@@ -652,7 +660,7 @@ export default function Farmacia() {
                     </tr>
                   </thead>
                   <tbody>
-                    {resultadosOrdenados.map((med, index) => (
+                    {medicamentosFiltrados.map((med, index) => (
                       <tr
                         key={index}
                         onClick={() => {
