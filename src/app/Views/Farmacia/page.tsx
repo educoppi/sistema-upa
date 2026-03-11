@@ -401,83 +401,193 @@ export default function Farmacia() {
     }
   };
 
-  const gerarPDFEstoqueBaixo = () => {
-    if (estoqueBaixo.length === 0) {
-      Swal.fire(
-        "Aviso",
-        "Não há medicamentos com estoque baixo para gerar relatório.",
-        "info",
-      );
-      return;
-    }
-
-    const doc = new jsPDF();
-    doc.text("Relatório de Estoque Baixo", 14, 15);
-
-    const body = estoqueBaixo.map((med) => [
-      tornarMaiusculo(med.name),
-      med.dosage,
-      tornarMaiusculo(med.type),
-      med.quantity.toString(),
-      new Date(med.expiresAt).toLocaleDateString("pt-BR"),
-    ]);
-
-    autoTable(doc, {
-      head: [["Nome", "Dosagem", "Tipo", "Quantidade", "Vencimento"]],
-      body: body,
-      startY: 20,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [220, 53, 69] },
+  const getImageBase64 = async (url: string): Promise<string> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
     });
-
-    doc.save("estoque_baixo.pdf");
   };
 
-  const gerarPDFMovimentacoes = () => {
-    if (movementsFiltrados.length === 0) {
-      Swal.fire(
-        "Aviso",
-        "Nenhuma movimentação encontrada com os filtros atuais.",
-        "info",
+  const obterDataAtualFormatada = (): string => {
+    const data = new Date();
+    return (
+      data.toLocaleDateString("pt-BR") + " " + data.toLocaleTimeString("pt-BR")
+    );
+  };
+
+  const obterDataDDMMAAAA = (): string => {
+    const data = new Date();
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const ano = data.getFullYear();
+    return `${dia}${mes}${ano}`;
+  };
+
+const gerarPDFEstoqueBaixo = async () => {
+  if (estoqueBaixo.length === 0) {
+    Swal.fire(
+      "Aviso",
+      "Não há medicamentos com estoque baixo para gerar relatório.",
+      "info"
+    );
+    return;
+  }
+
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 14;
+  const logoHeight = 30;
+
+  const logoBase64 = await getImageBase64("/images/cabecalho.png");
+
+  const body = estoqueBaixo.map((med) => [
+    tornarMaiusculo(med.name),
+    med.dosage,
+    tornarMaiusculo(med.type),
+    med.quantity.toString(),
+    new Date(med.expiresAt).toLocaleDateString("pt-BR"),
+  ]);
+
+  autoTable(doc, {
+    head: [["Nome", "Dosagem", "Tipo", "Quantidade", "Vencimento"]],
+    body: body,
+    startY: 5 + logoHeight + 15,
+    margin: { top: 40 },
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [220, 53, 69] },
+    didDrawPage: (data) => {
+      if (logoBase64) {
+        try {
+          doc.addImage(
+            logoBase64,
+            "PNG",
+            margin,
+            5,
+            pageWidth - 2 * margin,
+            logoHeight
+          );
+        } catch (e) {
+          console.warn("Erro ao adicionar logo:", e);
+        }
+      }
+
+
+      doc.setFontSize(16);
+      doc.setTextColor(40, 40, 40);
+      doc.text("Relatório de Estoque Baixo", margin, 5 + logoHeight + 5);
+
+      doc.setDrawColor(220, 53, 69);
+      doc.setLineWidth(0.5);
+      doc.line(
+        margin,
+        5 + logoHeight + 10,
+        pageWidth - margin,
+        5 + logoHeight + 10
       );
-      return;
-    }
 
-    const doc = new jsPDF("portrait");
-    doc.text("Relatório de Movimentações", 14, 15);
 
-    const body = movementsFiltrados.map((mov) => [
-      tornarMaiusculo(
-        mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : "-",
-      ),
-      tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : "-"),
-      tornarMaiusculo(mov.medication?.name || "-"),
-      mov.quantity.toString(),
-      traduzirMovementType(mov.movementType),
-      new Date(mov.createdAt).toLocaleDateString("pt-BR"),
-      new Date(mov.updatedAt).toLocaleDateString("pt-BR"),
-    ]);
+      const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(dataGeracao, margin, doc.internal.pageSize.getHeight() - 10);
+    },
+  });
 
-    autoTable(doc, {
-      head: [
-        [
-          "Requisitado por",
-          "Aprovado por",
-          "Medicamento",
-          "Qtd",
-          "Tipo",
-          "Solicitado em",
-          "Aprovado em",
-        ],
+  const dataStr = obterDataDDMMAAAA();
+  doc.save(`estoque_baixo_${dataStr}.pdf`);
+};
+
+const gerarPDFMovimentacoes = async () => {
+  if (movementsFiltrados.length === 0) {
+    Swal.fire(
+      "Aviso",
+      "Nenhuma movimentação encontrada com os filtros atuais.",
+      "info"
+    );
+    return;
+  }
+
+  const doc = new jsPDF("portrait");
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const margin = 14;
+  const logoHeight = 30;
+
+  const logoBase64 = await getImageBase64("/images/cabecalho.png");
+
+  const body = movementsFiltrados.map((mov) => [
+    tornarMaiusculo(
+      mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : "-"
+    ),
+    tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : "-"),
+    tornarMaiusculo(mov.medication?.name || "-"),
+    mov.quantity.toString(),
+    traduzirMovementType(mov.movementType),
+    new Date(mov.createdAt).toLocaleDateString("pt-BR"),
+    new Date(mov.updatedAt).toLocaleDateString("pt-BR"),
+  ]);
+
+  autoTable(doc, {
+    head: [
+      [
+        "Requisitado por",
+        "Aprovado por",
+        "Medicamento",
+        "Qtd",
+        "Tipo",
+        "Solicitado em",
+        "Aprovado em",
       ],
-      body: body,
-      startY: 20,
-      styles: { fontSize: 7 },
-      headStyles: { fillColor: [0, 123, 255] },
-    });
+    ],
+    body: body,
+    startY: 5 + logoHeight + 15,
+    margin: { top: 40 },
+    styles: { fontSize: 7 },
+    headStyles: { fillColor: [0, 123, 255] },
+    didDrawPage: (data) => {
+      if (logoBase64) {
+        try {
+          doc.addImage(
+            logoBase64,
+            "PNG",
+            margin,
+            5,
+            pageWidth - 2 * margin,
+            logoHeight
+          );
+        } catch (e) {
+          console.warn("Erro ao adicionar logo:", e);
+        }
+      }
 
-    doc.save("movimentacoes.pdf");
-  };
+      doc.setFontSize(16);
+      doc.setTextColor(40, 40, 40);
+      doc.text("Relatório de Movimentações", margin, 5 + logoHeight + 5);
+
+
+      doc.setDrawColor(0, 123, 255);
+      doc.setLineWidth(0.5);
+      doc.line(
+        margin,
+        5 + logoHeight + 10,
+        pageWidth - margin,
+        5 + logoHeight + 10
+      );
+
+
+      const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(dataGeracao, margin, doc.internal.pageSize.getHeight() - 10);
+    },
+  });
+
+  const dataStr = obterDataDDMMAAAA();
+  doc.save(`movimentacoes_${dataStr}.pdf`);
+};
 
   return (
     <>
