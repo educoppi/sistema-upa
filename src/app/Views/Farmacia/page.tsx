@@ -16,6 +16,8 @@ import Movement from "@/models/Movement";
 import api from "@/services/api";
 import Swal from "sweetalert2";
 import { BiBorderRadius } from "react-icons/bi";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function Farmacia() {
   const [token, setToken] = useState<string | null>(null);
@@ -399,6 +401,84 @@ export default function Farmacia() {
     }
   };
 
+  const gerarPDFEstoqueBaixo = () => {
+    if (estoqueBaixo.length === 0) {
+      Swal.fire(
+        "Aviso",
+        "Não há medicamentos com estoque baixo para gerar relatório.",
+        "info",
+      );
+      return;
+    }
+
+    const doc = new jsPDF();
+    doc.text("Relatório de Estoque Baixo", 14, 15);
+
+    const body = estoqueBaixo.map((med) => [
+      tornarMaiusculo(med.name),
+      med.dosage,
+      tornarMaiusculo(med.type),
+      med.quantity.toString(),
+      new Date(med.expiresAt).toLocaleDateString("pt-BR"),
+    ]);
+
+    autoTable(doc, {
+      head: [["Nome", "Dosagem", "Tipo", "Quantidade", "Vencimento"]],
+      body: body,
+      startY: 20,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [220, 53, 69] },
+    });
+
+    doc.save("estoque_baixo.pdf");
+  };
+
+  const gerarPDFMovimentacoes = () => {
+    if (movementsFiltrados.length === 0) {
+      Swal.fire(
+        "Aviso",
+        "Nenhuma movimentação encontrada com os filtros atuais.",
+        "info",
+      );
+      return;
+    }
+
+    const doc = new jsPDF("portrait");
+    doc.text("Relatório de Movimentações", 14, 15);
+
+    const body = movementsFiltrados.map((mov) => [
+      tornarMaiusculo(
+        mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : "-",
+      ),
+      tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : "-"),
+      tornarMaiusculo(mov.medication?.name || "-"),
+      mov.quantity.toString(),
+      traduzirMovementType(mov.movementType),
+      new Date(mov.createdAt).toLocaleDateString("pt-BR"),
+      new Date(mov.updatedAt).toLocaleDateString("pt-BR"),
+    ]);
+
+    autoTable(doc, {
+      head: [
+        [
+          "Requisitado por",
+          "Aprovado por",
+          "Medicamento",
+          "Qtd",
+          "Tipo",
+          "Solicitado em",
+          "Aprovado em",
+        ],
+      ],
+      body: body,
+      startY: 20,
+      styles: { fontSize: 7 },
+      headStyles: { fillColor: [0, 123, 255] },
+    });
+
+    doc.save("movimentacoes.pdf");
+  };
+
   return (
     <>
       <Header name={usuario?.name || "Usuário"} />
@@ -709,6 +789,13 @@ export default function Farmacia() {
               <Button style={{ borderRadius: "5px" }} onClick={buscarAlertas}>
                 ATUALIZAR
               </Button>
+
+              <Button
+                style={{ borderRadius: "5px", marginLeft: "10px" }}
+                onClick={gerarPDFEstoqueBaixo}
+              >
+                GERAR RELATÓRIO
+              </Button>
             </div>
 
             <div className={styles.containerTabela}>
@@ -836,7 +923,6 @@ export default function Farmacia() {
               value={filtroMov.tipo}
             />
 
-
             <Button
               style={{ borderRadius: "5px" }}
               onClick={() => {
@@ -850,6 +936,13 @@ export default function Farmacia() {
               onClick={buscarTodasMovimentacoes}
             >
               ATUALIZAR
+            </Button>
+
+            <Button
+              style={{ borderRadius: "5px", marginLeft: "10px" }}
+              onClick={gerarPDFMovimentacoes}
+            >
+              GERAR RELATÓRIO
             </Button>
           </div>
 
