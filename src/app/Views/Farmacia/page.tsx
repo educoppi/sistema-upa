@@ -6,16 +6,14 @@ import TextField from "@/components/TextField";
 import MedicamentoModal from "@/components/MedicamentoModal";
 import Button from "@/components/Button";
 import Select from "@/components/Select";
-import { Tabs, Tab } from "react-bootstrap";
+import { Tabs, Tab, ToastContainer, Toast } from "react-bootstrap";
 import axios, { AxiosResponse } from "axios";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
-import { IoReloadCircle } from "react-icons/io5";
 import medicationService from "@/services/medication";
 import Medication from "@/models/Medication";
 import Movement from "@/models/Movement";
 import api from "@/services/api";
 import Swal from "sweetalert2";
-import { BiBorderRadius } from "react-icons/bi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -56,6 +54,26 @@ export default function Farmacia() {
   const [ordemAscendente, setOrdemAscendente] = useState(true);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [pendingMovements, setPendingMovements] = useState<Movement[]>([]);
+
+  const [toasts, setToasts] = useState<
+    Array<{ id: number; message: string; variant: string; title?: string }>
+  >([]);
+  const addToast = (
+    message: string,
+    variant: string = "info",
+    title?: string,
+  ) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, variant, title }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  };
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingApprovalId, setPendingApprovalId] = useState<number | null>(
+    null,
+  );
 
   const [filtroMov, setFiltroMov] = useState({
     nome: "",
@@ -143,13 +161,7 @@ export default function Farmacia() {
       cadastrarMedicamento.type == "" ||
       cadastrarMedicamento.expiresAt == ""
     ) {
-      Swal.fire({
-        icon: "warning",
-        title: "Campos obrigatórios",
-        text: "Preencha todos os campos antes de cadastrar.",
-        confirmButtonColor: "#3085d6",
-      });
-
+      addToast("Preencha todos os campos antes de cadastrar.", "warning");
       return;
     }
 
@@ -183,12 +195,7 @@ export default function Farmacia() {
         expiresAt: "",
       });
 
-      Swal.fire({
-        icon: "success",
-        title: "Sucesso!",
-        text: "Medicamento cadastrado com sucesso!",
-        confirmButtonColor: "#3085d6",
-      });
+      addToast("Medicamento cadastrado com sucesso!", "success");
     } catch (error: unknown) {
       console.error(
         "Erro ao criar medicamento:",
@@ -197,12 +204,7 @@ export default function Farmacia() {
           : error,
       );
 
-      Swal.fire({
-        icon: "error",
-        title: "Erro!",
-        text: "Erro no cadastro de medicamento.",
-        confirmButtonColor: "#d33",
-      });
+      addToast("Erro no cadastro de medicamento.", "danger");
     }
   }
 
@@ -256,12 +258,7 @@ export default function Farmacia() {
       //   console.error('Erro inesperado:', error);
       // }
       // TODO: exibir mensagm de erro na UI
-      Swal.fire({
-        icon: "error",
-        title: "Erro na busca",
-        text: `Não foi possível buscar medicamentos: ${error}`,
-        confirmButtonColor: "#d33",
-      });
+      addToast(`Não foi possível buscar medicamentos: ${error}`, "danger");
     }
   }
 
@@ -372,22 +369,13 @@ export default function Farmacia() {
         `https://projeto-integrador-lf6v.onrender.com/movements/updateFarmacia/${id}`,
       );
 
-      Swal.fire({
-        icon: "success",
-        title: "Solicitação aprovada!",
-        confirmButtonColor: "#3085d6",
-      });
+      addToast("Solicitação aprovada!", "success");
 
       buscarMovimentosPendentes();
     } catch (err) {
       console.error("Erro ao aprovar solicitação:", err);
 
-      Swal.fire({
-        icon: "error",
-        title: "Erro ao aprovar movimento",
-        text: "Ocorreu um problema ao tentar aprovar esta solicitação.",
-        confirmButtonColor: "#3085d6",
-      });
+      addToast("Erro ao aprovar movimento.", "danger");
     }
   };
 
@@ -427,180 +415,174 @@ export default function Farmacia() {
     return `${dia}${mes}${ano}`;
   };
 
-const gerarPDFEstoqueBaixo = async () => {
-  if (estoqueBaixo.length === 0) {
-    Swal.fire(
-      "Aviso",
-      "Não há medicamentos com estoque baixo para gerar relatório.",
-      "info"
-    );
-    return;
-  }
-
-  const doc = new jsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 14;
-  const logoMaxWidth = 20; // AJUSTAR TAMANHO DA LOGO AQUI
-
-  const logoBase64 = await getImageBase64("/images/logo2.png");
-  const img = new Image();
-  await new Promise((resolve, reject) => {
-    img.onload = resolve;
-    img.onerror = reject;
-    img.src = logoBase64;
-  });
-
-  const aspectRatio = img.width / img.height;
-  const logoWidth = logoMaxWidth;
-  const logoHeight = logoMaxWidth / aspectRatio;
-
-  const body = estoqueBaixo.map((med) => [
-    tornarMaiusculo(med.name),
-    med.dosage,
-    tornarMaiusculo(med.type),
-    med.quantity.toString(),
-    new Date(med.expiresAt).toLocaleDateString("pt-BR"),
-  ]);
-
-  autoTable(doc, {
-    head: [["Nome", "Dosagem", "Tipo", "Quantidade", "Vencimento"]],
-    body: body,
-    startY: 5 + logoHeight + 15,
-    margin: { top: 40 },
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [220, 53, 69] },
-    didDrawPage: (data) => {
-      try {
-
-        doc.addImage(logoBase64, "PNG", margin, 5, logoWidth, logoHeight);
-      } catch (e) {
-        console.warn("Erro ao adicionar logo:", e);
-      }
-
-      
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.setTextColor(40, 40, 40);
-      doc.text(
-        "RELATÓRIO DE ESTOQUE BAIXO",
-        pageWidth / 2,
-        5 + logoHeight / 2,
-        { align: "center" }
+  const gerarPDFEstoqueBaixo = async () => {
+    if (estoqueBaixo.length === 0) {
+      addToast(
+        "Não há medicamentos com estoque baixo para gerar relatório.",
+        "info",
       );
+      return;
+    }
 
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+    const logoMaxWidth = 20; // AJUSTAR TAMANHO DA LOGO AQUI
 
-      doc.setDrawColor(220, 53, 69);
-      doc.setLineWidth(0.5);
-      doc.line(
-        margin,
-        5 + logoHeight + 5,
-        pageWidth - margin,
-        5 + logoHeight + 5
+    const logoBase64 = await getImageBase64("/images/logo2.png");
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = logoBase64;
+    });
+
+    const aspectRatio = img.width / img.height;
+    const logoWidth = logoMaxWidth;
+    const logoHeight = logoMaxWidth / aspectRatio;
+
+    const body = estoqueBaixo.map((med) => [
+      tornarMaiusculo(med.name),
+      med.dosage,
+      tornarMaiusculo(med.type),
+      med.quantity.toString(),
+      new Date(med.expiresAt).toLocaleDateString("pt-BR"),
+    ]);
+
+    autoTable(doc, {
+      head: [["Nome", "Dosagem", "Tipo", "Quantidade", "Vencimento"]],
+      body: body,
+      startY: 5 + logoHeight + 15,
+      margin: { top: 40 },
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [220, 53, 69] },
+      didDrawPage: (data) => {
+        try {
+          doc.addImage(logoBase64, "PNG", margin, 5, logoWidth, logoHeight);
+        } catch (e) {
+          console.warn("Erro ao adicionar logo:", e);
+        }
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.setTextColor(40, 40, 40);
+        doc.text(
+          "RELATÓRIO DE ESTOQUE BAIXO",
+          pageWidth / 2,
+          5 + logoHeight / 2,
+          { align: "center" },
+        );
+
+        doc.setDrawColor(220, 53, 69);
+        doc.setLineWidth(0.5);
+        doc.line(
+          margin,
+          5 + logoHeight + 5,
+          pageWidth - margin,
+          5 + logoHeight + 5,
+        );
+
+        const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(dataGeracao, margin, doc.internal.pageSize.getHeight() - 10);
+      },
+    });
+
+    const dataStr = obterDataDDMMAAAA();
+    doc.save(`estoque_baixo_${dataStr}.pdf`);
+  };
+
+  const gerarPDFMovimentacoes = async () => {
+    if (movementsFiltrados.length === 0) {
+      addToast(
+        "Nenhuma movimentação encontrada com os filtros atuais.",
+        "info",
       );
+      return;
+    }
 
+    const doc = new jsPDF("portrait");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+    const logoMaxWidth = 20;
 
-      const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text(dataGeracao, margin, doc.internal.pageSize.getHeight() - 10);
-    },
-  });
+    const logoBase64 = await getImageBase64("/images/logo2.png");
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = logoBase64;
+    });
 
-  const dataStr = obterDataDDMMAAAA();
-  doc.save(`estoque_baixo_${dataStr}.pdf`);
-};
+    const aspectRatio = img.width / img.height;
+    const logoWidth = logoMaxWidth;
+    const logoHeight = logoMaxWidth / aspectRatio;
 
-const gerarPDFMovimentacoes = async () => {
-  if (movementsFiltrados.length === 0) {
-    Swal.fire(
-      "Aviso",
-      "Nenhuma movimentação encontrada com os filtros atuais.",
-      "info"
-    );
-    return;
-  }
+    const body = movementsFiltrados.map((mov) => [
+      tornarMaiusculo(
+        mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : "-",
+      ),
+      tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : "-"),
+      tornarMaiusculo(mov.medication?.name || "-"),
+      mov.quantity.toString(),
+      traduzirMovementType(mov.movementType),
+      new Date(mov.createdAt).toLocaleDateString("pt-BR"),
+      new Date(mov.updatedAt).toLocaleDateString("pt-BR"),
+    ]);
 
-  const doc = new jsPDF("portrait");
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const margin = 14;
-  const logoMaxWidth = 20;
-
-  const logoBase64 = await getImageBase64("/images/logo2.png");
-  const img = new Image();
-  await new Promise((resolve, reject) => {
-    img.onload = resolve;
-    img.onerror = reject;
-    img.src = logoBase64;
-  });
-
-  const aspectRatio = img.width / img.height;
-  const logoWidth = logoMaxWidth;
-  const logoHeight = logoMaxWidth / aspectRatio;
-
-  const body = movementsFiltrados.map((mov) => [
-    tornarMaiusculo(
-      mov.doctor ? `${mov.doctor.name} ${mov.doctor.lastName}` : "-"
-    ),
-    tornarMaiusculo(mov.user ? `${mov.user.name} ${mov.user.lastName}` : "-"),
-    tornarMaiusculo(mov.medication?.name || "-"),
-    mov.quantity.toString(),
-    traduzirMovementType(mov.movementType),
-    new Date(mov.createdAt).toLocaleDateString("pt-BR"),
-    new Date(mov.updatedAt).toLocaleDateString("pt-BR"),
-  ]);
-
-  autoTable(doc, {
-    head: [
-      [
-        "Requisitado por",
-        "Aprovado por",
-        "Medicamento",
-        "Qtd",
-        "Tipo",
-        "Solicitado em",
-        "Aprovado em",
+    autoTable(doc, {
+      head: [
+        [
+          "Requisitado por",
+          "Aprovado por",
+          "Medicamento",
+          "Qtd",
+          "Tipo",
+          "Solicitado em",
+          "Aprovado em",
+        ],
       ],
-    ],
-    body: body,
-    startY: 5 + logoHeight + 15,
-    margin: { top: 40 },
-    styles: { fontSize: 7 },
-    headStyles: { fillColor: [0, 123, 255] },
-    didDrawPage: (data) => {
-      try {
-        doc.addImage(logoBase64, "PNG", margin, 5, logoWidth, logoHeight);
-      } catch (e) {
-        console.warn("Erro ao adicionar logo:", e);
-      }
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(16);
-      doc.setTextColor(40, 40, 40);
-      doc.text(
-        "RELATÓRIO DE MOVIMENTAÇÕES",
-        pageWidth / 2,
-        5 + logoHeight / 2,
-        { align: "center" }
-      );
+      body: body,
+      startY: 5 + logoHeight + 15,
+      margin: { top: 40 },
+      styles: { fontSize: 7 },
+      headStyles: { fillColor: [0, 123, 255] },
+      didDrawPage: (data) => {
+        try {
+          doc.addImage(logoBase64, "PNG", margin, 5, logoWidth, logoHeight);
+        } catch (e) {
+          console.warn("Erro ao adicionar logo:", e);
+        }
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.setTextColor(40, 40, 40);
+        doc.text(
+          "RELATÓRIO DE MOVIMENTAÇÕES",
+          pageWidth / 2,
+          5 + logoHeight / 2,
+          { align: "center" },
+        );
 
-      doc.setDrawColor(0, 123, 255);
-      doc.setLineWidth(0.5);
-      doc.line(
-        margin,
-        5 + logoHeight + 5,
-        pageWidth - margin,
-        5 + logoHeight + 5
-      );
+        doc.setDrawColor(0, 123, 255);
+        doc.setLineWidth(0.5);
+        doc.line(
+          margin,
+          5 + logoHeight + 5,
+          pageWidth - margin,
+          5 + logoHeight + 5,
+        );
 
-      const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text(dataGeracao, margin, doc.internal.pageSize.getHeight() - 10);
-    },
-  });
+        const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(dataGeracao, margin, doc.internal.pageSize.getHeight() - 10);
+      },
+    });
 
-  const dataStr = obterDataDDMMAAAA();
-  doc.save(`movimentacoes_${dataStr}.pdf`);
-};
+    const dataStr = obterDataDDMMAAAA();
+    doc.save(`movimentacoes_${dataStr}.pdf`);
+  };
 
   return (
     <>
@@ -1126,6 +1108,19 @@ const gerarPDFMovimentacoes = async () => {
           </div>
         </Tab>
       </Tabs>
+
+      {/* Toast Container */}
+      <ToastContainer position="bottom-end" className="p-3">
+        {toasts.map((toast) => (
+          <Toast key={toast.id} bg={toast.variant} autohide delay={3000}>
+            {toast.title && (
+              <Toast.Header closeButton>{toast.title}</Toast.Header>
+            )}
+            <Toast.Body>{toast.message}</Toast.Body>
+          </Toast>
+        ))}
+      </ToastContainer>
+
     </>
   );
 }
