@@ -440,9 +440,19 @@ const gerarPDFEstoqueBaixo = async () => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 14;
-  const logoHeight = 30;
+  const logoMaxWidth = 20; // AJUSTAR TAMANHO DA LOGO AQUI
 
-  const logoBase64 = await getImageBase64("/images/cabecalho.png");
+  const logoBase64 = await getImageBase64("/images/logo2.png");
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = logoBase64;
+  });
+
+  const aspectRatio = img.width / img.height;
+  const logoWidth = logoMaxWidth;
+  const logoHeight = logoMaxWidth / aspectRatio;
 
   const body = estoqueBaixo.map((med) => [
     tornarMaiusculo(med.name),
@@ -460,33 +470,32 @@ const gerarPDFEstoqueBaixo = async () => {
     styles: { fontSize: 10 },
     headStyles: { fillColor: [220, 53, 69] },
     didDrawPage: (data) => {
-      if (logoBase64) {
-        try {
-          doc.addImage(
-            logoBase64,
-            "PNG",
-            margin,
-            5,
-            pageWidth - 2 * margin,
-            logoHeight
-          );
-        } catch (e) {
-          console.warn("Erro ao adicionar logo:", e);
-        }
+      try {
+
+        doc.addImage(logoBase64, "PNG", margin, 5, logoWidth, logoHeight);
+      } catch (e) {
+        console.warn("Erro ao adicionar logo:", e);
       }
 
-
+      
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
       doc.setTextColor(40, 40, 40);
-      doc.text("Relatório de Estoque Baixo", margin, 5 + logoHeight + 5);
+      doc.text(
+        "RELATÓRIO DE ESTOQUE BAIXO",
+        pageWidth / 2,
+        5 + logoHeight / 2,
+        { align: "center" }
+      );
+
 
       doc.setDrawColor(220, 53, 69);
       doc.setLineWidth(0.5);
       doc.line(
         margin,
-        5 + logoHeight + 10,
+        5 + logoHeight + 5,
         pageWidth - margin,
-        5 + logoHeight + 10
+        5 + logoHeight + 5
       );
 
 
@@ -514,9 +523,19 @@ const gerarPDFMovimentacoes = async () => {
   const doc = new jsPDF("portrait");
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 14;
-  const logoHeight = 30;
+  const logoMaxWidth = 20;
 
-  const logoBase64 = await getImageBase64("/images/cabecalho.png");
+  const logoBase64 = await getImageBase64("/images/logo2.png");
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = logoBase64;
+  });
+
+  const aspectRatio = img.width / img.height;
+  const logoWidth = logoMaxWidth;
+  const logoHeight = logoMaxWidth / aspectRatio;
 
   const body = movementsFiltrados.map((mov) => [
     tornarMaiusculo(
@@ -548,35 +567,29 @@ const gerarPDFMovimentacoes = async () => {
     styles: { fontSize: 7 },
     headStyles: { fillColor: [0, 123, 255] },
     didDrawPage: (data) => {
-      if (logoBase64) {
-        try {
-          doc.addImage(
-            logoBase64,
-            "PNG",
-            margin,
-            5,
-            pageWidth - 2 * margin,
-            logoHeight
-          );
-        } catch (e) {
-          console.warn("Erro ao adicionar logo:", e);
-        }
+      try {
+        doc.addImage(logoBase64, "PNG", margin, 5, logoWidth, logoHeight);
+      } catch (e) {
+        console.warn("Erro ao adicionar logo:", e);
       }
-
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
       doc.setTextColor(40, 40, 40);
-      doc.text("Relatório de Movimentações", margin, 5 + logoHeight + 5);
-
+      doc.text(
+        "RELATÓRIO DE MOVIMENTAÇÕES",
+        pageWidth / 2,
+        5 + logoHeight / 2,
+        { align: "center" }
+      );
 
       doc.setDrawColor(0, 123, 255);
       doc.setLineWidth(0.5);
       doc.line(
         margin,
-        5 + logoHeight + 10,
+        5 + logoHeight + 5,
         pageWidth - margin,
-        5 + logoHeight + 10
+        5 + logoHeight + 5
       );
-
 
       const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
       doc.setFontSize(8);
@@ -899,7 +912,6 @@ const gerarPDFMovimentacoes = async () => {
               <Button style={{ borderRadius: "5px" }} onClick={buscarAlertas}>
                 ATUALIZAR
               </Button>
-
               <Button
                 style={{ borderRadius: "5px", marginLeft: "10px" }}
                 onClick={gerarPDFEstoqueBaixo}
