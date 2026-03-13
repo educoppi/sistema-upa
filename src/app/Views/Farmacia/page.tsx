@@ -1116,7 +1116,7 @@ export default function Farmacia() {
             {toast.title && (
               <Toast.Header closeButton>{toast.title}</Toast.Header>
             )}
-            <Toast.Body>{toast.message}</Toast.Body>
+            <Toast.Body style={{ color: 'white', fontWeight: 'bold' }}>{toast.message}</Toast.Body>
           </Toast>
         ))}
       </ToastContainer>
