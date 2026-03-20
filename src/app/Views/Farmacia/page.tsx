@@ -52,6 +52,17 @@ export default function Farmacia() {
   const [vencendo, setVencendo] = useState<Medication[]>([]);
   const [ordenarPor, setOrdenarPor] = useState<CampoOrdenavel | null>(null);
   const [ordemAscendente, setOrdemAscendente] = useState(true);
+  const [sortSolicitacoes, setSortSolicitacoes] = useState<{
+    campo: string;
+    ascendente: boolean;
+  }>({
+    campo: "createdAt",
+    ascendente: true,
+  });
+  const [sortMovimentacoes, setSortMovimentacoes] = useState<{ campo: string; ascendente: boolean }>({
+  campo: 'createdAt',
+  ascendente: false,
+});
   const [movements, setMovements] = useState<Movement[]>([]);
   const [pendingMovements, setPendingMovements] = useState<Movement[]>([]);
 
@@ -82,6 +93,38 @@ export default function Farmacia() {
     tipo: "",
   });
 
+  const solicitacoesOrdenadas = [...pendingMovements].sort((a, b) => {
+    const { campo, ascendente } = sortSolicitacoes;
+    let valorA, valorB;
+
+    switch (campo) {
+      case "doctor":
+        valorA =
+          `${a.doctor?.name || ""} ${a.doctor?.lastName || ""}`.toLowerCase();
+        valorB =
+          `${b.doctor?.name || ""} ${b.doctor?.lastName || ""}`.toLowerCase();
+        break;
+      case "medication":
+        valorA = (a.medication?.name || "").toLowerCase();
+        valorB = (b.medication?.name || "").toLowerCase();
+        break;
+      case "quantity":
+        valorA = a.quantity;
+        valorB = b.quantity;
+        break;
+      case "createdAt":
+        valorA = new Date(a.createdAt).getTime();
+        valorB = new Date(b.createdAt).getTime();
+        break;
+      default:
+        return 0;
+    }
+
+    if (valorA < valorB) return ascendente ? -1 : 1;
+    if (valorA > valorB) return ascendente ? 1 : -1;
+    return 0;
+  });
+
   type CampoOrdenavel = "name" | "dosage" | "type" | "quantity" | "expiresAt";
 
   const ordenar = (campo: CampoOrdenavel) => {
@@ -93,6 +136,8 @@ export default function Farmacia() {
     }
   };
 
+
+  
   const medicamentosFiltrados = resultadosBusca.filter((med) => {
     const nome = buscarMedicamento.name.toLowerCase().trim();
     const dosage = buscarMedicamento.dosage.toLowerCase().trim();
@@ -136,6 +181,15 @@ export default function Farmacia() {
 
     return 0;
   });
+
+  const ordenarSolicitacoes = (campo: string) => {
+    setSortSolicitacoes((prev) => ({
+      campo,
+      ascendente: prev.campo === campo ? !prev.ascendente : true,
+    }));
+  };
+
+  
 
   function tornarMaiusculo(text: string) {
     if (!text) return "";
@@ -333,6 +387,48 @@ export default function Farmacia() {
 
     return nomeMatch && medicamentoMatch && dataMatch && tipoMatch;
   });
+
+const movimentacoesOrdenadas = [...movementsFiltrados].sort((a, b) => {
+  const { campo, ascendente } = sortMovimentacoes;
+  let valorA, valorB;
+
+  switch (campo) {
+    case 'doctor':
+      valorA = `${a.doctor?.name || ''} ${a.doctor?.lastName || ''}`.toLowerCase();
+      valorB = `${b.doctor?.name || ''} ${b.doctor?.lastName || ''}`.toLowerCase();
+      break;
+    case 'user':
+      valorA = `${a.user?.name || ''} ${a.user?.lastName || ''}`.toLowerCase();
+      valorB = `${b.user?.name || ''} ${b.user?.lastName || ''}`.toLowerCase();
+      break;
+    case 'medication':
+      valorA = (a.medication?.name || '').toLowerCase();
+      valorB = (b.medication?.name || '').toLowerCase();
+      break;
+    case 'quantity':
+      valorA = a.quantity;
+      valorB = b.quantity;
+      break;
+    case 'movementType':
+      valorA = a.movementType?.toLowerCase() || '';
+      valorB = b.movementType?.toLowerCase() || '';
+      break;
+    case 'createdAt':
+      valorA = new Date(a.createdAt).getTime();
+      valorB = new Date(b.createdAt).getTime();
+      break;
+    case 'updatedAt':
+      valorA = new Date(a.updatedAt).getTime();
+      valorB = new Date(b.updatedAt).getTime();
+      break;
+    default:
+      return 0;
+  }
+
+  if (valorA < valorB) return ascendente ? -1 : 1;
+  if (valorA > valorB) return ascendente ? 1 : -1;
+  return 0;
+});
 
   useEffect(() => {
     buscarTodasMovimentacoes();
@@ -584,6 +680,13 @@ export default function Farmacia() {
     doc.save(`movimentacoes_${dataStr}.pdf`);
   };
 
+  const ordenarMovimentacoes = (campo: string) => {
+  setSortMovimentacoes(prev => ({
+    campo,
+    ascendente: prev.campo === campo ? !prev.ascendente : true,
+  }));
+};
+
   return (
     <>
       <Header name={usuario?.name || "Usuário"} />
@@ -598,15 +701,79 @@ export default function Farmacia() {
               <table className={styles.tabela}>
                 <thead>
                   <tr>
-                    <th>Solicitado por</th>
-                    <th>Medicamento</th>
-                    <th>Quantidade</th>
-                    <th>Data da Solicitação</th>
+                    <th>
+                      Solicitado por
+                      <button
+                        onClick={() => ordenarSolicitacoes("doctor")}
+                        style={{ marginLeft: 5 }}
+                      >
+                        {sortSolicitacoes.campo === "doctor" ? (
+                          sortSolicitacoes.ascendente ? (
+                            <FaSortUp />
+                          ) : (
+                            <FaSortDown />
+                          )
+                        ) : (
+                          <FaSortDown style={{ opacity: 0.3 }} />
+                        )}
+                      </button>
+                    </th>
+                    <th>
+                      Medicamento
+                      <button
+                        onClick={() => ordenarSolicitacoes("medication")}
+                        style={{ marginLeft: 5 }}
+                      >
+                        {sortSolicitacoes.campo === "medication" ? (
+                          sortSolicitacoes.ascendente ? (
+                            <FaSortUp />
+                          ) : (
+                            <FaSortDown />
+                          )
+                        ) : (
+                          <FaSortDown style={{ opacity: 0.3 }} />
+                        )}
+                      </button>
+                    </th>
+                    <th>
+                      Quantidade
+                      <button
+                        onClick={() => ordenarSolicitacoes("quantity")}
+                        style={{ marginLeft: 5 }}
+                      >
+                        {sortSolicitacoes.campo === "quantity" ? (
+                          sortSolicitacoes.ascendente ? (
+                            <FaSortUp />
+                          ) : (
+                            <FaSortDown />
+                          )
+                        ) : (
+                          <FaSortDown style={{ opacity: 0.3 }} />
+                        )}
+                      </button>
+                    </th>
+                    <th>
+                      Data da Solicitação
+                      <button
+                        onClick={() => ordenarSolicitacoes("createdAt")}
+                        style={{ marginLeft: 5 }}
+                      >
+                        {sortSolicitacoes.campo === "createdAt" ? (
+                          sortSolicitacoes.ascendente ? (
+                            <FaSortUp />
+                          ) : (
+                            <FaSortDown />
+                          )
+                        ) : (
+                          <FaSortDown style={{ opacity: 0.3 }} />
+                        )}
+                      </button>
+                    </th>
                     <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pendingMovements.map((mov) => (
+                  {solicitacoesOrdenadas.map((mov) => (
                     <tr key={mov.id}>
                       <td>
                         {tornarMaiusculo(
@@ -845,7 +1012,7 @@ export default function Farmacia() {
                     </tr>
                   </thead>
                   <tbody>
-                    {medicamentosFiltrados.map((med, index) => (
+                    {resultadosOrdenados.map((med, index) => (
                       <tr
                         key={index}
                         onClick={() => {
@@ -1054,18 +1221,53 @@ export default function Farmacia() {
             {movementsFiltrados.length > 0 ? (
               <table className={styles.tabela}>
                 <thead>
-                  <tr>
-                    <th>Requisitado por</th>
-                    <th>Aprovado por</th>
-                    <th>Medicamento</th>
-                    <th>Quantidade</th>
-                    <th>Tipo</th>
-                    <th>Solicitado em</th>
-                    <th>Aprovado em</th>
-                  </tr>
-                </thead>
+  <tr>
+    <th>
+      Requisitado por
+      <button onClick={() => ordenarMovimentacoes('doctor')} style={{ marginLeft: 5 }}>
+        {sortMovimentacoes.campo === 'doctor' ? (sortMovimentacoes.ascendente ? <FaSortUp /> : <FaSortDown />) : <FaSortDown style={{ opacity: 0.3 }} />}
+      </button>
+    </th>
+    <th>
+      Aprovado por
+      <button onClick={() => ordenarMovimentacoes('user')} style={{ marginLeft: 5 }}>
+        {sortMovimentacoes.campo === 'user' ? (sortMovimentacoes.ascendente ? <FaSortUp /> : <FaSortDown />) : <FaSortDown style={{ opacity: 0.3 }} />}
+      </button>
+    </th>
+    <th>
+      Medicamento
+      <button onClick={() => ordenarMovimentacoes('medication')} style={{ marginLeft: 5 }}>
+        {sortMovimentacoes.campo === 'medication' ? (sortMovimentacoes.ascendente ? <FaSortUp /> : <FaSortDown />) : <FaSortDown style={{ opacity: 0.3 }} />}
+      </button>
+    </th>
+    <th>
+      Quantidade
+      <button onClick={() => ordenarMovimentacoes('quantity')} style={{ marginLeft: 5 }}>
+        {sortMovimentacoes.campo === 'quantity' ? (sortMovimentacoes.ascendente ? <FaSortUp /> : <FaSortDown />) : <FaSortDown style={{ opacity: 0.3 }} />}
+      </button>
+    </th>
+    <th>
+      Tipo
+      <button onClick={() => ordenarMovimentacoes('movementType')} style={{ marginLeft: 5 }}>
+        {sortMovimentacoes.campo === 'movementType' ? (sortMovimentacoes.ascendente ? <FaSortUp /> : <FaSortDown />) : <FaSortDown style={{ opacity: 0.3 }} />}
+      </button>
+    </th>
+    <th>
+      Solicitado em
+      <button onClick={() => ordenarMovimentacoes('createdAt')} style={{ marginLeft: 5 }}>
+        {sortMovimentacoes.campo === 'createdAt' ? (sortMovimentacoes.ascendente ? <FaSortUp /> : <FaSortDown />) : <FaSortDown style={{ opacity: 0.3 }} />}
+      </button>
+    </th>
+    <th>
+      Aprovado em
+      <button onClick={() => ordenarMovimentacoes('updatedAt')} style={{ marginLeft: 5 }}>
+        {sortMovimentacoes.campo === 'updatedAt' ? (sortMovimentacoes.ascendente ? <FaSortUp /> : <FaSortDown />) : <FaSortDown style={{ opacity: 0.3 }} />}
+      </button>
+    </th>
+  </tr>
+</thead>
                 <tbody>
-                  {movementsFiltrados.map((mov) => (
+                  {movimentacoesOrdenadas.map((mov) => (
                     <tr key={mov.id}>
                       <td>
                         {tornarMaiusculo(
@@ -1116,11 +1318,12 @@ export default function Farmacia() {
             {toast.title && (
               <Toast.Header closeButton>{toast.title}</Toast.Header>
             )}
-            <Toast.Body style={{ color: 'white', fontWeight: 'bold' }}>{toast.message}</Toast.Body>
+            <Toast.Body style={{ color: "white", fontWeight: "bold" }}>
+              {toast.message}
+            </Toast.Body>
           </Toast>
         ))}
       </ToastContainer>
-
     </>
   );
 }
