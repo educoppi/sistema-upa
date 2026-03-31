@@ -2,29 +2,48 @@
 import { Header } from "@/components/Header";
 import TextField, { TextFieldReception, TextFieldPesquisa } from "@/components/TextField";
 import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Toast, ToastContainer } from "react-bootstrap"; // importações adicionadas
 import axios, { AxiosResponse } from 'axios';
 import style from "./styles.module.css";
-import Swal from 'sweetalert2';
+// import Swal from 'sweetalert2'; // removido
+
+// Interface para os toasts (igual ao padrão usado)
+interface ToastItem {
+  id: number;
+  message: string;
+  variant: string;
+  title?: string;
+}
 
 export default function Reception() {
 
-    const [token, setToken] = useState<string | null>(null);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [usuario, setUsuario] = useState<any>(null);
+  const [token, setToken] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [usuario, setUsuario] = useState<any>(null);
 
-    useEffect(() => {
-        // Só executa no cliente
-        const t = localStorage.getItem('token');
-        const u = localStorage.getItem('usuario');
-        setToken(t);
-        setUsuario(u ? JSON.parse(u) : null);
-    }, []);
+  // Estado para os toasts
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  // Função para adicionar um toast
+  const addToast = (message: string, variant: string = 'success', title: string = '') => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, variant, title }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  };
+
+  useEffect(() => {
+    // Só executa no cliente
+    const t = localStorage.getItem('token');
+    const u = localStorage.getItem('usuario');
+    setToken(t);
+    setUsuario(u ? JSON.parse(u) : null);
+  }, []);
 
   const [pesquisaCPF, setPesquisaCPF] = useState("");
   
   const [atualizaPaciente, setAtualizaPaciente] = useState(false);
-
 
   const [paciente, setPaciente] = useState({
     id: 0,
@@ -53,20 +72,10 @@ export default function Reception() {
         }
       )
         .then(function (response: AxiosResponse) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: 'Paciente enviado para a Triagem com sucesso!',
-            confirmButtonColor: '#3085d6',
-          });
+          addToast('Paciente enviado para a Triagem com sucesso!', 'success', 'Sucesso');
         })
         .catch(function () {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Erro!',
-                  text: 'Erro ao enviar Paciente para a Triagem.',
-                  confirmButtonColor: '#d33',
-                });
+          addToast('Erro ao enviar Paciente para a Triagem.', 'danger', 'Erro');
         });
     } else {
       const pacienteFormatado = {
@@ -75,13 +84,7 @@ export default function Reception() {
       }
   
       if(paciente.name == "" || paciente.lastName == "" || paciente.cpf == "" || paciente.phone == "" || paciente.email == "" || paciente.birthDate == "" ){
-        Swal.fire({
-          icon: 'warning',
-          title: 'Campos obrigatórios',
-          text: 'Preencha os campos obrigatórios antes de cadastrar.',
-          confirmButtonColor: '#3085d6',
-        });
-  
+        addToast('Preencha os campos obrigatórios antes de cadastrar.', 'warning', 'Campos obrigatórios');
         return;
       }
       console.log(paciente)
@@ -94,20 +97,10 @@ export default function Reception() {
         }
       )
         .then(function (response: AxiosResponse) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: 'Paciente enviado para a Triagem com sucesso!',
-            confirmButtonColor: '#3085d6',
-          });
+          addToast('Paciente enviado para a Triagem com sucesso!', 'success', 'Sucesso');
         })
         .catch(function () {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Erro!',
-                  text: 'Erro ao enviar Paciente para a Triagem.',
-                  confirmButtonColor: '#d33',
-                });
+          addToast('Erro ao enviar Paciente para a Triagem.', 'danger', 'Erro');
         });
     }
 
@@ -136,21 +129,11 @@ export default function Reception() {
 
         setAtualizaPaciente(true)
 
-            Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: 'Paciente Buscado com sucesso!',
-            confirmButtonColor: '#3085d6',
-          });
+        addToast('Paciente Buscado com sucesso!', 'success', 'Sucesso');
 
       })
       .catch(function () {
-              Swal.fire({
-                icon: 'error',
-                title: 'Erro!',
-                text: 'Erro ao buscar paciente. CPF Incorreto!',
-                confirmButtonColor: '#d33',
-              });
+        addToast('Erro ao buscar paciente. CPF Incorreto!', 'danger', 'Erro');
       });
   }
 
@@ -183,15 +166,23 @@ export default function Reception() {
 
           <TextFieldReception type="date" label="Data de Nascimento" placeholder="Data de Nascimento" required onChange={birthDate => setPaciente({ ...paciente, birthDate: birthDate })} text={paciente.birthDate ? paciente.birthDate.split('T')[0] : ''} />
 
-
         </div>
 
         <Button className={style.buttonForm} onClick={cadastrar}>Enviar para Triagem</Button>
 
       </div>
 
+      {/* Toast Container - mesmo padrão da outra página */}
+      <ToastContainer position="bottom-end" className="p-3">
+        {toasts.map((toast) => (
+          <Toast key={toast.id} bg={toast.variant} autohide delay={3000}>
 
-
+            <Toast.Body style={{ color: "white", fontWeight: "bold" }}>
+              {toast.message}
+            </Toast.Body>
+          </Toast>
+        ))}
+      </ToastContainer>
 
     </>
   );
