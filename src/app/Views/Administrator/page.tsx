@@ -2,38 +2,27 @@
 import { Header } from "@/components/Header";
 import { TextFieldReception, TextFieldPesquisa } from "@/components/TextField";
 import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Toast, ToastContainer, Modal } from "react-bootstrap"; // adicionados Toast, ToastContainer e Modal
 import axios, { AxiosResponse } from 'axios';
 import style from "./styles.module.css";
-import Swal from 'sweetalert2';
 import { FaTrash } from "react-icons/fa";
-import { SiTabelog } from "react-icons/si";
 import Select from "@/components/Select";
 
+interface ToastItem {
+  id: number;
+  message: string;
+  variant: string;
+  title?: string;
+}
+
 export default function Reception() {
-
   const [token, setToken] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [usuario, setUsuario] = useState<any>(null);
-
-  useEffect(() => {
-    // Só executa no cliente
-    const t = localStorage.getItem('token');
-    const u = localStorage.getItem('usuario');
-    setToken(t);
-    setUsuario(u ? JSON.parse(u) : null);
-  }, []);
-
   const [pesquisaCPF, setPesquisaCPF] = useState("");
-
   const [atualizaUsuario, setAtualizaUsuario] = useState(false);
-
   const [limpaCampos, setLimpaCampos] = useState(false);
-
   const [deletarFuncionario, setDeletarFuncionario] = useState(false);
-
   const [cargo, setCargo] = useState("");
-
   const [funcionario, setFuncionario] = useState({
     id: 0,
     name: '',
@@ -45,12 +34,36 @@ export default function Reception() {
     birthDate: ''
   });
 
+  // --- Estado para toasts ---
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  // Função para adicionar um toast
+  const addToast = (message: string, variant: string = 'success', title: string = '') => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, variant, title }]);
+    // Remove automaticamente após 3 segundos
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  };
+
+  // --- Estado e funções para o Modal de confirmação de exclusão ---
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDeleteConfirm = () => {
+    setShowDeleteModal(false);
+    executarDelete(); // chama a função que faz a requisição de exclusão
+  };
+
+  useEffect(() => {
+    const t = localStorage.getItem('token');
+    const u = localStorage.getItem('usuario');
+    setToken(t);
+    setUsuario(u ? JSON.parse(u) : null);
+  }, []);
+
   function cadastrar() {
-
     if (atualizaUsuario) {
-
-      console.log(funcionario);
-
       axios.put(`https://projeto-integrador-lf6v.onrender.com/users/${funcionario.id}`, funcionario,
         {
           headers: {
@@ -59,21 +72,11 @@ export default function Reception() {
           }
         }
       )
-        .then(function (response: AxiosResponse) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: 'Usuário atualizado com sucesso!',
-            confirmButtonColor: '#3085d6',
-          });
+        .then(function () {
+          addToast('Usuário atualizado com sucesso!', 'success', 'Sucesso');
         })
         .catch(function () {
-          Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: 'Erro ao atualizar Usuário.',
-            confirmButtonColor: '#d33',
-          });
+          addToast('Erro ao atualizar Usuário.', 'danger', 'Erro');
         });
     } else {
       const funcionarioFormatado = {
@@ -83,16 +86,10 @@ export default function Reception() {
       }
 
       if (funcionario.name == "" || funcionario.lastName == "" || funcionario.cpf == "" || funcionario.phone == "" || funcionario.email == "" || funcionario.birthDate == "") {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Campos obrigatórios',
-          text: 'Preencha os campos obrigatórios antes de cadastrar.',
-          confirmButtonColor: '#3085d6',
-        });
-
+        addToast('Preencha os campos obrigatórios antes de cadastrar.', 'warning', 'Campos obrigatórios');
         return;
       }
-      console.log(funcionarioFormatado);
+
       axios.post('https://projeto-integrador-lf6v.onrender.com/users', funcionarioFormatado,
         {
           headers: {
@@ -101,31 +98,18 @@ export default function Reception() {
           }
         }
       )
-        .then(function (response: AxiosResponse) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: 'Funcionário cadastrado com sucesso!',
-            confirmButtonColor: '#3085d6',
-          });
+        .then(function () {
+          addToast('Funcionário cadastrado com sucesso!', 'success', 'Sucesso');
         })
         .catch(function () {
-          Swal.fire({
-            icon: 'error',
-            title: 'Erro!',
-            text: 'Erro ao cadastrar funcionário.',
-            confirmButtonColor: '#d33',
-          });
+          addToast('Erro ao cadastrar funcionário.', 'danger', 'Erro');
         });
     }
-
   }
-
 
   function buscarFuncionario() {
     axios.get(`https://projeto-integrador-lf6v.onrender.com/users/funcionario?cpf=${pesquisaCPF}`)
       .then(function (response: AxiosResponse) {
-
         const dados = Array.isArray(response.data) && response.data.length > 0 ? response.data[0] : null;
         console.log(dados);
 
@@ -140,27 +124,13 @@ export default function Reception() {
           birthDate: dados.birthDate
         });
 
-        setAtualizaUsuario(true)
-
+        setAtualizaUsuario(true);
         setDeletarFuncionario(true);
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Sucesso!',
-          text: 'Funcionário Buscado com sucesso!',
-          confirmButtonColor: '#3085d6',
-        });
-
+        addToast('Funcionário Buscado com sucesso!', 'success', 'Sucesso');
         setLimpaCampos(true);
-
       })
       .catch(function () {
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro!',
-          text: 'Erro ao buscar funcionário. CPF Incorreto!',
-          confirmButtonColor: '#d33',
-        });
+        addToast('Erro ao buscar funcionário. CPF Incorreto!', 'danger', 'Erro');
       });
   }
 
@@ -176,70 +146,42 @@ export default function Reception() {
       birthDate: ''
     });
     setAtualizaUsuario(false);
-
     setPesquisaCPF("");
-
     setLimpaCampos(false);
-
     setDeletarFuncionario(false);
   }
 
-  function deletar() {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-
-      if (!result.isConfirmed) return;
-
-      axios.put(
-        `https://projeto-integrador-lf6v.onrender.com/users/${funcionario.id}`,
-        {
-          situation: "DISABLED"
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          }
+  function executarDelete() {
+    axios.put(
+      `https://projeto-integrador-lf6v.onrender.com/users/${funcionario.id}`,
+      {
+        situation: "DISABLED"
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         }
-      )
-        .then((response) => {
-          Swal.fire({
-            icon: "success",
-            title: "Sucesso!",
-            text: "Funcionário desativado com sucesso!",
-            confirmButtonColor: "#3085d6",
-          });
-
-          limpaCamposPesquisa();
-        })
-        .catch(() => {
-          Swal.fire({
-            icon: "error",
-            title: "Erro!",
-            text: "Erro ao deletar funcionário.",
-            confirmButtonColor: "#d33",
-          });
-        });
-
-    });
+      }
+    )
+      .then(() => {
+        addToast('Funcionário desativado com sucesso!', 'success', 'Sucesso');
+        limpaCamposPesquisa();
+      })
+      .catch(() => {
+        addToast('Erro ao deletar funcionário.', 'danger', 'Erro');
+      });
   }
 
-
-
+  function deletar() {
+    setShowDeleteModal(true);
+  }
 
   return (
     <>
       <Header name={usuario?.name || "Usuário"} />
 
       <div className={style.space}>
-
         <h1>Gerência de Usuários</h1>
 
         <div className={style.pesquisaField}>
@@ -248,21 +190,13 @@ export default function Reception() {
         </div>
 
         <div className={style.container}>
-
           <TextFieldReception type="text" label="Nome" placeholder="Nome" required onChange={name => setFuncionario({ ...funcionario, name: name })} text={funcionario.name} />
-
           <TextFieldReception type="text" label="Sobrenome" placeholder="Sobrenome" required onChange={lastName => setFuncionario({ ...funcionario, lastName: lastName })} text={funcionario.lastName} />
-
           <TextFieldReception type="text" label="CPF" placeholder="CPF" required onChange={cpf => setFuncionario({ ...funcionario, cpf: cpf })} text={funcionario.cpf} />
-
           <TextFieldReception type="text" label="Celular" placeholder="Celular" required onChange={phone => setFuncionario({ ...funcionario, phone: phone })} text={funcionario.phone} />
-
           <TextFieldReception type="text" label="Email" placeholder="Email" required onChange={email => setFuncionario({ ...funcionario, email: email })} text={funcionario.email} />
-
           <TextFieldReception type="date" label="Data de Nascimento" placeholder="Data de Nascimento" required onChange={birthDate => setFuncionario({ ...funcionario, birthDate: birthDate })} text={funcionario.birthDate ? funcionario.birthDate.split('T')[0] : ''} />
-
           <TextFieldReception type="password" label="Senha" placeholder="Senha" required onChange={password => setFuncionario({ ...funcionario, password: password })} text={funcionario.password} />
-
 
           <Select
             label="Cargo"
@@ -279,38 +213,54 @@ export default function Reception() {
             value={cargo}
             onChange={setCargo}
           />
-
         </div>
 
         <div className={style.buttons}>
-
-          {
-            limpaCampos && (
-
-              <>
-                <Button className={style.buttonClear} onClick={limpaCamposPesquisa}> Limpar Campos </Button>
-              </>
-
-            )
-          }
-
+          {limpaCampos && (
+            <Button className={style.buttonClear} onClick={limpaCamposPesquisa}> Limpar Campos </Button>
+          )}
           <Button className={style.buttonForm} onClick={cadastrar}> {atualizaUsuario ? "Atualizar" : "Cadastrar"} </Button>
-
-          {
-            deletarFuncionario && (
-              <>
-                <Button
-                  className={style.deleteButton}
-                  onClick={deletar}
-                  title="Deletar"
-                >
-                  <FaTrash />
-                </Button>
-              </>
-            )
-          }
+          {deletarFuncionario && (
+            <Button
+              className={style.deleteButton}
+              onClick={deletar}
+              title="Deletar"
+            >
+              <FaTrash />
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Toast Container - mesmos estilos da outra página */}
+      <ToastContainer position="bottom-end" className="p-3">
+        {toasts.map((toast) => (
+          <Toast key={toast.id} bg={toast.variant} autohide delay={3000}>
+
+            <Toast.Body style={{ color: "white", fontWeight: "bold" }}>
+              {toast.message}
+            </Toast.Body>
+          </Toast>
+        ))}
+      </ToastContainer>
+
+      {/* Modal de confirmação para exclusão */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar exclusão</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Tem certeza que deseja desativar este funcionário? Essa ação não poderá ser desfeita.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleDeleteConfirm}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
