@@ -2,12 +2,11 @@
 import { Header } from "@/components/Header";
 import TextField, { TextFieldReception, TextFieldPesquisa } from "@/components/TextField";
 import { useEffect, useState } from "react";
-import { Button, Toast, ToastContainer } from "react-bootstrap"; // importações adicionadas
+import { Button, Toast, ToastContainer } from "react-bootstrap"; 
 import axios, { AxiosResponse } from 'axios';
 import style from "./styles.module.css";
-// import Swal from 'sweetalert2'; // removido
 
-// Interface para os toasts (igual ao padrão usado)
+// Interface para os toasts 
 interface ToastItem {
   id: number;
   message: string;

@@ -2,17 +2,37 @@
 import { Header } from "@/components/Header";
 import TextField, { TextFieldAnnotation, TextFieldPesquisa, TextFieldReception } from "@/components/TextField";
 import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Toast, ToastContainer } from "react-bootstrap"; // adicionados Toast e ToastContainer
 import axios, { AxiosResponse } from 'axios';
 import styles from '@/app/Views/Triage/styles.module.css'
 import Select from "@/components/Select";
-import Swal from 'sweetalert2';
+// import Swal from 'sweetalert2'; // removido
+
+// Interface para os toasts (igual ao padrão usado)
+interface ToastItem {
+  id: number;
+  message: string;
+  variant: string;
+  title?: string;
+}
 
 export default function Triage() {
 
     const [token, setToken] = useState<string | null>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [usuario, setUsuario] = useState<any>(null);
+
+    // Estado para os toasts
+    const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+    // Função para adicionar um toast
+    const addToast = (message: string, variant: string = 'success', title: string = '') => {
+        const id = Date.now();
+        setToasts((prev) => [...prev, { id, message, variant, title }]);
+        setTimeout(() => {
+            setToasts((prev) => prev.filter((t) => t.id !== id));
+        }, 3000);
+    };
 
     useEffect(() => {
         // Só executa no cliente
@@ -82,20 +102,10 @@ export default function Triage() {
             }
         })
             .then(response => {
-                        Swal.fire({
-                          icon: 'success',
-                          title: 'Sucesso!',
-                          text: 'Paciente classificado com sucesso!',
-                          confirmButtonColor: '#3085d6',
-                        });
+                addToast('Paciente classificado com sucesso!', 'success', 'Sucesso');
             })
             .catch(error => {
-                              Swal.fire({
-                                icon: 'error',
-                                title: 'Erro!',
-                                text: 'Erro ao classificar Paciente.',
-                                confirmButtonColor: '#d33',
-                              });
+                addToast('Erro ao classificar Paciente.', 'danger', 'Erro');
             });
 
         if (paciente.allergy) {
@@ -181,6 +191,16 @@ export default function Triage() {
                 )
             }
 
+            {/* Toast Container - mesmo padrão da outra página */}
+            <ToastContainer position="bottom-end" className="p-3">
+                {toasts.map((toast) => (
+                    <Toast key={toast.id} bg={toast.variant} autohide delay={3000}>
+                        <Toast.Body style={{ color: "white", fontWeight: "bold" }}>
+                            {toast.message}
+                        </Toast.Body>
+                    </Toast>
+                ))}
+            </ToastContainer>
 
         </>
     );
