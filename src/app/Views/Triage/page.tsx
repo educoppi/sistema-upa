@@ -191,7 +191,6 @@ export default function Triage() {
                 )
             }
 
-            {/* Toast Container - mesmo padrão da outra página */}
             <ToastContainer position="bottom-end" className="p-3">
                 {toasts.map((toast) => (
                     <Toast key={toast.id} bg={toast.variant} autohide delay={3000}>
