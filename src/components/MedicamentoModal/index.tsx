@@ -88,7 +88,7 @@ export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Pr
     return (
         <div className={styles.overlay}>
             <div className={styles.modal}>
-                <h2>EDITAR</h2>
+                <h2>EDITAR MEDICAMENTO</h2>
                 <div className={styles.container}>
                     <TextField type="text" placeholder="Nome:" text={name} onChange={setName} />
                     <TextField type="text" placeholder="Dosagem:" text={dosage} onChange={setDosage} />
@@ -118,7 +118,6 @@ export default function MedicamentoModal({ onClose, onConfirm, medicamento }: Pr
                       onChange={(value) => setQuantity(Number(value))}
                     />
                 </div>
-                <p>Deseja confirmar esta ação?</p>
                 <div className={styles.actions}>
                     <Button className={styles.button} onClick={handleSave}>SALVAR</Button>
                     <Button className={styles.button} onClick={onClose}>CANCELAR</Button>
