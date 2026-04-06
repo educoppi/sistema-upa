@@ -1094,6 +1094,7 @@ export default function Farmacia() {
                 onConfirm={() => {
                   buscarMedicamentos(buscarMedicamento);
                 }}
+                onShowToast={addToast}
               />
             )}
           </>
