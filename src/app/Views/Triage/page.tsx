@@ -193,9 +193,9 @@ function pesquisar() {
 
                                 < TextFieldReception type="text" label="Medicamento de Uso Contínuo:" placeholder="Medicamento de Uso Contínuo" onChange={setRecentMedicine} text={recentMedicine} />
 
-                                < TextFieldReception type="text" label="Alergia:" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
+                                < TextFieldReception type="text" label="Alergias:" placeholder="Alergias" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
 
-                                < TextFieldAnnotation type="text" label="Anotação:" placeholder="Anotação" onChange={setAnnotationTriage} text={annotationTriage} />
+                                < TextFieldAnnotation type="text" label="Anotações:" placeholder="Anotações" onChange={setAnnotationTriage} text={annotationTriage} />
 
                             </div>
                                 <Button className={styles.buttonForm} onClick={classificar}>Classificar</Button>
