@@ -1238,7 +1238,7 @@ export default function Farmacia() {
                     </tbody>
                   </table>
                 ) : (
-                  <div>Nenhum medicamento com estoque baixo encontrado.</div>
+                  <div className={styles.noResults}>Nenhum medicamento com estoque baixo encontrado.</div>
                 )}
               </div>
 
@@ -1511,7 +1511,7 @@ export default function Farmacia() {
                   </tbody>
                 </table>
               ) : (
-                <div>Nenhum movimento encontrado com os filtros aplicados.</div>
+                <div className={styles.noResults}>Nenhum movimento encontrado com os filtros aplicados.</div>
               )}
             </div>
           </div>
