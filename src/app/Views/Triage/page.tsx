@@ -179,11 +179,11 @@ function pesquisar() {
                                     placeholder="Selecione um nível"
                                     campo="Nível"
                                     options={[
-                                        { value: '5', label: 'Prioridade Máxima' },
-                                        { value: '4', label: 'Prioridade Alta' },
-                                        { value: '3', label: 'Prioridade Média' },
-                                        { value: '2', label: 'Prioridade Baixa' },
-                                        { value: '1', label: 'Prioridade Mínima' },
+                                        { value: '5', label: '🔴 Prioridade Máxima' },
+                                        { value: '4', label: '🟠 Prioridade Alta' },
+                                        { value: '3', label: '🟡 Prioridade Média' },
+                                        { value: '2', label: '🟢 Prioridade Baixa' },
+                                        { value: '1', label: '🔵 Prioridade Mínima' },
                                     ]}
                                     value={level}
                                     onChange={setLevel}
