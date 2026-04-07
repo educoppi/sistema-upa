@@ -107,32 +107,38 @@ export default function Reception() {
     }
   }
 
-  function buscarFuncionario() {
-    axios.get(`https://projeto-integrador-lf6v.onrender.com/users/funcionario?cpf=${pesquisaCPF}`)
-      .then(function (response: AxiosResponse) {
-        const dados = Array.isArray(response.data) && response.data.length > 0 ? response.data[0] : null;
-        console.log(dados);
+function buscarFuncionario() {
+  axios.get(`https://projeto-integrador-lf6v.onrender.com/users/funcionario?cpf=${pesquisaCPF}`)
+    .then(function (response: AxiosResponse) {
+      const dados = Array.isArray(response.data) && response.data.length > 0 ? response.data[0] : null;
 
-        setFuncionario({
-          id: dados.id,
-          name: dados.name,
-          lastName: dados.lastName,
-          password: dados.password,
-          cpf: dados.cpf,
-          phone: dados.phone,
-          email: dados.email,
-          birthDate: dados.birthDate
-        });
 
-        setAtualizaUsuario(true);
-        setDeletarFuncionario(true);
-        addToast('Funcionário Buscado com sucesso!', 'success', 'Sucesso');
-        setLimpaCampos(true);
-      })
-      .catch(function () {
-        addToast('Erro ao buscar funcionário. CPF Incorreto!', 'danger', 'Erro');
+      if (!dados) {
+        addToast('CPF não encontrado. Verifique o número digitado.', 'danger', 'Erro');
+        limpaCamposPesquisa(); 
+        return;
+      }
+
+      setFuncionario({
+        id: dados.id,
+        name: dados.name,
+        lastName: dados.lastName,
+        password: dados.password,
+        cpf: dados.cpf,
+        phone: dados.phone,
+        email: dados.email,
+        birthDate: dados.birthDate
       });
-  }
+
+      setAtualizaUsuario(true);
+      setDeletarFuncionario(true);
+      addToast('Funcionário encontrado!', 'success', 'Sucesso');
+      setLimpaCampos(true);
+    })
+    .catch(function () {
+      addToast('Erro ao buscar funcionário. Verifique sua conexão ou tente novamente.', 'danger', 'Erro');
+    });
+}
 
   function limpaCamposPesquisa() {
     setFuncionario({

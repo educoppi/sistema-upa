@@ -157,7 +157,7 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
 
         <div className={styles.infoLinha}>
           <div><strong>Alergias:</strong> {patient.allergy ?? "-"}</div>
-          <div><strong>Remédio controlado:</strong> {patient.recentMedicine ?? "-"}</div>
+          <div><strong>Medicamentos de Uso Contínuo:</strong> {patient.recentMedicine ?? "-"}</div>
         </div>
       </div>
 

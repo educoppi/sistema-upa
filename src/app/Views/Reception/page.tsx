@@ -128,7 +128,7 @@ export default function Reception() {
 
         setAtualizaPaciente(true)
 
-        addToast('Paciente Buscado com sucesso!', 'success', 'Sucesso');
+        addToast('Paciente encontrado!', 'success', 'Sucesso');
 
       })
       .catch(function () {

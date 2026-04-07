@@ -57,27 +57,41 @@ export default function Triage() {
 
     const [telaCadastro, setTelaCadastro] = useState(false);
 
-    function pesquisar() {
-        axios.get(`https://projeto-integrador-lf6v.onrender.com/users?cpf=${cpf}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                setPaciente({
-                    id: response.data[0].id,
-                    name: response.data[0].name,
-                    lastName: response.data[0].lastName,
-                    cpf: response.data[0].cpf,
-                    phone: response.data[0].phone,
-                    email: response.data[0].email,
-                    allergy: response.data[0].allergy,
-                    birthDate: response.data[0].birthDate
-                })
-                setTelaCadastro(true)
-            })
-    }
+function pesquisar() {
+    axios.get(`https://projeto-integrador-lf6v.onrender.com/users?cpf=${cpf}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        // Verifica se a resposta contém um array não vazio
+        const dados = response.data;
+        if (!Array.isArray(dados) || dados.length === 0) {
+            addToast('CPF não encontrado. Verifique o número digitado.', 'danger', 'Erro');
+            setTelaCadastro(false);  // Garante que o formulário não seja exibido
+            return;
+        }
+
+        const pacienteEncontrado = dados[0];
+        setPaciente({
+            id: pacienteEncontrado.id,
+            name: pacienteEncontrado.name,
+            lastName: pacienteEncontrado.lastName,
+            cpf: pacienteEncontrado.cpf,
+            phone: pacienteEncontrado.phone,
+            email: pacienteEncontrado.email,
+            allergy: pacienteEncontrado.allergy || '', // Caso não exista, usa string vazia
+            birthDate: pacienteEncontrado.birthDate
+        });
+        setTelaCadastro(true);
+        addToast('Paciente encontrado com sucesso!', 'success', 'Sucesso');
+    })
+    .catch(error => {
+        addToast('Erro ao buscar paciente. Verifique sua conexão ou tente novamente.', 'danger', 'Erro');
+        setTelaCadastro(false);
+    });
+}
 
     const [level, setLevel] = useState("");
 
@@ -177,7 +191,7 @@ export default function Triage() {
 
                                 < TextFieldReception type="text" label="Sintomas:" placeholder="Sintomas" onChange={setSymptom} text={symptom} />
 
-                                < TextFieldReception type="text" label="Medicamento Controlado:" placeholder="Medicamento Controlado" onChange={setRecentMedicine} text={recentMedicine} />
+                                < TextFieldReception type="text" label="Medicamento de Uso Contínuo:" placeholder="Medicamento de Uso Contínuo" onChange={setRecentMedicine} text={recentMedicine} />
 
                                 < TextFieldReception type="text" label="Alergia:" onChange={allergy => setPaciente({ ...paciente, allergy: allergy })} text={paciente.allergy} />
 
