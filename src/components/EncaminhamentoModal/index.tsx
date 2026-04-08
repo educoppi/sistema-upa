@@ -1,13 +1,15 @@
 "use client";
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 import styles from "./styles.module.css";
 import medicationService from "@/services/medication";
-import movementService from "@/services/movement";
 import Medication from "@/models/Medication";
 import axios, { AxiosResponse } from "axios";
 import Movement from "@/models/Movement";
 import { header } from "framer-motion/client";
 
+
+const token = localStorage.getItem('token');
 
 interface Medicamento extends Medication {
   qtd: number;
@@ -49,10 +51,15 @@ export default function EncaminhamentoModal({
     }
   }
 
-  function adicionarMedicamento(med: Medication) {
+  async function adicionarMedicamento(med: Medication) {
     const jaExiste = medicamentos.find((m) => m.id === med.id);
     if (jaExiste) {
-      alert("Esse medicamento já foi adicionado.");
+      await Swal.fire({
+        icon: "warning",
+        title: "Medicamento duplicado",
+        text: "Esse medicamento já foi adicionado.",
+        confirmButtonColor: "#009688",
+      });
       return;
     }
 
@@ -76,41 +83,43 @@ export default function EncaminhamentoModal({
 
   async function handleSalvar() {
     if (!descricao.trim()) {
-      alert("Por favor, insira uma descrição.");
+      await Swal.fire({
+        icon: "error",
+        title: "Descrição obrigatória",
+        text: "Por favor, insira uma descrição.",
+        confirmButtonColor: "#d33",
+      });
       return;
     }
 
     if (medicamentos.length === 0) {
-      alert("Adicione pelo menos um medicamento.");
+      await Swal.fire({
+        icon: "error",
+        title: "Nenhum medicamento",
+        text: "Adicione pelo menos um medicamento.",
+        confirmButtonColor: "#d33",
+      });
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
       for (const med of medicamentos) {
-        await axios
-          .post(
-            "https://projeto-integrador-lf6v.onrender.com/movements",
-            {
-              medicationId: med.id,
-              quantity: med.qtd,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            },
-          )
-          .then((response) => {
+        await axios.post('https://projeto-integrador-lf6v.onrender.com/movements', {
+          medicationId: med.id,
+          quantity: med.qtd
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => {
             console.log(response.data);
           })
-          .catch((error) => {
-            console.error(
-              "Erro ao criar movimentação:",
-              error.response ? error.response.data : error.message,
-            );
-          });
+          .catch(error => {
+            console.error('Erro ao criar movimentação:', error.response ? error.response.data : error.message);
+          })
       }
 
       const medicamentosTexto = medicamentos
@@ -118,11 +127,23 @@ export default function EncaminhamentoModal({
         .join(", ");
 
       onSave({ descricao, medicamentos: medicamentosTexto });
-      alert("Solicitação enviada para a farmácia com sucesso!");
+
+      await Swal.fire({
+        icon: "success",
+        title: "Solicitação enviada!",
+        text: "Solicitação enviada para a farmácia com sucesso!",
+        confirmButtonColor: "#009688",
+      });
+
       onClose();
     } catch (error) {
       console.error("Erro ao salvar encaminhamento:", error);
-      alert("Erro ao enviar solicitação à farmácia.");
+      await Swal.fire({
+        icon: "error",
+        title: "Erro ao enviar",
+        text: "Erro ao enviar solicitação à farmácia.",
+        confirmButtonColor: "#d33",
+      });
     }
   }
 

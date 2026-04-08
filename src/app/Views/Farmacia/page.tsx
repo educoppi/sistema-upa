@@ -514,6 +514,82 @@ export default function Farmacia() {
     return `${dia}${mes}${ano}`;
   };
 
+  const gerarPDFBusca = async () => {
+    if (resultadosOrdenados.length === 0) {
+      addToast("Nenhum medicamento encontrado para gerar o relatório.", "info");
+      return;
+    }
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+    const logoMaxWidth = 20;
+
+    const logoBase64 = await getImageBase64("/images/logo2.png");
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = logoBase64;
+    });
+
+    const aspectRatio = img.width / img.height;
+    const logoWidth = logoMaxWidth;
+    const logoHeight = logoMaxWidth / aspectRatio;
+
+    const body = resultadosOrdenados.map((med) => [
+      tornarMaiusculo(med.name),
+      med.dosage,
+      tornarMaiusculo(med.type),
+      med.quantity.toString(),
+      new Date(med.expiresAt).toLocaleDateString("pt-BR"),
+    ]);
+
+    autoTable(doc, {
+      head: [["Nome", "Dosagem", "Tipo", "Quantidade", "Vencimento"]],
+      body: body,
+      startY: 5 + logoHeight + 15,
+      margin: { top: 40 },
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [0, 123, 255] }, // cor azul para combinar com a aba
+      didDrawPage: (data) => {
+        try {
+          doc.addImage(logoBase64, "PNG", margin, 5, logoWidth, logoHeight);
+        } catch (e) {
+          console.warn("Erro ao adicionar logo:", e);
+        }
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.setTextColor(40, 40, 40);
+        doc.text(
+          "RELATÓRIO DE MEDICAMENTOS",
+          pageWidth / 2,
+          5 + logoHeight / 2,
+          {
+            align: "center",
+          },
+        );
+
+        doc.setDrawColor(0, 123, 255);
+        doc.setLineWidth(0.5);
+        doc.line(
+          margin,
+          5 + logoHeight + 5,
+          pageWidth - margin,
+          5 + logoHeight + 5,
+        );
+
+        const dataGeracao = `Relatório gerado em: ${obterDataAtualFormatada()}`;
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(dataGeracao, margin, doc.internal.pageSize.getHeight() - 10);
+      },
+    });
+
+    const dataStr = obterDataDDMMAAAA();
+    doc.save(`medicamentos_${dataStr}.pdf`);
+  };
+
   const gerarPDFEstoqueBaixo = async () => {
     if (estoqueBaixo.length === 0 && vencendo.length === 0) {
       addToast(
@@ -976,6 +1052,13 @@ export default function Farmacia() {
               >
                 ATUALIZAR
               </Button>
+
+              <Button
+                style={{ borderRadius: "5px" }}
+                onClick={gerarPDFBusca}
+              >
+                GERAR RELATÓRIO
+              </Button>
             </div>
 
             {medicamentosFiltrados.length > 0 ? (
@@ -1094,6 +1177,7 @@ export default function Farmacia() {
                 onConfirm={() => {
                   buscarMedicamentos(buscarMedicamento);
                 }}
+                onShowToast={addToast}
               />
             )}
           </>
@@ -1106,7 +1190,7 @@ export default function Farmacia() {
                 ATUALIZAR
               </Button>
               <Button
-                style={{ borderRadius: "5px", marginLeft: "10px" }}
+                style={{ borderRadius: "5px"}}
                 onClick={gerarPDFEstoqueBaixo}
               >
                 GERAR RELATÓRIO
@@ -1154,7 +1238,7 @@ export default function Farmacia() {
                     </tbody>
                   </table>
                 ) : (
-                  <div>Nenhum medicamento com estoque baixo encontrado.</div>
+                  <div className={styles.noResults}>Nenhum medicamento com estoque baixo encontrado.</div>
                 )}
               </div>
 
@@ -1254,7 +1338,7 @@ export default function Farmacia() {
             </Button>
 
             <Button
-              style={{ borderRadius: "5px", marginLeft: "10px" }}
+              style={{ borderRadius: "5px"}}
               onClick={gerarPDFMovimentacoes}
             >
               GERAR RELATÓRIO
@@ -1427,7 +1511,7 @@ export default function Farmacia() {
                   </tbody>
                 </table>
               ) : (
-                <div>Nenhum movimento encontrado com os filtros aplicados.</div>
+                <div className={styles.noResults}>Nenhum movimento encontrado com os filtros aplicados.</div>
               )}
             </div>
           </div>
