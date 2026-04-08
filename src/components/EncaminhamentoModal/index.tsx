@@ -4,12 +4,10 @@ import styles from "./styles.module.css";
 import medicationService from "@/services/medication";
 import movementService from "@/services/movement";
 import Medication from "@/models/Medication";
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from "axios";
 import Movement from "@/models/Movement";
 import { header } from "framer-motion/client";
 
-
-const token = localStorage.getItem('token');
 
 interface Medicamento extends Medication {
   qtd: number;
@@ -87,25 +85,32 @@ export default function EncaminhamentoModal({
       return;
     }
 
-
-
     try {
+      const token = localStorage.getItem('token');
       for (const med of medicamentos) {
-        await axios.post('https://projeto-integrador-lf6v.onrender.com/movements', {
-          medicationId: med.id,
-          quantity: med.qtd
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        })
-          .then(response => {
+        await axios
+          .post(
+            "https://projeto-integrador-lf6v.onrender.com/movements",
+            {
+              medicationId: med.id,
+              quantity: med.qtd,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            },
+          )
+          .then((response) => {
             console.log(response.data);
           })
-          .catch(error => {
-            console.error('Erro ao criar movimentação:', error.response ? error.response.data : error.message);
-          })
+          .catch((error) => {
+            console.error(
+              "Erro ao criar movimentação:",
+              error.response ? error.response.data : error.message,
+            );
+          });
       }
 
       const medicamentosTexto = medicamentos
@@ -204,7 +209,10 @@ export default function EncaminhamentoModal({
                           type="number"
                           value={med.qtd}
                           onChange={(e) =>
-                            atualizarQuantidade(i, parseInt(e.target.value) || 1)
+                            atualizarQuantidade(
+                              i,
+                              parseInt(e.target.value) || 1,
+                            )
                           }
                           min="1"
                         />

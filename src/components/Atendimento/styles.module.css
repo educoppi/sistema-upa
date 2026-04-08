@@ -140,7 +140,10 @@
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
 }
-
+.alergiaTexto {
+  color: #d32f2f;
+  font-weight: 900;
+}
 .botaoFinalizar:hover {
   background: #00796b;
   transform: scale(1.05);

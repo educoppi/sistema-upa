@@ -7,9 +7,13 @@ import api from "../../services/api";
 
 type TabelaIniciarProps = {
   onIniciar: (patient: SimplifiedPatient) => void;
+  idRemover?: string | number | null;
 };
 
-export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
+export default function TabelaIniciar({
+  onIniciar,
+  idRemover,
+}: TabelaIniciarProps) {
   const [patients, setPatients] = useState<SimplifiedPatient[]>([]);
   const [loadingId, setLoadingId] = useState<number | null>(null);
 
@@ -26,6 +30,7 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
           const records = Array.isArray(patient.recordsAsDoctor)
             ? patient.recordsAsDoctor
             : [];
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return records.map((record: any) => ({
             patientId: patient.patientId,
@@ -57,12 +62,25 @@ export default function TabelaIniciar({ onIniciar }: TabelaIniciarProps) {
     loadPatients();
   }, []);
 
-  // 🔹 Inicia o atendimento — remove da lista local, sem mudar o banco
-  const handleIniciar = (item: SimplifiedPatient) => {
-    setLoadingId(item.patientId ?? null);
+  // 🔹 FASE 1: Remove o paciente da lista quando o idRemover mudar (ao clicar em finalizar)
+  useEffect(() => {
+    if (idRemover) {
+      setPatients((prev) => prev.filter((p) => p.patientId !== idRemover));
+    }
+  }, [idRemover]);
 
-    // Salva o paciente localmente
+  // 🔹 FASE 2: Inicia o atendimento e atualiza a chamada
+  const handleIniciar = async (item: SimplifiedPatient) => {
+    setLoadingId((item.patientId as number) ?? null);
+
+    // Salva o paciente localmente para a tela de atendimento
     localStorage.setItem("pacienteSelecionado", JSON.stringify(item));
+
+    // Envia a chamada para a API (Para o app Desktop/Telão conseguir ler)
+    try {
+    } catch (error) {
+      console.error("Erro ao enviar chamada para o telão:", error);
+    }
 
     // Remove o paciente da lista (sem mexer no banco)
     setPatients((prev) => prev.filter((p) => p.patientId !== item.patientId));

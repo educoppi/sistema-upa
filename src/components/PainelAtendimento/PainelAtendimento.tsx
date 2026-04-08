@@ -5,20 +5,20 @@ import Atendimento from "../Atendimento";
 
 export default function PainelAtendimento() {
   const [pacienteSelecionado, setPacienteSelecionado] = useState<SimplifiedPatient | null>(null);
+  const [idRemover, setIdRemover] = useState<number | string | null>(null);
 
   function handleIniciar(patient: SimplifiedPatient) {
-    console.log("Paciente selecionado:", patient);
     setPacienteSelecionado(patient);
   }
 
-  function handleFinalizar() {
+  function handleFinalizar(patientId: string | number) {
     setPacienteSelecionado(null);
-    // Atualizar lista ou estado se necessário
+    setIdRemover(patientId); // Avisa a tabela qual ID deve sumir
   }
 
   return (
     <>
-      <TabelaIniciar onIniciar={handleIniciar} />
+      <TabelaIniciar onIniciar={handleIniciar} idRemover={idRemover} />
       <Atendimento onFinalizar={handleFinalizar} />
     </>
   );

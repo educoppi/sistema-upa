@@ -33,7 +33,7 @@ type EncaminhamentoType = {
 };
 
 type AtendimentoProps = {
-  onFinalizar?: (updatedPatients: string) => void;
+  onFinalizar?: (patientId: string | number) => void;
 };
 
 export default function Atendimento({ onFinalizar }: AtendimentoProps) {
@@ -45,7 +45,6 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
   const [showEncaminhamentoModal, setShowEncaminhamentoModal] = useState(false);
   const [detalhesEncaminhamento, setDetalhesEncaminhamento] = useState<EncaminhamentoType | null>(null);
 
-  // estados para o TituloMinimizavel (abre/fecha)
   const [openReceita, setOpenReceita] = useState<boolean>(true);
   const [openEncaminhamento, setOpenEncaminhamento] = useState<boolean>(true);
 
@@ -56,14 +55,12 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
         const parsed = JSON.parse(saved) as SimplifiedPatient;
         setPatient(parsed);
         setAnotacoes(parsed.annotationTriage ?? "");
-        // não buscamos receitas/encaminhamentos do server aqui
       } catch (e) {
         console.error("Erro ao parsear pacienteSelecionado:", e);
       }
     }
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function postRecordToServer(extra: { receitas?: any[]; encaminhamentos?: any[] } = {}) {
     if (!patient?.patientId && !patient?.id) return;
 
@@ -126,13 +123,27 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
   async function finalizarAtendimento() {
     await postRecordToServer();
 
-    
+    const patientId = patient?.patientId ?? patient?.id;
+
+    if (patientId) {
+      try {
+        await api.patch(`/users/${patientId}`, { situation: "Atendido" });
+      } catch (err) {
+        console.error("Erro ao atualizar status do paciente:", err);
+      }
+    }
+
     localStorage.removeItem("pacienteSelecionado");
     setPatient(null);
     setAnotacoes("");
     setReceitas([]);
     setEncaminhamentos([]);
-    if (onFinalizar) onFinalizar('');
+    
+    // 🔹 FASE 1: Passa o patientId para o PainelAtendimento saber quem remover da tabela
+    if (onFinalizar && patientId) {
+      onFinalizar(patientId);
+    }
+    
     alert("Atendimento finalizado e salvo.");
   }
 
@@ -156,12 +167,14 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
         </div>
 
         <div className={styles.infoLinha}>
-          <div><strong>Alergias:</strong> {patient.allergy ?? "-"}</div>
+          <div>
+            <strong>Alergias:</strong>{" "}
+            <span className={styles.alergiaTexto}>{patient.allergy ?? "-"}</span>
+          </div>
           <div><strong>Remédio controlado:</strong> {patient.recentMedicine ?? "-"}</div>
         </div>
       </div>
 
-      {/* Campo de anotações (FIXO) */}
       <h3 className={styles.subtitulo}>Anotações Médicas</h3>
       <SegmentoCard className={styles.card}>
         <textarea
@@ -172,7 +185,6 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
         />
       </SegmentoCard>
 
-      {/* RECEITA - minimizável */}
       <TituloMinimizavel title="Receita" isOpen={openReceita} onAlterna={() => setOpenReceita(!openReceita)}>
         <SegmentoCard className={styles.card}>
           {receitas.length === 0 ? (
@@ -200,7 +212,6 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
         </SegmentoCard>
       </TituloMinimizavel>
 
-      {/* ENCAMINHAMENTO - minimizável */}
       <TituloMinimizavel title="Encaminhamento" isOpen={openEncaminhamento} onAlterna={() => setOpenEncaminhamento(!openEncaminhamento)}>
         <SegmentoCard className={styles.card}>
           {encaminhamentos.length === 0 ? (
@@ -231,7 +242,6 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
         </SegmentoCard>
       </TituloMinimizavel>
 
-      {/* Modal de detalhes do encaminhamento */}
       {detalhesEncaminhamento && (
         <div className={styles.modalOverlay} onClick={() => setDetalhesEncaminhamento(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -250,7 +260,6 @@ export default function Atendimento({ onFinalizar }: AtendimentoProps) {
         <Button onClick={finalizarAtendimento} style={{ borderRadius: 12 }}>FINALIZAR</Button>
       </div>
 
-      {/* MODAIS */}
       {showPrescriptionModal && (
         <PrescriptionModal
           onClose={() => setShowPrescriptionModal(false)}
